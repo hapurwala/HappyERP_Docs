@@ -1,4 +1,4 @@
-# Happy ERP Purchase Module Detailed
+# Happy ERP Purchase Application Detailed
 
 # Workflow Engine
 

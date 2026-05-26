@@ -32,19 +32,20 @@ A separate environment will be created for each client. Separate GCP, separate A
 
 # Applications
 
-**HappyERP** contains several applications. Normally every application performs tasks related to one particular department of an organisation. Main modules are:
+**HappyERP** contains several applications. Normally every application performs tasks related to one particular department of an organisation. These applications are further divided in modules. Main application and modules are given hereunder.
 
-| S.No. | Application     | Short Name | Modules                                                      | Description                            |
-| ----- | --------------- | ---------- | ------------------------------------------------------------ | -------------------------------------- |
-| 1     | Masters         | MAS        | `PRD`: Product Master<br />`PARTY`: Party Master<br />`EMP`: Employee Master | Maintains all masters of the software  |
-| 2     | Sales           | SAL        | `SO` : Sales Order<br />`SINV`: Sales Invoice<br />`SRET`: Sales Return<br />`SIREV`: Sales Invoice Revision | Maintains Sales related operations     |
-| 3     | Purchase        | PUR        | `PO` : Purchase Module<br />`PINV`: Purchase Invoice<br />`PRET`: Purchase Return<br />`PIREV`: Purchase Invoice Revision | Maintains Purchase related operations  |
-| 4     | Inventory       | INV        | `GRN`: Material Receive<br />`DISP`: Dispatch Module<br />`TRF`: Stock Transfer<br />`MIMO`: Material In, Material Out | Maintains Inventory related operations |
-| 5     | Accounts        | ACCT       | `RPAY`: Receive Payment<br />`MPAY`: Make Payment<br />`DNOTE`: Debit Note<br />`CNOTE`: Credit Note<br />`VCH`: Vouchers |                                        |
-| 6     | Production      | PROD       |                                                              |                                        |
-| 7     | Sub Contracting | SUB        |                                                              |                                        |
-| 8     | Budgeting       | BUDG       |                                                              |                                        |
-| 9     | Dashboard/MIS   | MIS        |                                                              |                                        |
+| S.No. | Application            | Short Name | Modules                                                      | Description                                                  |
+| ----- | ---------------------- | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 1     | Masters                | MAS        | `PRD`: Product Master<br />`PARTY`: Party Master<br />`EMP`: Employee Master | Maintains all masters of the software                        |
+| 2     | Sales                  | SAL        | `SO` : Sales Order<br />`SINV`: Sales Invoice<br />`SRET`: Sales Return<br />`SIREV`: Sales Invoice Revision | Maintains Sales related operations                           |
+| 3     | Purchase               | PUR        | `PO` : Purchase Order<br />`PINV`: Purchase Invoice<br />`PRET`: Purchase Return<br />`PIREV`: Purchase Invoice Revision | Maintains Purchase related operations                        |
+| 4     | Inventory              | INV        | `GRN`: Material Receive<br />`DISP`: Dispatch Module<br />`TRF`: Stock Transfer<br />`MIMO`: Material In, Material Out | Maintains Inventory related operations                       |
+| 5     | Accounts               | ACCT       | `RPAY`: Receive Payment<br />`MPAY`: Make Payment<br />`PADJ`: Payment Adjust<br />`DNOTE`: Debit Note<br />`CNOTE`: Credit Note<br />`VCH`: Vouchers |                                                              |
+| 6     | Production             | PROD       |                                                              |                                                              |
+| 7     | Sub Contracting        | SUB        |                                                              |                                                              |
+| 8     | Budgeting              | BUDG       |                                                              |                                                              |
+| 9     | Dashboard/MIS          | MIS        |                                                              |                                                              |
+| 10    | Settings/Configuration | CFG        | `ORG`: Business<br />`USER`: User Management<br />`CFG`: Configuration | Maintains Business Settings:<br /> - Organisations <br />- Users<br />- Configurations |
 
 Although the software will be developed using generic approach but it would serve following industries in the beginning:
 
@@ -130,11 +131,11 @@ Following is the list of validations that will be applicable on all pages in the
 
   * Provision of multiple Notes
 
-* 
+* Delete will soft delete the data. No data is deleted permanently form the database.
 
 ## Design Documents
 
-Complete design details of the software will be maintained in the `.md` files. The main reason is that AI understands, reads and writes the `.md` files very easily. **HappyERP** is big project so its design document will also be very big. To maintain the information properly, it is suggested to keep complete details in different files. To maintain all information in correct files, it is important to define how the information will be kept in different files, how the files will be named and grouped. This document provide such information.
+Complete design details of the software will be maintained in the `.md` files. The main reason is that AI understands, reads and writes the `.md` files very easily. **HappyERP** is big project so its design document will also be very big. To maintain the information properly, it is suggested to keep complete details in different files. To maintain all information in correct files, it is important to define how the information will be kept in different files, how the files will be named and grouped. This section provides such information.
 
 > [!NOTE]
 >
@@ -146,11 +147,12 @@ Complete design details of the software will be maintained in the `.md` files. T
 All `.md` files will be named as : `ERP-<Type>-<App>-<Mod>-<Topic>.md`, where
 
 - ERP stands for **HappyERP**
-- *Type* indicates the Type of document:
-  - `Info`: This document contains information about that module or some general purpose
-  - `DES`: This document contains design related information of the module and its features
-  - `UI`: This document contains UI details of the module and its features
-  - `DB`: This document contains DB details like schema, indexes, triggers etc.
-- *App* is the short name of the application e.g. `PUR` for Purchase. If any file is related to multiple applications or all application, use the code `GEN`.
-- *Mod (optional)* is the short name of the module under any application. If the file contains information for more than one modules of an Application then this part may be omitted from the filename.
-- *Topic (optional)* indicates additional information about the content of this file.
+- ***Type*** indicates the Type of document:
+  - `Info`: This document contains **information** about that module or some general purpose
+  - `DES`: This document contains **design** related information of the module and its features
+  - `UI`: This document contains **UI** details of the module and its features
+  - `DB`: This document contains **DB** details like schema, indexes, triggers etc.
+  - `MD`: This document contains **meta data** that is shipped in-built with the software.
+- ***App*** is the short name of the application e.g. `PUR` for Purchase. If any file is related to multiple applications or all application, use the code `GEN`.
+- ***Mod** (optional)* is the short name of the module under any application. If the file contains information for more than one modules of an Application then this part may be omitted from the filename.
+- ***Topic** (optional)* indicates additional information about the content of this file.
