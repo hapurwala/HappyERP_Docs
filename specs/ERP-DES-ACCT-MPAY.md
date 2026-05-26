@@ -41,16 +41,16 @@
 
 # Vendor Payment Workflow Stages
 
-| Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles |
-| :---- | :---- | :---- | :---- | :---- | :---- | :---- |
-| Draft | Initial payment entry stage | User | Yes | Yes | Yes | Accounts Executive, Accounts Manager, Finance Head, System Admin |
-| Submitted | Submitted for approval | User | Yes | No | Yes | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin |
-| Approved | Approved for payment execution | User | No | No | Yes | Accounts Executive, Accounts Manager, Finance Head, Cashier, System Admin |
-| Initiated | Payment initiated | User/System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Cashier, Auditor, System Admin | System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin |
-| Completed | Full payment completed | User/System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin |
-| Failed | Payment failed | User/System | No | No | Yes | Accounts Executive, Accounts Manager, Finance Head, System Admin |
-| Cancelled | Payment cancelled | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin |
-| Rejected | Payment rejected | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin |
+| Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles | System Action |
+| :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
+| Draft | Initial payment entry stage | User | Yes | Yes | Yes | Accounts Executive, Accounts Manager, Finance Head, System Admin | Calculate Early Payment Discount or Late Payment Penalty |
+| Submitted | Submitted for approval | User | Yes | No | Yes | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin | Validate Invoice, Vendor Ledger and Payment Terms |
+| Approved | Approved for payment execution | User | No | No | Yes | Accounts Executive, Accounts Manager, Finance Head, Cashier, System Admin | Create Vendor Payable Settlement Entry |
+| Initiated | Payment initiated | User/System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Cashier, Auditor, System Admin | Lock Payment Modification, Generate Transaction Reference |
+| Completed | Full payment completed | User/System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin | Close Vendor Payable, Update Vendor Ledger Balance |
+| Failed | Payment failed | User/System | No | No | Yes | Accounts Executive, Accounts Manager, Finance Head, System Admin | Reverse Failed Payment Entries |
+| Cancelled | Payment cancelled | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin | Reverse Payment Ledger Entries |
+| Rejected | Payment rejected | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin | Create Rejection Audit Log |
 ---
 
 # Vendor Payment Workflow Matrix

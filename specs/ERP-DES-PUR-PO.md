@@ -66,6 +66,8 @@ These fields will be used in all modules (in all tables / collections)
 | Purchase Return | Return damaged or extra products back to vendor. | Return quantity, reason, debit note integration. | Draft → Submitted → Approved → Returned → Completed → Cancelled | Reduces stock automatically. |
 | Dispatch | Used when purchased items are returned from warehouse/store. | Quantity, batch tracking, stock update. | Draft → Submitted → Partial Verified → Verified → Loaded → Completed → Cancelled | Updates inventory stock automatically. |
 | Debit Note | Raised against vendor for damaged/incorrect goods. | Vendor adjustment, amount deduction, return linkage. | Draft → Submitted → Approved → Sent → Completed → Cancelled | Used for accounting adjustments. |
+| Receive Payment | Track money received back from vendor against debit notes, refunds, adjustments, or overpayments. | Refund tracking, vendor settlement, adjustment entries, payment mode, balance reconciliation. | Draft → Submitted → Approved → Initiated → Partially Received → Received → Completed → Cancelled | Integrated with Debit Note, Vendor Ledger, and Accounting module. |
+| Payment Adjustment | Manage vendor payment settlements, excess payments, short payments, debit note adjustments, and ledger reconciliations. | Vendor ledger adjustment, debit/credit settlement, balance reconciliation, payment allocation, manual adjustments. | Draft → Submitted → Verified → Approved → Adjusted → Completed → Cancelled | Integrated with Vendor Payment, Receive Payment, Debit Note, Vendor Ledger, and Accounting module. |
 | Purchase Reports | View analytics and reports related to purchases. | Vendor ledger, PO report, GRN report, pending invoices. | Draft → Generated → Exported → Archived | Important for management decisions. |
 ---
 
@@ -106,19 +108,19 @@ These fields will be used in all modules (in all tables / collections)
 
 # Purchase Order (PO)
 
-## Purchase Order \- Workflow Stages
+## Purchase Order - Workflow Stages
 
-| Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles |
-| :---- | :---- | :---- | :---- | :---- | :---- | :---- |
-| Draft | Initial stage where Purchase Order is created and fully editable by Purchase Executive. | User  | Yes  | Yes |  Yes | Purchase Executive, Purchase Manager, System Admin |
-| Submitted | Purchase Order submitted for approval and waiting for manager review. | User | Yes | No  | Yes | Purchase Executive, Purchase Manager, Procurement Head, System Admin |
-| Approved | Purchase Order approved by authorized manager and ready for vendor ordering process. | User | No | No | Yes | Purchase Executive, Purchase Manager, Procurement Head, Accounts Executive, Store Manager, System Admin |
-| Ordered | Official order placed with vendor and procurement process started. | User | No | No | Yes | Purchase Executive, Purchase Manager, Procurement Head, Store Manager, Inventory Manager, Accounts Executive, System Admin |
-| Partial Received | Some products or quantities received from vendor but order is not fully completed. | System (Automatically updated when GRN quantity is less than ordered quantity) | No | No | No | Purchase Executive, Purchase Manager, Store Manager, Inventory Manager, Accounts Executive, System Admin |
-| Fully Received | Full products and quantities received from vendor | System (Automatically updated when GRN quantity is received as per ordered quantity) | No | No | No | Purchase Executive, Purchase Manager, Store Manager, Inventory Manager, Accounts Executive, System Admin |
-| Completed | All products successfully received and verified against Purchase Order. | User | No | No | No | Purchase Executive, Purchase Manager, Procurement Head, Store Manager, Inventory Manager, Accounts Executive, Auditor, System Admin |
-| Cancelled | Purchase Order cancelled before completion due to operational or business reasons. | User | No | No | No | Purchase Executive, Purchase Manager, Procurement Head, Auditor, System Admin |
-| Rejected | Purchase Order rejected during approval process because of validation or business issues. | User | No | No | No | Purchase Executive, Purchase Manager, Procurement Head, System Admin |
+| Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles | System Action |
+| :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
+| Draft | Initial stage where Purchase Order is created and fully editable by Purchase Executive. | User | Yes | Yes | Yes | Purchase Executive, Purchase Manager, System Admin | --- |
+| Submitted | Purchase Order submitted for approval and waiting for manager review. | User | Yes | No | Yes | Purchase Executive, Purchase Manager, Procurement Head, System Admin | Lock PO Number Sequence, Notify Approval Roles |
+| Approved | Purchase Order approved by authorized manager and ready for vendor ordering process. | User | No | No | Yes | Purchase Executive, Purchase Manager, Procurement Head, Accounts Executive, Store Manager, System Admin | Reserve Budget, Create Approval Audit Log |
+| Ordered | Official order placed with vendor and procurement process started. | User | No | No | Yes | Purchase Executive, Purchase Manager, Procurement Head, Store Manager, Inventory Manager, Accounts Executive, System Admin | Notify Vendor, Create Expected Delivery Schedule |
+| Partial Received | Some products or quantities received from vendor but order is not fully completed. | System (Automatically updated when GRN quantity is less than ordered quantity) | No | No | No | Purchase Executive, Purchase Manager, Store Manager, Inventory Manager, Accounts Executive, System Admin | Update Inventory Stock, Update Pending Quantity |
+| Fully Received | Full products and quantities received from vendor | System (Automatically updated when GRN quantity is received as per ordered quantity) | No | No | No | Purchase Executive, Purchase Manager, Store Manager, Inventory Manager, Accounts Executive, System Admin | Complete Inventory Stock Update, Close Pending Quantity |
+| Completed | All products successfully received and verified against Purchase Order. | User | No | No | No | Purchase Executive, Purchase Manager, Procurement Head, Store Manager, Inventory Manager, Accounts Executive, Auditor, System Admin | Close Purchase Order Lifecycle |
+| Cancelled | Purchase Order cancelled before completion due to operational or business reasons. | User | No | No | No | Purchase Executive, Purchase Manager, Procurement Head, Auditor, System Admin | Release Reserved Budget, Cancel Pending Deliveries |
+| Rejected | Purchase Order rejected during approval process because of validation or business issues. | User | No | No | No | Purchase Executive, Purchase Manager, Procurement Head, System Admin | Create Rejection Audit Log |
 
 ---
 
@@ -317,12 +319,13 @@ These fields will be used in all modules (in all tables / collections)
 
 | Report | Purpose |
 | :---- | :---- |
-| Purchase Register | Shows all purchase transactions. |
+| PO Report | Shows all purchase transactions. |
 | Vendor Ledger | Vendor-wise balance and transactions. |
 | Pending Purchase Orders | Track pending orders. |
 | GRN Report | Shows received goods details. |
 | Purchase Return Report | Track returned products. |
 | Vendor Payment Report | Track pending and completed payments. |
+Recieve Payment |   |
 | GST Purchase Report | GST and tax reporting. |
 
 ---

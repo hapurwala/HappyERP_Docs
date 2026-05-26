@@ -44,17 +44,16 @@ These are global for all modules.
 
 ## Purchase Invoice - Workflow Stages
 
-| Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles |
-| :---- | :---- | :---- | :---- | :---- | :---- | :---- |
-| Draft | Initial invoice stage where invoice is created and editable. | User | Yes | Yes | Yes | Accounts Executive, Accounts Manager, Finance Head, System Admin |
-| Submitted | Invoice submitted for verification and approval process. | User | Yes | No | Yes | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin |
-| Verified | Invoice verified successfully against PO and GRN. | User | No | No | Yes | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, Store Manager, System Admin |
-| Approved | Invoice approved for payment processing. | User | No | No | Yes | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin |
-| Partially Paid | Partial payment completed against invoice. | System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin |
-| Paid/ Completed| Full invoice amount paid successfully. | System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin |
-| Cancelled | Invoice cancelled due to business or accounting issues. | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin |
-| Rejected | Invoice rejected during approval or verification process. | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin |
-
+| Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles | System Action |
+| :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
+| Draft | Initial invoice stage where invoice is created and editable. | User | Yes | Yes | Yes | Accounts Executive, Accounts Manager, Finance Head, System Admin | --- |
+| Submitted | Invoice submitted for verification and approval process. | User | Yes | No | Yes | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin | Lock Invoice Number Sequence |
+| Verified | Invoice verified successfully against PO and GRN. | User | No | No | Yes | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, Store Manager, System Admin | Validate PO, GRN and Tax Matching |
+| Approved | Invoice approved for payment processing. | User | No | No | Yes | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin | Post Financial Entries in Ledger, Create Vendor Payable |
+| Partially Paid | Partial payment completed against invoice. | System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin | Update Vendor Outstanding Balance |
+| Paid/Completed | Full invoice amount paid successfully. | System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin | Close Vendor Payable Entry |
+| Cancelled | Invoice cancelled due to business or accounting issues. | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin | Reverse Financial Entries from Ledger |
+| Rejected | Invoice rejected during approval or verification process. | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin | Reverse Financial Entries from Ledger |
 ---
 
 ## Purchase Invoice Workflow Matrix
