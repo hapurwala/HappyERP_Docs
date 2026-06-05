@@ -59,7 +59,7 @@ Components:
 
 ---
 
-Summary Cards
+KPI Cards
 
 Cards:
 
