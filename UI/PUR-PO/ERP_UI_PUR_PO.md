@@ -4,12 +4,12 @@ This document gives UI details of all pages used in Purchase Order module.
 
 # Pages
 
-| S. No. | Name              | Type  | Purpose                                                                                                         |
-| ------ | ----------------- | ----- | --------------------------------------------------------------------------------------------------------------- |
-| 1.     | PO List           | Page  | - View all purchase orders<br/>- Search/filter purchase orders<br/>- Perform quick actions on purchase order(s) |
-| 2.     | Add/Modify PO     | Page  | - View details of the purchase order<br/>- Add/modify any data of current purchase order                        |
-| 3.     | Add Product to PO | Popup | - Add/modify data (product, quantity, rate etc) of product added in purchase order                              |
-| 4.     | Print Preview     | Page  |                                                                                                                 |
+| S. No. | Name                  | Type  | Purpose                                                                                                         |
+| ------ | --------------------- | ----- | --------------------------------------------------------------------------------------------------------------- |
+| 1.     | PO List               | Page  | - View all purchase orders<br/>- Search/filter purchase orders<br/>- Perform quick actions on purchase order(s) |
+| 2.     | Add/Modify PO         | Page  | - View details of the purchase order<br/>- Add/modify any data of current purchase order                        |
+| 3.     | Add/Modify PO Product | Popup | - Add/modify data (product, quantity, rate etc) of product added in purchase order                              |
+| 4.     | Print Preview         | Page  |                                                                                                                 |
 
 # 1. PO List Page UI
 
@@ -184,7 +184,7 @@ This section displays list of all products given in current PO.
 
 | Name             | Action                                                      | Visibility Criteria                                       | Icon               | Tooltip |
 | ---------------- | ----------------------------------------------------------- | --------------------------------------------------------- | ------------------ | ------- |
-| Modify           | Open page: `po`                                             | - Modify permission<br/>- Modify allowed on stage         | pencil             | –       |
+| Modify           | Open page: `po_product`                                     | - Modify permission<br/>- Modify allowed on stage         | pencil             | –       |
 | Set as <Stage_1> | Set stage to Stage_1                                        | Allowed stage based on current stage                      | arrow-right-circle | –       |
 | Set as <Stage_2> | Set stage to Stage_2                                        | –                                                         | arrow-right-circle |         |
 | Undo Stage       | Move back to last stage                                     | - Permission to rollback from current status              | undo-2             | –       |
@@ -207,6 +207,55 @@ This section displays list of all products given in current PO.
 | Remarks                | purchase_order_delivery>{delivery_id}>remarks                                                            | AppTextArea      | Multi Line Text Area                         | No       | No        | Max 500 Characters                                                                 | Save Remarks                 | Additional Delivery Notes | Delivery Related Remarks        |
 | Actions                | -                                                                                                        | AppActionMenu    | Edit, Duplicate, Delete Row                  | No       | No        | -                                                                                  | Execute Selected Action      | Delivery Schedule Actions | Manage Delivery Schedule Row    |
 
+### 2.1.3a. DataTable: Columns
+
+| Name/Label             | Data Source            | Type/Component   | Component Specific Information               | Required | Read Only | Validations                                                                        | On Change                    | Description               | Tooltip                         |
+|:---------------------- |:---------------------- |:---------------- |:-------------------------------------------- |:-------- |:--------- |:---------------------------------------------------------------------------------- |:---------------------------- |:------------------------- |:------------------------------- |
+| Warehouse              | warehouse_id           | Select           | Single Select, Searchable, Source=warehouses | Yes      | No        | Must Be Active Warehouse                                                           | Load Warehouse Locations     | Receiving Warehouse       | Select Delivery Warehouse       |
+| Location               | location_id            | Select           | Single Select, Filtered By Warehouse         | Yes      | No        | Must Belong To Selected Warehouse                                                  | Load Location Details        | Warehouse Location        | Select Storage Location         |
+| Quantity               | quantity               | Input            | Decimal Allowed, Min=0                       | Yes      | No        | Quantity Must Be Greater Than Zero, Total Delivery Quantity Must Match PO Quantity | Recalculate Pending Quantity | Delivery Quantity         | Quantity Planned For Delivery   |
+| Expected Delivery Date | expected_delivery_date | DatePicker       | Single Date Picker                           | Yes      | No        | Must Be Greater Than Or Equal To PO Date                                           | Update Delivery Schedule     | Planned Delivery Date     | Expected Goods Arrival Date     |
+| Delivery Status        | delivery_status        | AppStatusBadge   | Auto Updated By GRN                          | Yes      | Yes       | Valid Workflow Status                                                              | Auto Update                  | Delivery Progress Status  | Pending / Partial / Completed   |
+| Received Quantity      | received_quantity      | AppNumberDisplay | Auto Updated From GRN                        | Yes      | Yes       | Cannot Exceed Planned Quantity                                                     | Auto Update                  | Quantity Received         | Goods Received Against Delivery |
+| Pending Quantity       | pending_quantity       | AppNumberDisplay | Auto Calculated                              | Yes      | Yes       | Formula Validation                                                                 | Auto Calculate               | Remaining Quantity        | Quantity Yet To Be Received     |
+| Priority               | priority               | AppSelect        | Single Select (High, Medium, Low)            | No       | No        | Valid Priority Required                                                            | Update Delivery Rules        | Delivery Priority         | Delivery Importance Level       |
+| Remarks                | remarks                | AppTextArea      | Multi Line Text Area                         | No       | No        | Max 500 Characters                                                                 | Save Remarks                 | Additional Delivery Notes | Delivery Related Remarks        |
+| Actions                | -                      | AppActionMenu    | Edit, Duplicate, Delete Row                  | No       | No        | -                                                                                  | Execute Selected Action      | Delivery Schedule Actions | Manage Delivery Schedule Row    |
+
+### 2.1.3b. DataTable - Toolbar Config
+
+| Feature          | Settings                                     |
+|:---------------- |:-------------------------------------------- |
+| Search           | No                                           |
+| View Toggle      | No                                           |
+| Column Selection | No                                           |
+| Group by         | No                                           |
+| Filter           | No                                           |
+| Export           | No                                           |
+| Share            | No                                           |
+| Full Screen      | Yes                                          |
+| Add              | Yes<br/>Page to open: `po_delivery_schedule` |
+
+### 2.1.3c. DataTable - Config
+
+| Feature        | Settings              |
+|:-------------- |:--------------------- |
+| Row Selection  | No                    |
+| Bulk Actions   | No                    |
+| Sticky Header  | Yes                   |
+| Column Resize  | Yes                   |
+| Column Pinning | Yes                   |
+| Sorting        | Yes                   |
+| Pagination     | Yes<br/>Page Size: 20 |
+
+### 2.1.3d. DataTable - RowAction Menu
+
+| Name      | Action                                               | Visibility Criteria                                       | Icon    | Tooltip |
+|:--------- |:---------------------------------------------------- |:--------------------------------------------------------- |:------- |:------- |
+| Modify    | Open page: `po_delivery_schedule`                    | - Modify permission<br/>- Modify allowed on stage         | pencil  | -       |
+| Duplicate | Create a copy of current delivery schedule row       | - Add Permission                                          | copy    | -       |
+| Delete    | - Show confirmation message<br/>- On Yes, delete row | - Delete permission<br/>- Delete allowed on current stage | trash-2 | -       |
+
 ### 2.1.4. Section: Payment Terms
 
 | Name/Label             | Data (Collection Name > Doc > Field Name)              | Type/Component     | Component Specific Information                        | Required | Read Only | Validations                        | On Change                 | Description                       | Tooltip                           |
@@ -223,6 +272,63 @@ This section displays list of all products given in current PO.
 | Payment Due Date       | purchase_orders>{po_id}>payment_due_date               | AppDateDisplay     | Auto Calculated Field                                 | Yes      | Yes       | Formula Validation                 | Auto Calculate            | Final Payment Due Date            | Calculated Due Date               |
 | Early Payment Discount | purchase_orders>{po_id}>early_payment_discount_enabled | AppToggle          | Yes / No                                              | No       | No        | -                                  | Show/Hide Discount Rules  | Enable Early Payment Discount     | Discount For Early Payment        |
 | Late Payment Penalty   | purchase_orders>{po_id}>late_payment_penalty_enabled   | AppToggle          | Yes / No                                              | No       | No        | -                                  | Show/Hide Penalty Rules   | Enable Late Payment Penalty       | Penalty For Late Payment          |
+  
+  ### 2.1.4. Section: Payment Terms
+
+| Name/Label      | Data Source        | Type/Component     | Component Specific Information                        | Required | Read Only | Validations                        | On Change                 | Description                       | Tooltip                           |
+| :-------------- | :----------------- | :----------------- | :---------------------------------------------------- | :------- | :-------- | :--------------------------------- | :------------------------ | :-------------------------------- | :-------------------------------- |
+| Payment Mode    | payment_mode       | AppMultiSelect     | Cash, Bank Transfer, UPI, Cheque, NEFT, RTGS          | No       | No        | Valid Payment Mode Required        | Update Payment Rules      | Allowed Payment Methods           | Accepted Payment Modes            |
+| Base Date       | base_date          | AppSelect          | Invoice Date, Delivery Date                           | Yes      | No        | Valid Option Required              | Recalculate Due Date      | Base Date For Payment Calculation | Select Payment Reference Date     |
+| Credit Days     | credit_days        | AppNumberInput     | Integer Only                                          | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Due Date      | Credit Period In Days             | Vendor Credit Period              |
+| TDS Applicable  | tds_applicable     | AppToggle          | Yes / No                                              | No       | No        | -                                  | Show/Hide TDS Fields      | Indicates TDS Deduction           | Is TDS Applicable?                |
+| TDS Category    | tds_category_id    | AppLookup          | Single Select, Source=TDS Master                      | No       | No        | Required If TDS Applicable         | Load TDS Percentage       | Applicable TDS Category           | Select TDS Category               |
+| TDS Percentage  | tds_percentage     | AppPercentageInput | Auto Filled From TDS Category                         | No       | Yes       | 0 - 100%                           | Recalculate TDS Amount    | TDS Deduction Percentage          | Applicable TDS Rate               |
+| TDS Value       | tds_value          | AppCurrencyDisplay | Auto Calculated                                       | Yes      | Yes       | Formula Validation                 | Auto Calculate            | Calculated TDS Amount             | TDS Amount                        |
+  
+  ### 2.1.4a. DataTable: Payment Schedule Columns
+
+| Name/Label | Data Source | Type/Component | Component Specific Information | Required | Read Only | Validations | On Change | Description | Tooltip |
+| :--------- | :---------- | :------------- | :----------------------------- | :------- | :-------- | :---------- | :-------- | :---------- | :------ |
+| Base Date | base_date | AppSelect | Invoice Date, Delivery Date, Order Date | Yes | No | Valid Option Required | Recalculate Due Date | Payment Reference Date | - |
+| Days Within | days_within | AppNumberInput | Integer Only | Yes | No | Must Be Greater Than Or Equal To 0 | Recalculate Due Date | Days From Base Date | - |
+| Due Date | due_date | AppDateDisplay | Auto Calculated | Yes | Yes | Formula Validation | Auto Calculate | Payment Due Date | - |
+| Percentage | percent | AppPercentageInput | Percentage Value | Yes | No | 0 - 100% | Recalculate Amount | Percentage Of Order Value | - |
+| Amount | amount | AppCurrencyDisplay | Auto Calculated / Editable | Yes | No | Must Be Greater Than Or Equal To 0 | Recalculate Schedule | Payment Amount | - |
+| Actions | - | AppActionMenu | Edit, Duplicate, Delete Row | No | No | - | Execute Selected Action | Payment Schedule Actions | - |
+  
+  ### 2.1.4b. DataTable - Toolbar Config (Payment Schedule)
+
+| Feature | Settings |
+| :------- | :------- |
+| Search | No |
+| View Toggle | No |
+| Column Selection | No |
+| Group by | No |
+| Filter | No |
+| Export | No |
+| Share | No |
+| Full Screen | Yes |
+| Add | Yes<br/>Page to open: `po_payment_schedule` |
+  
+  ### 2.1.4c. DataTable - Config (Payment Schedule)
+
+| Feature | Settings |
+| :------- | :------- |
+| Row Selection | No |
+| Bulk Actions | No |
+| Sticky Header | Yes |
+| Column Resize | Yes |
+| Column Pinning | Yes |
+| Sorting | Yes |
+| Pagination | Yes<br/>Page Size: 20 |
+  
+  ### 2.1.4d. DataTable - RowAction Menu (Payment Schedule)
+
+| Name | Action | Visibility Criteria | Icon | Tooltip |
+| :--- | :----- | :------------------- | :--- | :------ |
+| Modify | Open page: `po_payment_schedule` | Modify Permission | pencil | - |
+| Duplicate | Create a copy of payment schedule row | Add Permission | copy | - |
+| Delete | Delete payment schedule row | Delete Permission | trash-2 | - |
 
 ### 2.1.5. Section: Attachments
 
