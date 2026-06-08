@@ -272,63 +272,63 @@ This section displays list of all products given in current PO.
 | Payment Due Date       | purchase_orders>{po_id}>payment_due_date               | AppDateDisplay     | Auto Calculated Field                                 | Yes      | Yes       | Formula Validation                 | Auto Calculate            | Final Payment Due Date            | Calculated Due Date               |
 | Early Payment Discount | purchase_orders>{po_id}>early_payment_discount_enabled | AppToggle          | Yes / No                                              | No       | No        | -                                  | Show/Hide Discount Rules  | Enable Early Payment Discount     | Discount For Early Payment        |
 | Late Payment Penalty   | purchase_orders>{po_id}>late_payment_penalty_enabled   | AppToggle          | Yes / No                                              | No       | No        | -                                  | Show/Hide Penalty Rules   | Enable Late Payment Penalty       | Penalty For Late Payment          |
-  
-  ### 2.1.4. Section: Payment Terms
 
-| Name/Label      | Data Source        | Type/Component     | Component Specific Information                        | Required | Read Only | Validations                        | On Change                 | Description                       | Tooltip                           |
-| :-------------- | :----------------- | :----------------- | :---------------------------------------------------- | :------- | :-------- | :--------------------------------- | :------------------------ | :-------------------------------- | :-------------------------------- |
-| Payment Mode    | payment_mode       | AppMultiSelect     | Cash, Bank Transfer, UPI, Cheque, NEFT, RTGS          | No       | No        | Valid Payment Mode Required        | Update Payment Rules      | Allowed Payment Methods           | Accepted Payment Modes            |
-| Base Date       | base_date          | AppSelect          | Invoice Date, Delivery Date                           | Yes      | No        | Valid Option Required              | Recalculate Due Date      | Base Date For Payment Calculation | Select Payment Reference Date     |
-| Credit Days     | credit_days        | AppNumberInput     | Integer Only                                          | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Due Date      | Credit Period In Days             | Vendor Credit Period              |
-| TDS Applicable  | tds_applicable     | AppToggle          | Yes / No                                              | No       | No        | -                                  | Show/Hide TDS Fields      | Indicates TDS Deduction           | Is TDS Applicable?                |
-| TDS Category    | tds_category_id    | AppLookup          | Single Select, Source=TDS Master                      | No       | No        | Required If TDS Applicable         | Load TDS Percentage       | Applicable TDS Category           | Select TDS Category               |
-| TDS Percentage  | tds_percentage     | AppPercentageInput | Auto Filled From TDS Category                         | No       | Yes       | 0 - 100%                           | Recalculate TDS Amount    | TDS Deduction Percentage          | Applicable TDS Rate               |
-| TDS Value       | tds_value          | AppCurrencyDisplay | Auto Calculated                                       | Yes      | Yes       | Formula Validation                 | Auto Calculate            | Calculated TDS Amount             | TDS Amount                        |
-  
-  ### 2.1.4a. DataTable: Payment Schedule Columns
+### 2.1.4. Section: Payment Terms
 
-| Name/Label | Data Source | Type/Component | Component Specific Information | Required | Read Only | Validations | On Change | Description | Tooltip |
-| :--------- | :---------- | :------------- | :----------------------------- | :------- | :-------- | :---------- | :-------- | :---------- | :------ |
-| Base Date | base_date | AppSelect | Invoice Date, Delivery Date, Order Date | Yes | No | Valid Option Required | Recalculate Due Date | Payment Reference Date | - |
-| Days Within | days_within | AppNumberInput | Integer Only | Yes | No | Must Be Greater Than Or Equal To 0 | Recalculate Due Date | Days From Base Date | - |
-| Due Date | due_date | AppDateDisplay | Auto Calculated | Yes | Yes | Formula Validation | Auto Calculate | Payment Due Date | - |
-| Percentage | percent | AppPercentageInput | Percentage Value | Yes | No | 0 - 100% | Recalculate Amount | Percentage Of Order Value | - |
-| Amount | amount | AppCurrencyDisplay | Auto Calculated / Editable | Yes | No | Must Be Greater Than Or Equal To 0 | Recalculate Schedule | Payment Amount | - |
-| Actions | - | AppActionMenu | Edit, Duplicate, Delete Row | No | No | - | Execute Selected Action | Payment Schedule Actions | - |
-  
-  ### 2.1.4b. DataTable - Toolbar Config (Payment Schedule)
+| Name/Label     | Data Source     | Type/Component     | Component Specific Information               | Required | Read Only | Validations                        | On Change              | Description                       | Tooltip                       |
+|:-------------- |:--------------- |:------------------ |:-------------------------------------------- |:-------- |:--------- |:---------------------------------- |:---------------------- |:--------------------------------- |:----------------------------- |
+| Payment Mode   | payment_mode    | AppMultiSelect     | Cash, Bank Transfer, UPI, Cheque, NEFT, RTGS | No       | No        | Valid Payment Mode Required        | Update Payment Rules   | Allowed Payment Methods           | Accepted Payment Modes        |
+| Base Date      | base_date       | AppSelect          | Invoice Date, Delivery Date                  | Yes      | No        | Valid Option Required              | Recalculate Due Date   | Base Date For Payment Calculation | Select Payment Reference Date |
+| Credit Days    | credit_days     | AppNumberInput     | Integer Only                                 | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Due Date   | Credit Period In Days             | Vendor Credit Period          |
+| TDS Applicable | tds_applicable  | AppToggle          | Yes / No                                     | No       | No        | -                                  | Show/Hide TDS Fields   | Indicates TDS Deduction           | Is TDS Applicable?            |
+| TDS Category   | tds_category_id | AppLookup          | Single Select, Source=TDS Master             | No       | No        | Required If TDS Applicable         | Load TDS Percentage    | Applicable TDS Category           | Select TDS Category           |
+| TDS Percentage | tds_percentage  | AppPercentageInput | Auto Filled From TDS Category                | No       | Yes       | 0 - 100%                           | Recalculate TDS Amount | TDS Deduction Percentage          | Applicable TDS Rate           |
+| TDS Value      | tds_value       | AppCurrencyDisplay | Auto Calculated                              | Yes      | Yes       | Formula Validation                 | Auto Calculate         | Calculated TDS Amount             | TDS Amount                    |
 
-| Feature | Settings |
-| :------- | :------- |
-| Search | No |
-| View Toggle | No |
-| Column Selection | No |
-| Group by | No |
-| Filter | No |
-| Export | No |
-| Share | No |
-| Full Screen | Yes |
-| Add | Yes<br/>Page to open: `po_payment_schedule` |
-  
-  ### 2.1.4c. DataTable - Config (Payment Schedule)
+### 2.1.4a. DataTable: Payment Schedule Columns
 
-| Feature | Settings |
-| :------- | :------- |
-| Row Selection | No |
-| Bulk Actions | No |
-| Sticky Header | Yes |
-| Column Resize | Yes |
-| Column Pinning | Yes |
-| Sorting | Yes |
-| Pagination | Yes<br/>Page Size: 20 |
-  
-  ### 2.1.4d. DataTable - RowAction Menu (Payment Schedule)
+| Name/Label  | Data Source | Type/Component     | Component Specific Information          | Required | Read Only | Validations                        | On Change               | Description               | Tooltip |
+|:----------- |:----------- |:------------------ |:--------------------------------------- |:-------- |:--------- |:---------------------------------- |:----------------------- |:------------------------- |:------- |
+| Base Date   | base_date   | AppSelect          | Invoice Date, Delivery Date, Order Date | Yes      | No        | Valid Option Required              | Recalculate Due Date    | Payment Reference Date    | -       |
+| Days Within | days_within | AppNumberInput     | Integer Only                            | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Due Date    | Days From Base Date       | -       |
+| Due Date    | due_date    | AppDateDisplay     | Auto Calculated                         | Yes      | Yes       | Formula Validation                 | Auto Calculate          | Payment Due Date          | -       |
+| Percentage  | percent     | AppPercentageInput | Percentage Value                        | Yes      | No        | 0 - 100%                           | Recalculate Amount      | Percentage Of Order Value | -       |
+| Amount      | amount      | AppCurrencyDisplay | Auto Calculated / Editable              | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Schedule    | Payment Amount            | -       |
+| Actions     | -           | AppActionMenu      | Edit, Duplicate, Delete Row             | No       | No        | -                                  | Execute Selected Action | Payment Schedule Actions  | -       |
 
-| Name | Action | Visibility Criteria | Icon | Tooltip |
-| :--- | :----- | :------------------- | :--- | :------ |
-| Modify | Open page: `po_payment_schedule` | Modify Permission | pencil | - |
-| Duplicate | Create a copy of payment schedule row | Add Permission | copy | - |
-| Delete | Delete payment schedule row | Delete Permission | trash-2 | - |
+### 2.1.4b. DataTable - Toolbar Config (Payment Schedule)
+
+| Feature          | Settings                                    |
+|:---------------- |:------------------------------------------- |
+| Search           | No                                          |
+| View Toggle      | No                                          |
+| Column Selection | No                                          |
+| Group by         | No                                          |
+| Filter           | No                                          |
+| Export           | No                                          |
+| Share            | No                                          |
+| Full Screen      | Yes                                         |
+| Add              | Yes<br/>Page to open: `po_payment_schedule` |
+
+### 2.1.4c. DataTable - Config (Payment Schedule)
+
+| Feature        | Settings              |
+|:-------------- |:--------------------- |
+| Row Selection  | No                    |
+| Bulk Actions   | No                    |
+| Sticky Header  | Yes                   |
+| Column Resize  | Yes                   |
+| Column Pinning | Yes                   |
+| Sorting        | Yes                   |
+| Pagination     | Yes<br/>Page Size: 20 |
+
+### 2.1.4d. DataTable - RowAction Menu (Payment Schedule)
+
+| Name      | Action                                | Visibility Criteria | Icon    | Tooltip |
+|:--------- |:------------------------------------- |:------------------- |:------- |:------- |
+| Modify    | Open page: `po_payment_schedule`      | Modify Permission   | pencil  | -       |
+| Duplicate | Create a copy of payment schedule row | Add Permission      | copy    | -       |
+| Delete    | Delete payment schedule row           | Delete Permission   | trash-2 | -       |
 
 ### 2.1.5. Section: Attachments
 
