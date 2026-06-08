@@ -48,7 +48,7 @@
 | Approved | Approved for payment execution | User | No | No | Yes | Accounts Executive, Accounts Manager, Finance Head, Cashier, System Admin | Create Vendor Payable Settlement Entry |
 | Initiated | Payment initiated | User/System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Cashier, Auditor, System Admin | Lock Payment Modification, Generate Transaction Reference |
 | Completed | Full payment completed | User/System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin | Close Vendor Payable, Update Vendor Ledger Balance |
-| Failed | Payment failed | User/System | No | No | Yes | Accounts Executive, Accounts Manager, Finance Head, System Admin | Reverse Failed Payment Entries |
+| Failed | Payment failed | User/System | Yes | No | Yes | Accounts Executive, Accounts Manager, Finance Head, System Admin | Reverse Failed Payment Entries |
 | Cancelled | Payment cancelled | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin | Reverse Payment Ledger Entries |
 | Rejected | Payment rejected | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin | Create Rejection Audit Log |
 ---
