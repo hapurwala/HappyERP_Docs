@@ -330,6 +330,102 @@ This section displays list of all products given in current PO.
 | Duplicate | Create a copy of payment schedule row | Add Permission      | copy    | -       |
 | Delete    | Delete payment schedule row           | Delete Permission   | trash-2 | -       |
 
+## 2.1.5. Early Payment Discount
+
+### 2.1.5a. DataTable: Columns
+
+| Name/Label         | Data Source | Type/Component   | Component Specific Information          | Required | Read Only | Validations                        | On Change                 | Description                             | Tooltip                     |
+|:------------------ |:----------- |:---------------- |:--------------------------------------- |:-------- |:--------- |:---------------------------------- |:------------------------- |:--------------------------------------- |:--------------------------- |
+| Base Date          | base_date   | AppSelect        | Invoice Date, Delivery Date, Order Date | Yes      | No        | Valid Option Required              | Recalculate Discount Date | Reference Date For Discount Calculation | Select Discount Base Date   |
+| Days Within        | days_within | AppNumberInput   | Integer Only                            | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Discount Date | Days Within Base Date                   | Discount Eligibility Period |
+| Discount Type      | type        | AppSelect        | Per Unit, Percentage, Fixed             | Yes      | No        | Valid Option Required              | Recalculate Discount      | Discount Calculation Method             | Select Discount Type        |
+| Discount Rate      | rate        | AppNumberInput   | Decimal Allowed                         | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Discount      | Discount Value                          | Enter Discount Value        |
+| Max Discount Value | max_value   | AppCurrencyInput | Decimal Currency Input                  | No       | No        | Must Be Greater Than Or Equal To 0 | Recalculate Discount      | Maximum Discount Allowed                | Upper Limit For Discount    |
+| Actions            | -           | AppActionMenu    | Edit, Duplicate, Delete Row             | No       | No        | -                                  | Execute Selected Action   | Discount Actions                        | Manage Discount Rule        |
+
+### 2.1.5b. DataTable - Toolbar Config
+
+| Feature          | Settings                                    |
+|:---------------- |:------------------------------------------- |
+| Search           | No                                          |
+| View Toggle      | No                                          |
+| Column Selection | No                                          |
+| Group by         | No                                          |
+| Filter           | No                                          |
+| Export           | No                                          |
+| Share            | No                                          |
+| Full Screen      | Yes                                         |
+| Add              | Yes<br/>Page to open: `po_payment_discount` |
+
+### 2.1.5c. DataTable - Config
+
+| Feature        | Settings              |
+|:-------------- |:--------------------- |
+| Row Selection  | No                    |
+| Bulk Actions   | No                    |
+| Sticky Header  | Yes                   |
+| Column Resize  | Yes                   |
+| Column Pinning | Yes                   |
+| Sorting        | Yes                   |
+| Pagination     | Yes<br/>Page Size: 20 |
+
+### 2.1.5d. DataTable - RowAction Menu
+
+| Name      | Action                                               | Visibility Criteria                                       | Icon    | Tooltip |
+|:--------- |:---------------------------------------------------- |:--------------------------------------------------------- |:------- |:------- |
+| Modify    | Open page: `po_payment_discount`                     | - Modify permission<br/>- Modify allowed on stage         | pencil  | -       |
+| Duplicate | Create a copy of current discount rule               | - Add Permission                                          | copy    | -       |
+| Delete    | - Show confirmation message<br/>- On Yes, delete row | - Delete permission<br/>- Delete allowed on current stage | trash-2 | -       |
+
+---
+
+## 2.1.6. Late Payment Penalty
+
+### 2.1.6a. DataTable: Columns
+
+| Name/Label        | Data Source | Type/Component   | Component Specific Information                    | Required | Read Only | Validations                        | On Change                | Description                            | Tooltip                  |
+|:----------------- |:----------- |:---------------- |:------------------------------------------------- |:-------- |:--------- |:---------------------------------- |:------------------------ |:-------------------------------------- |:------------------------ |
+| Base Date         | base_date   | AppSelect        | Due Date, Invoice Date, Delivery Date, Order Date | Yes      | No        | Valid Option Required              | Recalculate Penalty Date | Reference Date For Penalty Calculation | Select Penalty Base Date |
+| Days After        | days_after  | AppNumberInput   | Integer Only                                      | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Penalty Date | Days After Base Date                   | Penalty Grace Period     |
+| Penalty Type      | type        | AppSelect        | Per Unit, Percentage, Fixed                       | Yes      | No        | Valid Option Required              | Recalculate Penalty      | Penalty Calculation Method             | Select Penalty Type      |
+| Penalty Rate      | rate        | AppNumberInput   | Decimal Allowed                                   | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Penalty      | Penalty Value                          | Enter Penalty Value      |
+| Max Penalty Value | max_value   | AppCurrencyInput | Decimal Currency Input                            | No       | No        | Must Be Greater Than Or Equal To 0 | Recalculate Penalty      | Maximum Penalty Allowed                | Upper Limit For Penalty  |
+| Actions           | -           | AppActionMenu    | Edit, Duplicate, Delete Row                       | No       | No        | -                                  | Execute Selected Action  | Penalty Actions                        | Manage Penalty Rule      |
+
+### 2.1.6b. DataTable - Toolbar Config
+
+| Feature          | Settings                                   |
+|:---------------- |:------------------------------------------ |
+| Search           | No                                         |
+| View Toggle      | No                                         |
+| Column Selection | No                                         |
+| Group by         | No                                         |
+| Filter           | No                                         |
+| Export           | No                                         |
+| Share            | No                                         |
+| Full Screen      | Yes                                        |
+| Add              | Yes<br/>Page to open: `po_payment_penalty` |
+
+### 2.1.6c. DataTable - Config
+
+| Feature        | Settings              |
+|:-------------- |:--------------------- |
+| Row Selection  | No                    |
+| Bulk Actions   | No                    |
+| Sticky Header  | Yes                   |
+| Column Resize  | Yes                   |
+| Column Pinning | Yes                   |
+| Sorting        | Yes                   |
+| Pagination     | Yes<br/>Page Size: 20 |
+
+### 2.1.6d. DataTable - RowAction Menu
+
+| Name      | Action                                               | Visibility Criteria                                       | Icon    | Tooltip |
+|:--------- |:---------------------------------------------------- |:--------------------------------------------------------- |:------- |:------- |
+| Modify    | Open page: `po_payment_penalty`                      | - Modify permission<br/>- Modify allowed on stage         | pencil  | -       |
+| Duplicate | Create a copy of current penalty rule                | - Add Permission                                          | copy    | -       |
+| Delete    | - Show confirmation message<br/>- On Yes, delete row | - Delete permission<br/>- Delete allowed on current stage | trash-2 | -       |
+
 ### 2.1.5. Section: Attachments
 
 | Name/Label | Data (Collection Name > Doc > Field Name)                     | Type/Component | Component Specific Information            | Required | Read Only | Validations              | On Change      | Description               | Tooltip                   |
