@@ -1,25 +1,11 @@
-# Happy ERP Purchase Return Module Detailed
+# Design Details
 
-# Workflow Engine
+This document gives basic design details of following module.
+- **Software**: **HappyERP**
+- **Application**: Purchase
+- **Module**: Purchase Invoice
 
-## Action Types
-
-These are global for all modules.
-
-| Action | Description |
-| :---- | :---- |
-| View | Read record |
-| Create | Create new record |
-| Edit/Modify | Modify existing record |
-| Delete | Soft delete record |
-| Cancel | Cancel workflow |
-| Submit / Send Forward / Next Stage | Send workflow to next stage |
-| Rollback Stage / Send Back | Return to previous stage |
-| Export / Share / Print | Download reports/files |
-
----
-
-# Purchase Return Module Roles
+# Roles
 
 | Role | Purpose |
 | :---- | :---- |
@@ -27,9 +13,8 @@ These are global for all modules.
 | Purchase  Manager | Reviews and approves warehouse return workflows |
 | Procurement Head | Handles vendor return approvals and coordination |
 
----
 
-# Purchase Return Module - Additional Roles
+# Additional Roles
 
 | Role | Purpose |
 | :---- | :---- |
@@ -38,11 +23,8 @@ These are global for all modules.
 | Auditor | Read-only audit and compliance access |
 | System Admin | Full system configuration and control |
 
----
 
-# Purchase Return
-
-## Purchase Return - Workflow Stages
+## Workflow Stages
 
 | Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles | System Action |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -56,9 +38,8 @@ These are global for all modules.
 | Cancelled | Purchase return cancelled due to operational reasons. | User | No | No | No | Store Executive, Store Manager, Purchase Manager, Auditor, System Admin | Reverse Reserved Return Inventory |
 | Rejected | Purchase return rejected during approval or verification process. | User | No | No | No | Store Executive, Store Manager, Purchase Manager, Quality Inspector, System Admin | Create Rejection Audit Log |
 
----
 
-## Purchase Return Workflow Matrix
+## Workflow - Role Matrix
 
 | Role | Current Stage | Scope | Create | Modify | Delete | Cancel | Next Stage | Rollback Stage |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -71,9 +52,8 @@ These are global for all modules.
 | Auditor | Any | All | No | No | No | No | No | No |
 | Admin | Any | All | Yes | Yes | Yes | Yes | Any | Any |
 
----
 
-## Purchase Return Header Fields
+## Header Fields
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -86,9 +66,8 @@ These are global for all modules.
 | Currency | Currency code | Lookup | No |
 | Freight Type | Return freight type | Dropdown | No |
 
----
 
-## Purchase Return Line Item / Details Section
+## Details Section
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -104,7 +83,6 @@ These are global for all modules.
 | Return Type / Reason | Damaged / Expired / Excess / Wrong Item | Dropdown / Text | Yes |
 | Warehouse | Return warehouse | Lookup | Yes |
 
----
 
 ## Summary Section
 
@@ -118,7 +96,6 @@ These are global for all modules.
 | Net Return Amount | Final return amount |
 | Round Off | Rounded amount |
 
----
 
 ## Additional Information
 
@@ -127,8 +104,6 @@ These are global for all modules.
 | Remarks | Additional notes |
 | Approval Notes | Internal approval comments |
 | Rejection Reason | Reason for rejection or cancellation |
-
----
 
 ## Media & Attachments
 
@@ -143,25 +118,6 @@ These are global for all modules.
 | File Visibility | Internal / Vendor Visible | Dropdown |
 | Notes | Media related remarks | Text |
 
----
-
-### Supported File Types
-
-- Images: JPG, PNG, WEBP
-- Documents: PDF, DOCX, XLSX
-- Others: ZIP, CSV
-
-### Features
-
-- Multiple file upload
-- File preview
-- Download attachments
-- File size validation
-- Role based upload/delete permissions
-- Attachment history tracking
-
----
-
 ## System Generated Rules
 
 | Trigger | System Action |
@@ -174,7 +130,6 @@ These are global for all modules.
 | Return quantity approved | Reduce inventory stock |
 | Return cancelled | Reverse reserved stock |
 
----
 
 ## Validation Rules
 
@@ -188,8 +143,6 @@ These are global for all modules.
 | Batch Validation | Batch mandatory for batch-managed products |
 | Completed Return Locked | Completed return cannot be modified |
 | Rollback Required | Approved return requires rollback before modification |
-
----
 
 ## Reports
 
@@ -237,7 +190,6 @@ These are global for all modules.
 | companyId | string | Company ID |
 | isDeleted | boolean | Soft delete flag |
 
----
 
 ## Subcollection: items
 
@@ -263,7 +215,6 @@ purchase_returns/{returnId}/items/{itemId}
 | returnReason | string | Return reason |
 | qualityRemarks | string | Quality notes |
 
----
 
 ## Subcollection: attachments
 

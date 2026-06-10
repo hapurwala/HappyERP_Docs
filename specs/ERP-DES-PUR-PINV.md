@@ -1,25 +1,11 @@
-# Happy ERP Purchase Invoice Module Detailed
+# Module Design Details
 
-# Workflow Engine
+This document gives basic design details of following module.
+- **Software**: **HappyERP**
+- **Application**: Purchase
+- **Module**: Purchase Invoice
 
-## Action Types
-
-These are global for all modules.
-
-| Action | Description |
-| :---- | :---- |
-| View | Read record |
-| Create | Create new record |
-| Edit/Modify | Modify existing record |
-| Delete | Soft delete record |
-| Cancel | Cancel workflow |
-| Submit / Send Forward / Next Stage | Send workflow to next stage |
-| Rollback Stage / Send Back | Return to previous stage |
-| Export / Share / Print | Download reports/files |
-
----
-
-# Purchase Invoice Module Roles
+## Roles
 
 | Role | Purpose |
 | :---- | :---- |
@@ -27,9 +13,7 @@ These are global for all modules.
 | Accounts Manager | Reviews and approves accounting workflows |
 | Finance Head | Handles final financial approval and payable strategy |
 
----
-
-# Purchase Invoice Module - Additional Roles
+## Additional Roles
 
 | Role | Purpose |
 | :---- | :---- |
@@ -38,11 +22,7 @@ These are global for all modules.
 | Auditor | Read-only audit and compliance access |
 | System Admin | Full system configuration and control |
 
----
-
-# Purchase Invoice
-
-## Purchase Invoice - Workflow Stages
+## Workflow Stages
 
 | Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles | System Action |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -54,9 +34,8 @@ These are global for all modules.
 | Paid/Completed | Full invoice amount paid successfully. | System | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin | Close Vendor Payable Entry |
 | Cancelled | Invoice cancelled due to business or accounting issues. | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin | Reverse Financial Entries from Ledger |
 | Rejected | Invoice rejected during approval or verification process. | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin | Reverse Financial Entries from Ledger |
----
 
-## Purchase Invoice Workflow Matrix
+## Workflow - Role Matrix
 
 | Role | Current Stage | Scope | Create | Modify | Delete | Cancel | Next Stage | Rollback Stage |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -68,9 +47,7 @@ These are global for all modules.
 | Cashier | Partially Paid | Team | No | No | No | No | Make Payment | No |
 | Auditor | Any | All | No | No | No | No | No | No |
 
----
-
-## Purchase Invoice Header Fields
+## Header Fields
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -85,8 +62,6 @@ These are global for all modules.
 | Due Date | Invoice payment due date | Date | Yes |
 | Payment Terms | Vendor payment terms | Lookup | No |
 
----
-
 ## Tax & GST Details
 
 | Field | Description | Type |
@@ -97,7 +72,6 @@ These are global for all modules.
 | CGST Amount | Central GST amount | Currency |
 | SGST Amount | State GST amount | Currency |
 | IGST Amount | Integrated GST amount | Currency |
----
 
 ## Payment Terms
 
@@ -155,8 +129,6 @@ These are global for all modules.
 ]
 ```
 
----
-
 ### Example Business Rules
 
 - Pay within 15 days → 5% discount  
@@ -165,8 +137,6 @@ These are global for all modules.
 - Partial payment allowed for trusted vendors  
 - Penalty starts after grace period
   
----
-
 ## Payment Information
 
 | Field | Description | Type |
@@ -180,8 +150,6 @@ These are global for all modules.
 | Balance Amount | Remaining payable amount | Currency |
 | Payment Date | Actual payment date | Date |
 
----
-
 ## System Generated Rules
 
 | Trigger | System Action |
@@ -191,8 +159,6 @@ These are global for all modules.
 | Partial payment completed | Update invoice stage to Partially Paid |
 | Invoice amount > PO amount | Trigger approval alert |
 | Invoice linked with GRN | Validate received quantity |
-
----
 
 ## Validation Rules
 
@@ -228,4 +194,3 @@ These are global for all modules.
 | createdAt | timestamp | Record creation timestamp |
 | updatedAt | timestamp | Record update timestamp |
 
----
