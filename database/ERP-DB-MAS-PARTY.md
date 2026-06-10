@@ -1,4 +1,4 @@
-Following collections will maintained for Party Master
+Following collections will be maintained for Party Master
 
 * m\_party\_category: contains data of   
 * m\_party: contains data of the parties \- customers and vendors

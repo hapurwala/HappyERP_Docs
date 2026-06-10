@@ -1,24 +1,11 @@
+# Module Design Details
 
-# Happy ERP Vendor Payment Module Detailed
+This document gives basic design details of following module.
+- **Software**: **HappyERP**
+- **Application**: Accounts
+- **Module**: Make Payment
 
-# Workflow Engine
-
-## Action Types
-
-| Action | Description |
-| :---- | :---- |
-| View | Read record |
-| Create | Create new record |
-| Edit/Modify | Modify existing record |
-| Delete | Soft delete record |
-| Cancel | Cancel workflow |
-| Submit / Next Stage | Send workflow to next stage |
-| Rollback Stage | Return to previous stage |
-| Export / Print | Download reports/files |
-
----
-
-# Vendor Payment Module Roles
+## Roles
 
 | Role | Purpose |
 | :---- | :---- |
@@ -27,9 +14,7 @@
 | Accounts Manager | Reviews and approves payment workflows |
 | Finance Head | Handles final financial approval and payment strategy |
 
----
-
-# Vendor Payment Module - Additional Roles
+## Additional Roles
 
 | Role | Purpose |
 | :---- | :---- |
@@ -37,9 +22,7 @@
 | Auditor | Read-only audit and compliance access |
 | System Admin | Full system configuration and control |
 
----
-
-# Vendor Payment Workflow Stages
+## Workflow Stages
 
 | Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles | System Action |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -51,9 +34,8 @@
 | Failed | Payment failed | User/System | Yes | No | Yes | Accounts Executive, Accounts Manager, Finance Head, System Admin | Reverse Failed Payment Entries |
 | Cancelled | Payment cancelled | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin | Reverse Payment Ledger Entries |
 | Rejected | Payment rejected | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin | Create Rejection Audit Log |
----
 
-# Vendor Payment Workflow Matrix
+## Workflow - Role Matrix
 
 | Role | Current Stage | Scope | Create | Modify | Delete | Cancel | Next Stage | Rollback Stage |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -65,9 +47,7 @@
 | Auditor | Any | All | No | No | No | No | No | No |
 | Admin | Any | All | Yes | Yes | Yes | Yes | Any | Any |
 
----
-
-# Vendor Payment Header Fields
+## Header Fields
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -79,9 +59,7 @@
 | Payment Type | Advance / Full / Partial | Dropdown | Yes |
 | Currency | Currency code | Lookup | No |
 
----
-
-# Payment Details
+## Detail Fields
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -95,9 +73,7 @@
 | Amount (being paid) | Amount being paid | Currency | Yes |
 | Balance Amount | Balance after payment | Currency | Yes |
 
----
-
-# Payment Method Information
+## Payment Method Information
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -108,9 +84,7 @@
 | Cheque Number | Cheque reference number | Text | No |
 | Transaction Status | Pending / Success / Failed | Dropdown | Yes |
 
----
-
-# Media & Attachments
+## Media & Attachments
 
 | Field | Description | Type |
 | :---- | :---- | :---- |
@@ -119,9 +93,7 @@
 | Bank Transfer Slip | Bank transfer proof | File Upload |
 | Cheque Image | Cheque image | Image Upload |
 
----
-
-# System Generated Rules
+## System Generated Rules
 
 | Trigger | System Action |
 | :---- | :---- |
@@ -129,9 +101,7 @@
 | Completed | Update stage to Completed |
 | Payment failure | Update stage to Failed |
 
----
-
-# Validation Rules
+## Validation Rules
 
 | Rule | Description |
 | :---- | :---- |
@@ -141,9 +111,7 @@ Amount Based Permission | Aproval of payment may be allowed based on the amount 
 | Bank Validation | Bank account required for bank payments |
 | UTR Validation | UTR required for online payments |
 
----
-
-# Reports
+## Reports
 
 | Report | Purpose |
 | :---- | :---- |

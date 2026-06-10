@@ -1,25 +1,11 @@
-# Happy ERP Receive Payment Module Detailed
+# Module Design Details
 
-# Workflow Engine
+This document gives basic design details of following module.
+- **Software**: **HappyERP**
+- **Application**: Accounts
+- **Module**: Receive Payment
 
-## Action Types
-
-These are global for all modules.
-
-| Action | Description |
-| :---- | :---- |
-| View | Read record |
-| Create | Create new record |
-| Edit/Modify | Modify existing record |
-| Delete | Soft delete record |
-| Cancel | Cancel workflow |
-| Submit / Send Forward / Next Stage | Send workflow to next stage |
-| Rollback Stage / Send Back | Return to previous stage |
-| Export / Share / Print | Download reports/files |
-
----
-
-# Receive Payment Module Roles
+## Roles
 
 | Role | Purpose |
 | :---- | :---- |
@@ -28,9 +14,8 @@ These are global for all modules.
 | Accounts Manager | Reviews and approves payment receipt workflows |
 | Finance Head | Handles final accounting approval and settlement |
 
----
 
-# Receive Payment Module - Additional Roles
+## Additional Roles
 
 | Role | Purpose |
 | :---- | :---- |
@@ -38,11 +23,8 @@ These are global for all modules.
 | Auditor | Read-only audit and compliance access |
 | System Admin | Full system configuration and control |
 
----
 
-# Receive Payment
-
-## Receive Payment - Workflow Stages
+## Workflow Stages
 
 | Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles | System Action |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -54,9 +36,8 @@ These are global for all modules.
 | Cancelled | Receive payment cancelled due to accounting or operational issues. | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Auditor, System Admin | Reverse Receivable Ledger Entries |
 | Rejected | Receive payment rejected during approval or verification process. | User | No | No | No | Accounts Executive, Accounts Manager, Finance Head, Purchase Manager, System Admin | Reverse Receivable Ledger Entries |
 
----
 
-## Receive Payment Workflow Matrix
+## Workflow - Roles Matrix
 
 | Role | Current Stage | Scope | Create | Modify | Delete | Cancel | Next Stage | Rollback Stage |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -68,9 +49,8 @@ These are global for all modules.
 | Auditor | Any | All | No | No | No | No | No | No |
 | Admin | Any | All | Yes | Yes | Yes | Yes | Any | Any |
 
----
 
-## Receive Payment Header Fields
+## Header Fields
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -81,9 +61,8 @@ These are global for all modules.
 | Linked Purchase Return | Linked purchase return | Lookup | No |
 | Currency | Currency code | Lookup | No |
 
----
 
-## Receive Payment Details Section
+## Details Fields
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -97,7 +76,6 @@ These are global for all modules.
 | Net Received Amount | Final received amount | Currency | Yes |
 | Remarks | Payment remarks | Text | No |
 
----
 
 ## Receive Payment Method Information
 
@@ -112,7 +90,6 @@ These are global for all modules.
 | Failed Reason | Transaction Failled Reason | Text | No |
 | Transaction Date | Actual transaction date | Date | No |
 
----
 
 ## Summary Section
 
@@ -127,7 +104,6 @@ These are global for all modules.
 | Net Receive Amount | Final receive amount |
 | Round Off | Rounded amount |
 
----
 
 ## Additional Information
 
@@ -138,7 +114,6 @@ These are global for all modules.
 | Verification Notes | Verification remarks |
 | Rejection Reason | Reason for rejection or cancellation |
 
----
 
 ## Media & Attachments
 
@@ -153,24 +128,6 @@ These are global for all modules.
 | File Visibility | Internal / Vendor Visible | Dropdown |
 | Notes | Media related remarks | Text |
 
----
-
-### Supported File Types
-
-- Images: JPG, PNG, WEBP
-- Documents: PDF, DOCX, XLSX
-- Others: ZIP, CSV
-
-### Features
-
-- Multiple file upload
-- File preview
-- Download attachments
-- File size validation
-- Role based upload/delete permissions
-- Attachment history tracking
-
----
 
 ## System Generated Rules
 
@@ -184,7 +141,6 @@ These are global for all modules.
 | Full settlement completed | Update stage to Completed |
 | Receive payment cancelled | Reverse accounting adjustment |
 
----
 
 ## Validation Rules
 
@@ -199,7 +155,6 @@ These are global for all modules.
 | Completed Receive Payment Locked | Completed receive payment cannot be modified |
 | Rollback Required | Approved receive payment requires rollback before modification |
 
----
 
 ## Reports
 
@@ -250,7 +205,6 @@ These are global for all modules.
 | companyId | string | Company ID |
 | isDeleted | boolean | Soft delete flag |
 
----
 
 ## Subcollection: attachments
 

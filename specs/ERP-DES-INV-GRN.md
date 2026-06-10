@@ -1,34 +1,19 @@
-# Happy ERP Goods Receipt Note (GRN) Module Detailed
+# Module Design Details
 
-# Workflow Engine
+This document gives basic design details of following module.
+- **Software**: **HappyERP**
+- **Application**: Inventory
+- **Module**: Material Receive (GRN)
 
-## Action Types
-
-These are global for all modules.
-
-| Action | Description |
-| :---- | :---- |
-| View | Read record |
-| Create | Create new record |
-| Edit/Modify | Modify existing record |
-| Delete | Soft delete record |
-| Cancel | Cancel workflow |
-| Submit / Send Forward / Next Stage | Send workflow to next stage |
-| Rollback Stage / Send Back | Return to previous stage |
-| Export / Share / Print | Download reports/files |
-
----
-
-# GRN Module Roles
+## Roles
 
 | Role | Purpose |
 | :---- | :---- |
 | Store Executive | Creates and manages receiving operations |
 | Store Manager | Reviews and approves store workflows |
 | Store Head | Handles final approval and inventory strategy |
----
 
-# GRN Module \- Additional Roles
+## Additional Roles
 | Role | Purpose |
 | :---- | :---- |
 | Purchase Manager | Reviews received materials |
@@ -36,11 +21,8 @@ These are global for all modules.
 | Auditor | Read-only audit and compliance access |
 | System Admin | Full system configuration and control |
 
----
 
-# Goods Receipt Note (GRN)
-
-## GRN - Workflow Stages
+## Workflow Stages
 
 | Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles | System Action |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -52,9 +34,8 @@ These are global for all modules.
 | Cancelled | GRN cancelled due to operational or verification issues. | User | No | No | No | Store Manager, Store Head, Purchase Manager, Auditor, System Admin | Reverse Inventory Stock Entries |
 | Rejected | GRN rejected during verification process. | User | No | No | No | Store Manager, Store Head, Purchase Manager, System Admin | Create Rejection Audit Log |
 
----
 
-## GRN Workflow Matrix
+## Workflow - Role Matrix
 
 | Role | Current Stage | Scope | Create | Modify | Delete | Cancel | Next Stage | Rollback Stage |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -71,9 +52,8 @@ These are global for all modules.
 | Admin | Closed | All | No | No | No | No | Reopen | No |
 | Admin | Cancelled | All | No | No | No | No | Reopen | No |
 | Admin | Rejected | All | No | No | No | No | Rollback | No |
----
 
-## GRN Header Fields
+## Header Fields
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -88,9 +68,8 @@ These are global for all modules.
 | Receiving Employee | Employee handling receiving | Lookup | Yes |
 | Freight Type | Freight type selection | Lookup | No |
 
----
 
-## GRN Line Item / Details Section
+## Details Section
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -109,7 +88,6 @@ These are global for all modules.
 | Expiry Date | Product expiry date | Date | No |
 | Remarks | Product receiving remarks | Text | No |
 
----
 
 ## Summary Section
 
@@ -122,7 +100,6 @@ These are global for all modules.
 | Total Damaged Quantity | Total damaged quantity |
 | Pending Quantity | Remaining pending quantity |
 
----
 
 ## Additional Information
 
@@ -133,7 +110,6 @@ These are global for all modules.
 | Approval Notes | Internal approval comments |
 | Rejection Reason | Reason for rejection or cancellation |
 
----
 
 ## Media & Attachments
 
@@ -148,24 +124,6 @@ These are global for all modules.
 | File Visibility | Internal / Vendor Visible | Dropdown |
 | Notes | Media related remarks | Text |
 
----
-
-### Supported File Types
-
-- Images: JPG, PNG, WEBP
-- Documents: PDF, DOCX, XLSX
-- Others: ZIP, CSV
-
-### Features
-
-- Multiple file upload
-- File preview
-- Download attachments
-- File size validation
-- Role based upload/delete permissions
-- Attachment history tracking
-
----
 
 ## System Generated Rules
 
@@ -177,7 +135,6 @@ These are global for all modules.
 | Rejected quantity updated | Create quality inspection alert |
 | GRN rollback approved | Unlock GRN for modification |
 
----
 
 ## Validation Rules
 
@@ -191,7 +148,6 @@ These are global for all modules.
 | Batch Validation | Batch number required for batch-managed products |
 | Expiry Validation | Expiry date required for expiry-managed products |
 
----
 
 ## Reports
 
@@ -240,7 +196,6 @@ These are global for all modules.
 | branchId | string | Branch ID |
 | isDeleted | boolean | Soft delete flag |
 
----
 
 ## Subcollection: items
 
@@ -266,7 +221,6 @@ grns/{grnId}/items/{itemId}
 | expiryDate | timestamp | Expiry date |
 | remarks | string | Item remarks |
 
----
 
 ## Subcollection: attachments
 
