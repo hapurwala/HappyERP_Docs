@@ -45,7 +45,7 @@ These are global for all modules.
 | Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles | System Action |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
 | Draft | Initial stage where GRN is created and editable before verification. | User | Yes | Yes | Yes | Store Manager, Store Head, System Admin | Validate PO and Ordered Quantity |
-| Submitted | GRN submitted for inventory verification. | User | No | No | Yes | Store Manager, Store Head, Purchase Manager, System Admin | Lock GRN Number Sequence, Notify Verification Roles |
+| Submitted | GRN submitted for inventory verification. | User | Yes | No | Yes | Store Manager, Store Head, Purchase Manager, System Admin | Lock GRN Number Sequence, Notify Verification Roles |
 | Verified | Products verified successfully and stock ready for update. | User | No | No | No | Store Manager, Store Head, Purchase Manager, Accounts Executive, System Admin | Update Inventory Stock, Create Inventory Ledger Entry |
 | Partial Verified | Partial products or quantities verified successfully. | User | No | No | No | Store Manager, Store Head, Purchase Manager, Accounts Executive, System Admin | Update Partial Inventory Stock, Update Pending Quantity |
 | Completed | Full receiving and inventory update completed successfully. | User | No | No | No | Store Manager, Store Head, Purchase Manager, Accounts Executive, Auditor, System Admin | Close GRN Lifecycle, Update PO Receiving Status |
