@@ -11,7 +11,7 @@ Contains Purchase Order transaction data.
 | `financial_year`       | Int64     | -        | -             | -                           | -                    | Financial Year                                                                  |
 | `organisation_id`      | String    | -        | -             | Foreign                     | m_organisation.`id`  | Source Organisation Id                                                          |
 | `branch_id`            | String    | -        | -             | Foreign                     | m_branch.`id`        | Source Branch Id                                                                |
-| `purpose`              | String    | -        | -             | -                           | -                    | Purchase Order, Job Order etc.                                                  |
+| `purpose_class`        | String    | -        | -             | -                           | -                    | Purchase Order, Job Order etc.                                                  |
 | `number_series_id`     | String    | -        | -             | Foreign                     | m_number_series.`id` | Number Series used                                                              |
 | `number`               | String    | –        | –             | Unique within Number Series | –                    | Purchase Order Number                                                           |
 | `formatted_number`     | String    | -        | -             | -                           | -                    | PO Number with prefix and suffix as per Number Series                           |
@@ -55,9 +55,9 @@ Contains Purchase Order transaction data.
 | products[].`discount_value`                | Double    | Yes      | 0             | –       | –                      | Calculated Discount Value       |
 | products[].`product_value_after_discount`  | Double    | –        | 0             | –       | –                      | (Quantity × Rate) - Discount    |
 | products[].`taxes`                         | Array Map | Yes      | –             | –       | –                      | Tax Breakup                     |
-| products[].taxes[].`tax_id`                | String    | –        | –             | Foreign | m_tax.id               | Tax Id                          |
+| products[].taxes[].`tax_id`                | String    | –        | –             | Foreign | m_tax.`id`             | Tax Id                          |
 | products[].taxes[].`tax_name`              | String    | –        | –             | –       | –                      | Tax Name                        |
-| products[].`taxable_value`                 | Double    | –        | 0             | –       | –                      | Amount After Discount           |
+| products[].taxes[].`taxable_value`         | Double    | –        | 0             | –       | –                      | Amount After Discount           |
 | products[].taxes[].`tax_rate_percent`      | Double    | –        | 0             | –       | –                      | Tax Rate in  Percent            |
 | products[].taxes[].`tax_value`             | Double    | –        | 0             | –       | –                      | Tax Amount                      |
 | products[].`tax_value`                     | Double    | Yes      | 0             | –       | –                      | Total Tax Amount                |
@@ -72,13 +72,12 @@ Contains Purchase Order transaction data.
 | --------------------------------------------- | --------- | -------- | ------------- | ------- | ------------------- | ---------------------------------- |
 | `delivery_schedule`                           | Array Map | Yes      | –             | –       | –                   | Delivery Planning                  |
 | delivery_schedule[].id                        | String    | –        | –             | –       | –                   | Row Id                             |
-| delivery_schedule[].`line_item_id`            | String    | Yes      | –             | –       | –                   | Linked PO Line Item                |
 | delivery_schedule[].`product_pack_id`         | String    | Yes      | –             | Foreign | m_product_pack.`id` | Product                            |
 | delivery_schedule[].`product_pack_name`       | String    | Yes      | –             | –       | –                   | Product Pack Name                  |
 | delivery_schedule[].`product_pack_short_name` | String    | Yes      | -             | -       | -                   | Product Pack Short Name            |
 | delivery_schedule[].`branch_id`               | String    | Yes      | –             | Foreign | m_branch.`id`       | Warehouse                          |
 | delivery_schedule[].`party_id`                | String    | Yes      | -             | Foreign | m_party.`id`        | Party (Vendor/ Customer/ Employee) |
-| delivery_schedule[].`place_name`              | String    | –        | –             | –       | –                   | Warehouse Name                     |
+| delivery_schedule[].`deliver_to_name`         | String    | –        | –             | –       | –                   | Warehouse/Party Name               |
 | delivery_schedule[].`quantity`                | Double    | –        | 0             | –       | –                   | Planned Delivery Quantity          |
 | delivery_schedule[].`priority`                | String    | Yes      | Medium        | –       | –                   | High / Medium / Low                |
 | delivery_schedule[].`remarks`                 | String    | Yes      | –             | –       | –                   | Delivery Remarks                   |
@@ -106,13 +105,13 @@ Contains Purchase Order transaction data.
 | payment_terms.payment[].`due_date`     | Timestamp    | -        | -             | -       | -                   | Due Date for payment                      |
 | payment_terms.payment[].`percent`      | Double       | -        | 0             | -       | -                   | % of Order Amount                         |
 | payment_terms.payment[].`amount`       | Double       | -        | 0             | -       | -                   | Payment Amount                            |
-| payment_term.`discount`                | Array Map    | Yes      | -             | -       | -                   | Discount on early payment                 |
+| payment_terms.`discount`               | Array Map    | Yes      | -             | -       | -                   | Discount on early payment                 |
 | payment_terms.discount[].`base_date`   | String       | -        | Invoice Date  | -       | -                   | Invoice Date / Delivery Date / Order Date |
 | payment_terms.discount[].`days_within` | Int64        | -        | 0             | -       | -                   | Number of days within Base Date           |
 | payment_terms.discount[].`type`        | String       | -        | -             | -       | -                   | Per Unit / Percent / Fixed                |
 | payment_terms.discount[].`rate`        | Double       | -        | 0             | -       | -                   | Entered Discount                          |
 | payment_terms.discount[].`max_value`   | Double       | -        | 0             | -       | -                   | Maximum Discount Allowed                  |
-| payment_term.`penalty`                 | Array Map    | Yes      | -             | -       | -                   | Penalty on late payment                   |
+| payment_terms.`penalty`                | Array Map    | Yes      | -             | -       | -                   | Penalty on late payment                   |
 | payment_terms.penalty[].`base_date`    | String       | -        | Due Date      | -       | -                   | Invoice Date / Delivery Date / Order Date |
 | payment_terms.penalty[].`days_after`   | Int64        | -        | 0             | -       | -                   | Number of days after Base Date            |
 | payment_terms.penalty[].`type`         | String       | -        | -             | -       | -                   | Per Unit / Percent / Fixed                |
