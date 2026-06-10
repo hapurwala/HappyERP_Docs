@@ -1,91 +1,11 @@
-# Happy ERP Purchase Application Detailed
+# Module Design Details
 
-# Workflow Engine
+This document gives basic design details of following module.
+- **Software**: **HappyERP**
+- **Application**: Purchase
+- **Module**: Purchase Order
 
-## Action Types
-
-These are global for all modules.
-
-| Action                             | Description                 |
-|:---------------------------------- |:--------------------------- |
-| View                               | Read record                 |
-| Create                             | Create new record           |
-| Edit/Modify                        | Modify existing record      |
-| Delete                             | Soft delete record          |
-| Cancel                             | Cancel workflow             |
-| Submit / Send Forward / Next Stage | Send workflow to next stage |
-| Rollback Stage / Send Back         | Return to previous stage    |
-| Export / Share / Print             | Download reports/files      |
-
----
-
-# ERP Roles
-
-## System Roles
-
-These roles are global roles for all modules of the ERP.
-
-| Role         | Purpose                                                      |
-|:------------ |:------------------------------------------------------------ |
-| Auditor      | Read-only audit and compliance access                        |
-| Admin        | Full system configuration and control                        |
-| System Admin | Full system configuration and control and development access |
-
----
-
-# Common Guidelines
-
-## System Fields
-
-These fields will be used in all modules (in all tables / collections)
-
-| Field          | Description             |
-|:-------------- |:----------------------- |
-| Created By     | User who created record |
-| Created Date   | Record creation date    |
-| Updated By     | Last modified user      |
-| Updated Date   | Last modification date  |
-| Stage          | Current workflow stage  |
-| Approval Stage | Approval workflow stage |
-
----
-
-# Happy ERP Purchase Module Detailed
-
-## Purchase Modules
-
-| Module                      | Purpose                                                                                                                 | Main Features                                                                                                      | Workflow                                                                                         | Important Notes                                                                                    |
-|:--------------------------- |:----------------------------------------------------------------------------------------------------------------------- |:------------------------------------------------------------------------------------------------------------------ |:------------------------------------------------------------------------------------------------ |:-------------------------------------------------------------------------------------------------- |
-| Purchase Requisition        | Used by employees or departments to request products or raw materials.                                                  | Create requisition, approval flow, item selection, department wise request.                                        | Draft → Submitted → Approved → Converted → Completed → Cancelled                                 | Starting point of purchase lifecycle.                                                              |
-| Request for Quotation (RFQ) | Send inquiry to multiple vendors for best price comparison.                                                             | Vendor selection, quotation comparison, email sharing, expiry date.                                                | Draft → Sent → Vendor Responded → Compared → Completed → Cancelled                               | Used for vendor comparison and negotiation.                                                        |
-| Vendor Quotation            | Store quotations received from vendors.                                                                                 | Vendor rates, taxes, delivery time, comparison table.                                                              | Draft → Received → Compared → Approved → Rejected → Converted                                    | Approved quotation converts to PO.                                                                 |
-| Purchase Order (PO)         | Official order sent to vendor for purchasing items.                                                                     | PO number, approval, item table, tax, payment terms.                                                               | Draft → Submitted → Approved → Ordered → Partial Received → Completed  → Cancelled → Rejected    | Core module of purchase operations.                                                                |
-| Goods Receipt Note (GRN)    | Used when purchased items are received in warehouse/store.                                                              | Receive quantity, damaged quantity, batch tracking, stock update.                                                  | Draft → Received → Partial Verified → Verified → Completed → Cancelled                           | Updates inventory stock automatically.                                                             |
-| Purchase Invoice            | Vendor bill entry for accounting and payment process.                                                                   | Invoice number, GST, amount, due date, attachments.                                                                | Draft → Submitted → Verified → Approved → Paid → Completed → Cancelled                           | Integrated with PO and GRN.                                                                        |
-| Vendor Payment              | Track and manage vendor payments.                                                                                       | Payment entry, due tracking, payment mode, balance.                                                                | Draft → Submitted → Approved → Initiated → Completed → Cancelled                                 | Integrated with accounting module.                                                                 |
-| Purchase Return             | Return damaged or extra products back to vendor.                                                                        | Return quantity, reason, debit note integration.                                                                   | Draft → Submitted → Approved → Returned → Completed → Cancelled                                  | Reduces stock automatically.                                                                       |
-| Dispatch                    | Used when purchased items are returned from warehouse/store.                                                            | Quantity, batch tracking, stock update.                                                                            | Draft → Submitted → Partial Verified → Verified → Loaded → Completed → Cancelled                 | Updates inventory stock automatically.                                                             |
-| Debit Note                  | Raised against vendor for damaged/incorrect goods.                                                                      | Vendor adjustment, amount deduction, return linkage.                                                               | Draft → Submitted → Approved → Sent → Completed → Cancelled                                      | Used for accounting adjustments.                                                                   |
-| Receive Payment             | Track money received back from vendor against debit notes, refunds, adjustments, or overpayments.                       | Refund tracking, vendor settlement, adjustment entries, payment mode, balance reconciliation.                      | Draft → Submitted → Approved → Initiated → Partially Received → Received → Completed → Cancelled | Integrated with Debit Note, Vendor Ledger, and Accounting module.                                  |
-| Payment Adjustment          | Manage vendor payment settlements, excess payments, short payments, debit note adjustments, and ledger reconciliations. | Vendor ledger adjustment, debit/credit settlement, balance reconciliation, payment allocation, manual adjustments. | Draft → Submitted → Verified → Approved → Adjusted → Completed → Cancelled                       | Integrated with Vendor Payment, Receive Payment, Debit Note, Vendor Ledger, and Accounting module. |
-| Purchase Reports            | View analytics and reports related to purchases.                                                                        | Vendor ledger, PO report, GRN report, pending invoices.                                                            | Draft → Generated → Exported → Archived                                                          | Important for management decisions.                                                                |
-
----
-
-## Masters
-
-| Master           | Purpose                                        | Required Fields                                          | Notes                                              |
-|:---------------- |:---------------------------------------------- |:-------------------------------------------------------- |:-------------------------------------------------- |
-| Vendor Master    | Store all vendor information.                  | Vendor Name, GSTIN, Address, Phone, Email, Payment Terms | Should support multiple contacts and bank details. |
-| Product Master   | Manage purchasable products and raw materials. | Name, SKU, UOM, Tax, Price, Category                     | Can connect with inventory and sales.              |
-| Warehouse Master | Manage warehouse locations.                    | Warehouse Name, Branch, Type                             | Used in GRN and stock transfer.                    |
-| Tax Master       | Manage GST and tax structure.                  | GST %, HSN Code, Tax Type                                | Required for invoice and compliance.               |
-| UOM Master       | Manage units of measurement.                   | UOM Name, Symbol                                         | Examples: Kg, PCS, Box.                            |
-| Payment Terms    | Define vendor payment rules.                   | Credit Days, Advance %, Due Rules                        | Used in PO and invoice.                            |
-
----
-
-# Purchase Module Roles
+## Roles
 
 | Role               | Purpose                                            |
 |:------------------ |:-------------------------------------------------- |
@@ -93,9 +13,7 @@ These fields will be used in all modules (in all tables / collections)
 | Purchase Manager   | Reviews and approves purchase workflows            |
 | Procurement Head   | Handles final approval and procurement strategy    |
 
----
-
-# Purchase Module \- Additional Roles
+## Additional Roles
 
 | Role               | Purpose                                 |
 |:------------------ |:--------------------------------------- |
@@ -105,11 +23,7 @@ These fields will be used in all modules (in all tables / collections)
 | Auditor            | Read-only audit and compliance access   |
 | System Admin       | Full system configuration and control   |
 
----
-
-# Purchase Order (PO)
-
-## Purchase Order - Workflow Stages
+## Workflow Stages
 
 | Stage            | Description                                                                               | Who Will Set It                                                                      | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles                                                                                                           | System Action                                           |
 |:---------------- |:----------------------------------------------------------------------------------------- |:------------------------------------------------------------------------------------ |:------------ |:------------ |:------------ |:----------------------------------------------------------------------------------------------------------------------------------- |:------------------------------------------------------- |
@@ -123,9 +37,7 @@ These fields will be used in all modules (in all tables / collections)
 | Cancelled        | Purchase Order cancelled before completion due to operational or business reasons.        | User                                                                                 | No           | No           | No           | Purchase Executive, Purchase Manager, Procurement Head, Auditor, System Admin                                                       | Release Reserved Budget, Cancel Pending Deliveries      |
 | Rejected         | Purchase Order rejected during approval process because of validation or business issues. | User                                                                                 | No           | No           | No           | Purchase Executive, Purchase Manager, Procurement Head, System Admin                                                                | Create Rejection Audit Log                              |
 
----
-
-## Purchase Order Workflow Matrix
+## Workflow - Role Matrix
 
 | Role               | Current Stage    | Scope | Create | Modify | Delete | Cancel | Next Stage                 | Rollback Stage |
 |:------------------ |:---------------- |:----- |:------ |:------ |:------ |:------ |:-------------------------- |:-------------- |
@@ -147,8 +59,6 @@ These fields will be used in all modules (in all tables / collections)
 | Admin              | Cancelled        | All   | No     | No     | No     | No     | Reopen                     | No             |
 | Admin              | Rejected         | All   | No     | No     | No     | No     | Rollback                   | No             |
 
----
-
 ## Header Fields
 
 | Field        | Description                               | Type        | Required |
@@ -158,8 +68,6 @@ These fields will be used in all modules (in all tables / collections)
 | Vendor       | Vendor selection                          | Lookup      | Yes      |
 | Currency     | Currency selection                        | Lookup      | No       |
 | Freight Type | Type Selection(FOR/Paid/Included in rate) | Lookup      | No       |
-
----
 
 ## Line Item / Details Section
 
@@ -176,9 +84,7 @@ These fields will be used in all modules (in all tables / collections)
 | Tax        | GST or tax                                         | Decimal     | Yes      |
 | Line Total | Total item amount                                  | Currency    | Yes      |
 
----
-
-## Delivery Location / Delivery Schedule
+## Delivery Schedule
 
 | Field                  | Description                                | Type        |
 |:---------------------- |:------------------------------------------ |:----------- |
@@ -191,8 +97,6 @@ These fields will be used in all modules (in all tables / collections)
 | Expected Delivery Date | Warehouse-wise delivery date               | Date        |
 | Delivery Priority      | High / Medium / Low                        | Dropdown    |
 | Delivery Remarks       | Notes for warehouse delivery               | Text        |
-
----
 
 ## Payment Terms
 
@@ -250,8 +154,6 @@ These fields will be used in all modules (in all tables / collections)
 ]
 ```
 
----
-
 ### Example Business Rules
 
 - Pay within 15 days → 5% discount  
@@ -259,8 +161,6 @@ These fields will be used in all modules (in all tables / collections)
 - EMI interest applied automatically  
 - Partial payment allowed for trusted vendors  
 - Penalty starts after grace period
-
----
 
 ## Summary Section
 
@@ -273,8 +173,6 @@ These fields will be used in all modules (in all tables / collections)
 | Net Amount             | Final payable amount          |
 | Round Off              | Rounded final amount          |
 
----
-
 ## Additional Information
 
 | Field              | Description                |
@@ -283,7 +181,6 @@ These fields will be used in all modules (in all tables / collections)
 | Terms & Conditions | Purchase terms             |
 | Approval Notes     | Internal approval comments |
 
----
 
 ## Media & Attachments
 
@@ -296,25 +193,6 @@ These fields will be used in all modules (in all tables / collections)
 | Approval Documents   | Internal approval files     | File Upload  |
 | File Visibility      | Internal / Vendor Visible   | Dropdown     |
 | Notes                | Media related remarks       | Text         |
-
----
-
-### Supported File Types
-
-- Images: JPG, PNG, WEBP  
-- Documents: PDF, DOCX, XLSX  
-- Others: ZIP, CSV
-
-### Features
-
-- Multiple file upload  
-- File preview  
-- Download attachments  
-- File size validation  
-- Role based upload/delete permissions  
-- Attachment history tracking
-
----
 
 ## Reports
 
@@ -333,7 +211,7 @@ These fields will be used in all modules (in all tables / collections)
 
 # Firestore Database Structure
 
-## Collection: purchase\_orders
+## Collection: purchase_orders
 
 ### Document Structure
 
@@ -367,4 +245,3 @@ These fields will be used in all modules (in all tables / collections)
 | companyId     | string    | Company ID                |
 | isDeleted     | boolean   | Soft delete flag          |
 
----

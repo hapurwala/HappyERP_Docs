@@ -1,25 +1,11 @@
-# Happy ERP Dispatch Module Detailed
+# Module Design Details
 
-# Workflow Engine
+This document gives basic design details of following module.
+- **Software**: **HappyERP**
+- **Application**: Inventory
+- **Module**: Dispatch
 
-## Action Types
-
-These are global for all modules.
-
-| Action | Description |
-| :---- | :---- |
-| View | Read record |
-| Create | Create new record |
-| Edit/Modify | Modify existing record |
-| Delete | Soft delete record |
-| Cancel | Cancel workflow |
-| Submit / Send Forward / Next Stage | Send workflow to next stage |
-| Rollback Stage / Send Back | Return to previous stage |
-| Export / Share / Print | Download reports/files |
-
---- 
-
-# Dispatch Module Roles
+## Roles
 
 | Role | Purpose |
 | :---- | :---- |
@@ -27,9 +13,7 @@ These are global for all modules.
 | Dispatch Manager | Reviews and approves dispatch workflows |
 | Logistics Head | Handles transportation and delivery coordination |
 
----
-
-# Dispatch Module - Additional Roles
+## Additional Roles
 
 | Role | Purpose |
 | :---- | :---- |
@@ -39,11 +23,7 @@ These are global for all modules.
 | Auditor | Read-only audit and compliance access |
 | System Admin | Full system configuration and control |
 
----
-
-# Dispatch
-
-## Dispatch - Workflow Stages
+## Workflow Stages
 
 | Stage | Description | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles | System Action |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -57,9 +37,7 @@ These are global for all modules.
 | Cancelled | Dispatch cancelled due to operational or logistics issues. | User | No | No | No | Dispatch Executive, Dispatch Manager, Transport Manager, Auditor, System Admin | Reverse Reserved Inventory and Transport Entries |
 | Rejected | Dispatch rejected during approval or verification process. | User | No | No | No | Dispatch Executive, Dispatch Manager, Store Manager, System Admin | Create Rejection Audit Log |
 
----
-
-## Dispatch Workflow Matrix
+## Workflow - Role Matrix
 
 | Role | Current Stage | Scope | Create | Modify | Delete | Cancel | Next Stage | Rollback Stage |
 | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- | :---- |
@@ -72,9 +50,7 @@ These are global for all modules.
 | Auditor | Any | All | No | No | No | No | No | No |
 | Admin | Any | All | Yes | Yes | Yes | Yes | Any | Any |
 
----
-
-## Dispatch Header Fields
+## Header Fields
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -86,9 +62,7 @@ These are global for all modules.
 | Currency | Currency code | Lookup | No |
 | Freight Type | Freight type selection | Dropdown | No |
 
----
-
-## Dispatch Line Item / Details Section
+## Details Section
 
 | Field | Description | Type | Required |
 | :---- | :---- | :---- | :---- |
@@ -104,8 +78,6 @@ These are global for all modules.
 | Dispatch Remarks | Item-level dispatch remarks | Text | No |
 | Source Warehouse | Source warehouse | Lookup | Yes |
 | Destination Location | Destination warehouse/vendor/customer | Lookup | Yes |
-
----
 
 ## Transport Information
 
@@ -125,8 +97,6 @@ These are global for all modules.
 | Delivery Status | Pending / Partial / Delivered | Dropdown |
 | Delivery Remarks | Delivery related remarks | Text |
 
----
-
 ## Summary Section
 
 | Field | Description |
@@ -137,8 +107,6 @@ These are global for all modules.
 | Total Dispatch Amount | Total dispatch value |
 | Freight Charges | Total freight charges |
 
----
-
 ## Additional Information
 
 | Field | Description |
@@ -147,8 +115,6 @@ These are global for all modules.
 | Approval Notes | Internal approval comments |
 | Verification Notes | Dispatch verification remarks |
 | Rejection Reason | Reason for rejection or cancellation |
-
----
 
 ## Media & Attachments
 
@@ -164,25 +130,6 @@ These are global for all modules.
 | File Visibility | Internal / Vendor Visible | Dropdown |
 | Notes | Media related remarks | Text |
 
----
-
-### Supported File Types
-
-- Images: JPG, PNG, WEBP
-- Documents: PDF, DOCX, XLSX
-- Others: ZIP, CSV
-
-### Features
-
-- Multiple file upload
-- File preview
-- Download attachments
-- File size validation
-- Role based upload/delete permissions
-- Attachment history tracking
-
----
-
 ## System Generated Rules
 
 | Trigger | System Action |
@@ -196,7 +143,6 @@ These are global for all modules.
 | Dispatch cancelled | Release reserved inventory |
 | Dispatch linked with Purchase Return | Enable Debit Note creation |
 
----
 
 ## Validation Rules
 
@@ -212,7 +158,6 @@ These are global for all modules.
 | Completed Dispatch Locked | Completed dispatch cannot be modified |
 | Rollback Required | Verified dispatch requires rollback before modification |
 
----
 
 ## Reports
 
@@ -266,8 +211,6 @@ These are global for all modules.
 | companyId | string | Company ID |
 | isDeleted | boolean | Soft delete flag |
 
----
-
 ## Subcollection: items
 
 Path:
@@ -292,8 +235,6 @@ dispatches/{dispatchId}/items/{itemId}
 | itemAmount | number | Total item amount |
 | remarks | string | Item remarks |
 
----
-
 ## Subcollection: tracking_logs
 
 Path:
@@ -308,7 +249,6 @@ dispatches/{dispatchId}/tracking_logs/{trackingId}
 | updatedBy | string | Updated user |
 | updatedAt | timestamp | Tracking update time |
 
----
 
 ## Subcollection: attachments
 
