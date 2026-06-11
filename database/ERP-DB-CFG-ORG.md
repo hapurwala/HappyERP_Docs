@@ -1,6 +1,14 @@
+# Database Design Details
+
+This document gives database design details of following module.
+
+- **Software**: **HappyERP**
+- **Application**: Configuration
+- **Module**: Organisations
+
 **HappyERP** supports multiple organisations of the user. It also supports multiple branches of an organisation. This document gives details of collections used to maintain data of Organisation(s) and their Branch(es).
 
-# Collection: m_organisation
+## Collection: m_organisation
 
 This collection keeps record of the organisations of the user. Following information is maintained for an organisation:
 
@@ -28,7 +36,6 @@ This collection keeps record of the organisations of the user. Following informa
 | `base_currency_short_name`   | String    | Yes      | –             | –       | –                | Home Currency Short Name   |
 | `financial_year_start_month` | Int64     | –        | 4             | –       | –                | Financial Year Start Month |
 | `financial_year_start_day`   | Int64     | –        | 1             | –       | –                | Financial Year Start Day   |
-| `remarks`                    | String    | Yes      | –             | –       | –                | General Remarks            |
 | `logo_url`                   | String    | Yes      | –             | –       | –                | Organisation Logo URL      |
 | `start_date`                 | Timestamp | –        | Current Date  | –       | –                | Active From                |
 | `end_date`                   | Timestamp | Yes      | –             | –       | –                | Active Till                |
@@ -39,7 +46,7 @@ This collection keeps record of the organisations of the user. Following informa
 | `stage_logs`                 | Array Map | Yes      | –             | –       | `Stage` Map      | Workflow History           |
 | `notes`                      | Array Map | -        | -             | -       | `Note` Map       | It is an array of Note map |
 
-# Collection: m_branch
+## Collection: m_branch
 
 This collection keeps record of the branches of an organisation. Following information is maintained for a branch:
 
@@ -69,7 +76,6 @@ This collection keeps record of the branches of an organisation. Following infor
 | `is_production_unit` | Boolean   | –        | False         | –       | –                   | Works as Production Unit   |
 | `is_warehouse`       | Boolean   | –        | False         | –       | –                   | Works as Warehouse         |
 | `is_dispatch_center` | Boolean   | –        | False         | –       | –                   | Dispatch allowed from here |
-| `remarks`            | String    | Yes      | –             | –       | –                   | General Remarks            |
 | `start_date`         | Timestamp | –        | Current Date  | –       | –                   | Active From                |
 | `end_date`           | Timestamp | Yes      | –             | –       | –                   | Active Till                |
 | `reason_end`         | String    | Yes      | –             | –       | –                   | Reason For Closure         |

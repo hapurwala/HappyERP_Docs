@@ -22,6 +22,8 @@ Wherever address is maintained, it is maintained in a Map. Address Map and its f
 | Name                     | Type      | Optional | Default Value | Key     | Reference      | Remarks   |
 |:------------------------ |:--------- |:-------- |:------------- |:------- |:-------------- |:--------- |
 | `address`                | map       | Yes      | –             | –       | –              | -         |
+| address.`type`         | String    | Yes      | –             | –       | –              | Name given to address |
+| address.`same_as_main`         | Boolean    | -      | False             | –       | –              | -         |
 | address.`street`         | String    | Yes      | –             | –       | –              | -         |
 | address.`city_id`        | String    | Yes      | –             | Foreign | m_city.`id`    | -         |
 | address.`city`           | String    | Yes      | –             | –       | –              | -         |
@@ -30,6 +32,7 @@ Wherever address is maintained, it is maintained in a Map. Address Map and its f
 | address.`state`          | String    | Yes      | –             | –       | –              | -         |
 | address.`country_id`     | String    | Yes      | –             | Foreign | m_country.`id` | -         |
 | address.`country`        | String    | Yes      | –             | –       | –              | -         |
+| address.`landmark`         | String    | Yes      | –             | –       | –              | Landmark |
 | address.`location`       | Geopoint  | Yes      | –             | –       | –              | -         |
 | address.`tagged_by`      | String    | Yes      | –             | Foreign | m_party.`id`   | -         |
 | address.`tagged_by_name` | String    | Yes      | –             |         |                | User name |
