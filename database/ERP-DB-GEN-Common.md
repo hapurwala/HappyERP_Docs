@@ -62,3 +62,23 @@ Workflow stages are maintained in almost all **HappyERP** objects. Current stage
 | notes[].`media_url`  | String    | Yes      | --            | --      | --         | --      |
 | notes[].`created_by` | String    | --       | --            | Foreign | m_party.id | --      |
 | notes[].`created_at` | Timestamp | --       | now()         | --      | --         | --      |
+
+# Attachments/Media related fields
+
+| Name               | Type      | Optional | Default Value | Key     | Reference   | Remarks                           |
+| ------------------ | --------- | -------- | ------------- | ------- | ----------- | --------------------------------- |
+| id                 | String    | –        | –             | –       | –           | Attachment Id                     |
+| `name`             | String    | Yes      | –             | –       | –           | Display Name                      |
+| `description`      | String    | Yes      | –             | –       | –           | Attachment Description            |
+| `file_name`        | String    | –        | –             | –       | –           | Original File Name                |
+| `file_extension`   | String    | Yes      | –             | –       | –           | pdf, jpg, png, xlsx, docx         |
+| `file_type`        | String    | –        | –             | –       | –           | PDF, image, Document, Spreadsheet |
+| `url`              | String    | –        | –             | –       | –           | URL on Server                     |
+| `file_size`        | Int64     | Yes      | 0             | –       | –           | File size in Bytes                |
+| `is_primary`       | Boolean   | –        | False         | –       | –           | Primary Attachment?               |
+| `sequence`         | Int64     | –        | 0             | –       | –           | Display Sequence                  |
+| `start_date`       | Timestamp | Yes      | –             | –       | –           | Valid From                        |
+| `end_date`         | Timestamp | Yes      | –             | –       | –           | Valid Till                        |
+| `uploaded_by`      | String    | Yes      | –             | Foreign | m_user.`id` | Uploaded By                       |
+| `uploaded_by_name` | String    | Yes      | –             | –       | –           | Uploading User Name               |
+| `uploaded_at`      | Timestamp | Yes      | –             | –       | –           | Uploaded Date                     |
