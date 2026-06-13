@@ -89,8 +89,8 @@ Following collections are maintained for Party Master
 
 ## Collection: m_party_type
 
-| Name                     | Type    | Optional | Default Value | Key     | Reference           | Remarks       |
-|:------------------------ |:------- |:-------- |:------------- |:------- |:------------------- |:------------- |
+| Name                       | Type    | Optional | Default Value | Key     | Reference           | Remarks       |
+|:-------------------------- |:------- |:-------- |:------------- |:------- |:------------------- |:------------- |
 | `id`                       | String  | –        | –             | Primary | –                   | Document Id   |
 | `name`                     | String  | –        | –             | –       | –                   |               |
 | `parent_party_category_id` | String  | Yes      | –             | Foreign | m_party_category.id | Party Channel |

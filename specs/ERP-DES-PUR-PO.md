@@ -1,6 +1,7 @@
 # Module Design Details
 
 This document gives basic design details of following module.
+
 - **Software**: **HappyERP**
 - **Application**: Purchase
 - **Module**: Purchase Order
@@ -181,7 +182,6 @@ This document gives basic design details of following module.
 | Terms & Conditions | Purchase terms             |
 | Approval Notes     | Internal approval comments |
 
-
 ## Media & Attachments
 
 | Field                | Description                 | Type         |
@@ -244,4 +244,3 @@ This document gives basic design details of following module.
 | branchId      | string    | Branch ID                 |
 | companyId     | string    | Company ID                |
 | isDeleted     | boolean   | Soft delete flag          |
-
