@@ -19,24 +19,24 @@ Following common fields will be maintained in all collections/tables.
 
 Wherever address is maintained, it is maintained in a Map. Address Map and its fields are given below.
 
-| Name                     | Type      | Optional | Default Value | Key     | Reference      | Remarks   |
-|:------------------------ |:--------- |:-------- |:------------- |:------- |:-------------- |:--------- |
-| `address`                | map       | Yes      | –             | –       | –              | -         |
-| address.`type`         | String    | Yes      | –             | –       | –              | Name given to address |
-| address.`same_as_main`         | Boolean    | -      | False             | –       | –              | -         |
-| address.`street`         | String    | Yes      | –             | –       | –              | -         |
-| address.`city_id`        | String    | Yes      | –             | Foreign | m_city.`id`    | -         |
-| address.`city`           | String    | Yes      | –             | –       | –              | -         |
-| address.`pin`            | String    | Yes      | –             | –       | –              | -         |
-| address.`state_id`       | String    | Yes      | –             | Foreign | m_state.`id`   | -         |
-| address.`state`          | String    | Yes      | –             | –       | –              | -         |
-| address.`country_id`     | String    | Yes      | –             | Foreign | m_country.`id` | -         |
-| address.`country`        | String    | Yes      | –             | –       | –              | -         |
-| address.`landmark`         | String    | Yes      | –             | –       | –              | Landmark |
-| address.`location`       | Geopoint  | Yes      | –             | –       | –              | -         |
-| address.`tagged_by`      | String    | Yes      | –             | Foreign | m_party.`id`   | -         |
-| address.`tagged_by_name` | String    | Yes      | –             |         |                | User name |
-| address.`tagged_on`      | Timestamp | Yes      | –             | –       | –              | -         |
+| Name                     | Type      | Optional | Default Value | Key     | Reference      | Remarks               |
+|:------------------------ |:--------- |:-------- |:------------- |:------- |:-------------- |:--------------------- |
+| `address`                | map       | Yes      | –             | –       | –              | -                     |
+| address.`type`           | String    | Yes      | –             | –       | –              | Name given to address |
+| address.`same_as_main`   | Boolean   | -        | False         | –       | –              | -                     |
+| address.`street`         | String    | Yes      | –             | –       | –              | -                     |
+| address.`city_id`        | String    | Yes      | –             | Foreign | m_city.`id`    | -                     |
+| address.`city`           | String    | Yes      | –             | –       | –              | -                     |
+| address.`pin`            | String    | Yes      | –             | –       | –              | -                     |
+| address.`state_id`       | String    | Yes      | –             | Foreign | m_state.`id`   | -                     |
+| address.`state`          | String    | Yes      | –             | –       | –              | -                     |
+| address.`country_id`     | String    | Yes      | –             | Foreign | m_country.`id` | -                     |
+| address.`country`        | String    | Yes      | –             | –       | –              | -                     |
+| address.`landmark`       | String    | Yes      | –             | –       | –              | Landmark              |
+| address.`location`       | Geopoint  | Yes      | –             | –       | –              | -                     |
+| address.`tagged_by`      | String    | Yes      | –             | Foreign | m_party.`id`   | -                     |
+| address.`tagged_by_name` | String    | Yes      | –             |         |                | User name             |
+| address.`tagged_on`      | Timestamp | Yes      | –             | –       | –              | -                     |
 
 # Workflow Stage related fields (Stage Map)
 
