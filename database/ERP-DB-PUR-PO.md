@@ -1,8 +1,24 @@
-# Collection: purchase_order
+# Database Design Details
+
+This document gives database design details of following module.
+
+- **Software**: **HappyERP**
+- **Application**: Purchase
+- **Module**: Purchase Order
+
+This document contains database design details of Purchase Order module. The data includes:
+
+- General Information / Header Fields
+- Product Details
+- Delivery Schedule
+- Payment Terms
+- Summary Fields
+
+## Collection: purchase_order
 
 Contains Purchase Order transaction data.
 
-## General Information
+### General Information
 
 | Name                   | Type      | Optional | Default Value | Key                         | Reference            | Remarks                                                                         |
 | ---------------------- | --------- | -------- | ------------- | --------------------------- | -------------------- | ------------------------------------------------------------------------------- |
@@ -27,9 +43,12 @@ Contains Purchase Order transaction data.
 | `purchase_type`        | String    | -        | -             | -                           | -                    | Purchase Type: Local, Central, Export                                           |
 | `delivery_mode`        | String    |          |               |                             |                      | Delivery Type: Road, Rail, Air, Sea, Courier, Hand Delivery, Pipeline, Pickup   |
 | `delivery_charge_type` | String    | Yes      | -             | –                           | –                    | Who pays the delivery charges: Paid, To Pay, To Bill, Inclusive, Not Applicable |
-| `remarks`              | String    | Yes      | –             | –                           | –                    | General Remarks                                                                 |
+| `attachments`          | Array Map | Yes      | –             | –                           | `Attachment` Map     | Branch Documents                                                                |
+| `stage`                | Map       | –        | –             | –                           | `Stage` Map          | Current Stage                                                                   |
+| `stage_logs`           | Array Map | Yes      | –             | –                           | `Stage` Map          | Workflow History                                                                |
+| `notes`                | Array Map | -        | -             | -                           | `Note` Map           | It is an array of Note map                                                      |
 
-## Products
+### Product Details
 
 | Name                                       | Type      | Optional | Default Value | Key     | Reference              | Remarks                         |
 | ------------------------------------------ | --------- | -------- | ------------- | ------- | ---------------------- | ------------------------------- |
@@ -118,50 +137,7 @@ Contains Purchase Order transaction data.
 | payment_terms.penalty[].`rate`         | Double       | -        | -             | -       | -                   | Entered Penalty                           |
 | payment_terms.penalty[].`max_value`    | Double       | -        | -             | -       | -                   | Maximum Penalty Applicable                |
 
-## Attachments
-
-| Name                             | Type      | Optional | Default Value | Key     | Reference   | Remarks                           |
-| -------------------------------- | --------- | -------- | ------------- | ------- | ----------- | --------------------------------- |
-| attachments                      | Array Map | Yes      | –             | –       | –           | Uploaded Documents                |
-| attachments[].id                 | String    | –        | –             | –       | –           | Attachment Id                     |
-| attachments[].`name`             | String    | Yes      | –             | –       | –           | Display Name                      |
-| attachments[].`description`      | String    | Yes      | –             | –       | –           | Attachment Description            |
-| attachments[].`file_name`        | String    | –        | –             | –       | –           | Original File Name                |
-| attachments[].`file_extension`   | String    | Yes      | –             | –       | –           | pdf, jpg, png, xlsx, docx         |
-| attachments[].`file_type`        | String    | –        | –             | –       | –           | PDF, image, Document, Spreadsheet |
-| attachments[].`url`              | String    | –        | –             | –       | –           | URL on Server                     |
-| attachments[].`file_size`        | Int64     | Yes      | 0             | –       | –           | File size in Bytes                |
-| attachments[].`is_primary`       | Boolean   | –        | False         | –       | –           | Primary Attachment?               |
-| attachments[].`sequence`         | Int64     | –        | 0             | –       | –           | Display Sequence                  |
-| attachments[].`start_date`       | Timestamp | Yes      | –             | –       | –           | Valid From                        |
-| attachments[].`end_date`         | Timestamp | Yes      | –             | –       | –           | Valid Till                        |
-| attachments[].`uploaded_by`      | String    | Yes      | –             | Foreign | m_user.`id` | Uploaded By                       |
-| attachments[].`uploaded_by_name` | String    | Yes      | –             | –       | –           | Uploading User Name               |
-| attachments[].`uploaded_at`      | Timestamp | Yes      | –             | –       | –           | Uploaded Date                     |
-
-## Workflow Timeline
-
-| Name                        | Type      | Optional | Default Value | Key     | Reference               | Remarks                |
-| --------------------------- | --------- | -------- | ------------- | ------- | ----------------------- | ---------------------- |
-| stage                       | Map       | –        | –             | –       | –                       | Current Workflow Stage |
-| stage.`id`                  | String    | –        | –             | Foreign | m_app_object_stage.`id` | Stage Id               |
-| stage.`name`                | String    | –        | –             | –       | –                       | Stage Name             |
-| stage.`badge_variant`       | String    | –        | –             | –       | –                       | UI Badge               |
-| stage.`remarks`             | String    | Yes      | –             | –       | –                       | Stage Remarks          |
-| stage.`url`                 | String    | Yes      | –             | –       | –                       | Stage Attachment URL   |
-| stage.`set_by`              | String    | Yes      | –             | Foreign | m_user.`id`             | User who set it        |
-| stage.`set_by_name`         | String    | Yes      | –             | –       | –                       | Username who set it    |
-| stage.`set_at`              | Timestamp | Yes      | –             | –       | –                       | Set at                 |
-| `stages_logs`               | Array Map | Yes      | –             | –       | –                       | Workflow History       |
-| stages_logs[].`stage_id`    | String    | –        | –             | Foreign | m_app_object_stage.id   | Stage Id               |
-| stages_logs[].`stage_name`  | String    | –        | –             | –       | –                       | Stage Name             |
-| stages_logs[].`remarks`     | String    | Yes      | –             | –       | –                       | Remarks                |
-| stages_logs[].`url`         | String    | Yes      | –             | –       | –                       | Supporting Document    |
-| stages_logs[].`set_by`      | String    | Yes      | –             | Foreign | m_user.id               | Action By              |
-| stages_logs[].`set_by_name` | String    | Yes      | –             | –       | –                       | Action By Name         |
-| stages_logs[].`set_at`      | Timestamp | Yes      | –             | –       | –                       | Action Date            |
-
-## Summary
+## Summary Fields
 
 | Name                                  | Type      | Optional | Default Value | Key | Reference | Remarks                                                |
 | ------------------------------------- | --------- | -------- | ------------- | --- | --------- | ------------------------------------------------------ |
