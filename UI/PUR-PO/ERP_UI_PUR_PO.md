@@ -45,17 +45,17 @@ Summary cards are the widgets showing summary of the data on specific criteria. 
 
 ### 1.2b. DataTable (PO List) - Toolbar Config
 
-| Feature          | Settings                    |
-|:---------------- |:--------------------------- |
-| Search           | Yes                         |
-| View Toggle      | Yes                         |
-| Column Selection | Yes                         |
-| Group by         | Yes                         |
-| Filter           | Yes                         |
-| Export           | Yes<br/>Filename: `po-list` |
-| Share            | Yes                         |
-| Full Screen      | Yes                         |
-| Add              | Yes<br/>Page to open: `po`  |
+| Feature          | Settings                    | On Click                                                                               |
+|:---------------- |:--------------------------- |:-------------------------------------------------------------------------------------- |
+| Search           | Yes                         | Search PO records based on the entered keyword(s).                                     |
+| View Toggle      | Yes                         | Switch between available DataTable view layouts.                                       |
+| Column Selection | Yes                         | Open column selector to show or hide DataTable columns.                                |
+| Group by         | Yes                         | Group DataTable records based on the selected column.                                  |
+| Filter           | Yes                         | Open filter panel to apply additional filtering criteria.                              |
+| Export           | Yes<br/>Filename: `po-list` | Export the displayed DataTable records using the configured filename `po-list`.        |
+| Share            | Yes                         | Generate and share the current DataTable view, including applied filters and settings. |
+| Full Screen      | Yes                         | Toggle the DataTable between normal and full-screen view.                              |
+| Add              | Yes<br/>Page to open: `po`  | Open the `po` page in create mode to add a new Purchase Order.                         |
 
 ### 1.2c. DataTable (PO List) - Config
 
@@ -155,17 +155,17 @@ This section displays list of all products given in current PO.
 
 ### 2.1.2b. DataTable (Product Details) - Toolbar Config
 
-| Feature          | Settings                           |
-|:---------------- |:---------------------------------- |
-| Search           | No                                 |
-| View Toggle      | No                                 |
-| Column Selection | No                                 |
-| Group by         | No                                 |
-| Filter           | No                                 |
-| Export           | No                                 |
-| Share            | No                                 |
-| Full Screen      | Yes                                |
-| Add              | Yes<br/>Page to open: `po_product` |
+| Feature          | Settings                           | On Click                                                               |
+|:---------------- |:---------------------------------- |:---------------------------------------------------------------------- |
+| Search           | No                                 | N/A                                                                    |
+| View Toggle      | No                                 | N/A                                                                    |
+| Column Selection | No                                 | N/A                                                                    |
+| Group by         | No                                 | N/A                                                                    |
+| Filter           | No                                 | N/A                                                                    |
+| Export           | No                                 | N/A                                                                    |
+| Share            | No                                 | N/A                                                                    |
+| Full Screen      | Yes                                | Toggle the DataTable between normal and full-screen view.              |
+| Add              | Yes<br/>Page to open: `po_product` | Open the `po_product` page in create mode to add a new product record. |
 
 ### 2.1.2c. DataTable (Product Details) - Config
 
@@ -208,17 +208,17 @@ This section displays list of all products given in current PO.
 
 ### 2.1.3b. DataTable (Delivery Schedule) - Toolbar Config
 
-| Feature          | Settings                                     |
-|:---------------- |:-------------------------------------------- |
-| Search           | No                                           |
-| View Toggle      | No                                           |
-| Column Selection | No                                           |
-| Group by         | No                                           |
-| Filter           | No                                           |
-| Export           | No                                           |
-| Share            | No                                           |
-| Full Screen      | Yes                                          |
-| Add              | Yes<br/>Page to open: `po_delivery_schedule` |
+| Feature          | Settings                                     | On Click                                                                                   |
+|:---------------- |:-------------------------------------------- |:------------------------------------------------------------------------------------------ |
+| Search           | No                                           | N/A                                                                                        |
+| View Toggle      | No                                           | N/A                                                                                        |
+| Column Selection | No                                           | N/A                                                                                        |
+| Group by         | No                                           | N/A                                                                                        |
+| Filter           | No                                           | N/A                                                                                        |
+| Export           | No                                           | N/A                                                                                        |
+| Share            | No                                           | N/A                                                                                        |
+| Full Screen      | Yes                                          | Toggle the DataTable between normal and full-screen view.                                  |
+| Add              | Yes<br/>Page to open: `po_delivery_schedule` | Open the `po_delivery_schedule` page in create mode to add a new delivery schedule record. |
 
 ### 2.1.3c. DataTable (Delivery Schedule) - Config
 
@@ -267,17 +267,17 @@ This section displays list of all products given in current PO.
 
 ### 2.1.4.1b. DataTable (Payment Schedule) - Toolbar Config
 
-| Feature          | Settings                                    |
-|:---------------- |:------------------------------------------- |
-| Search           | No                                          |
-| View Toggle      | No                                          |
-| Column Selection | No                                          |
-| Group by         | No                                          |
-| Filter           | No                                          |
-| Export           | No                                          |
-| Share            | No                                          |
-| Full Screen      | Yes                                         |
-| Add              | Yes<br/>Page to open: `po_payment_schedule` |
+| Feature          | Settings                                    | On Click                                                                                 |
+|:---------------- |:------------------------------------------- |:---------------------------------------------------------------------------------------- |
+| Search           | No                                          | N/A                                                                                      |
+| View Toggle      | No                                          | N/A                                                                                      |
+| Column Selection | No                                          | N/A                                                                                      |
+| Group by         | No                                          | N/A                                                                                      |
+| Filter           | No                                          | N/A                                                                                      |
+| Export           | No                                          | N/A                                                                                      |
+| Share            | No                                          | N/A                                                                                      |
+| Full Screen      | Yes                                         | Toggle the DataTable between normal and full-screen view.                                |
+| Add              | Yes<br/>Page to open: `po_payment_schedule` | Open the `po_payment_schedule` page in create mode to add a new payment schedule record. |
 
 ### 2.1.4.1c. DataTable (Payment Schedule) - Config
 
@@ -313,17 +313,17 @@ This section displays list of all products given in current PO.
 
 ### 2.1.4.2b. DataTable (Early Payment Discount) - Toolbar Config
 
-| Feature          | Settings                                    |
-|:---------------- |:------------------------------------------- |
-| Search           | No                                          |
-| View Toggle      | No                                          |
-| Column Selection | No                                          |
-| Group by         | No                                          |
-| Filter           | No                                          |
-| Export           | No                                          |
-| Share            | No                                          |
-| Full Screen      | Yes                                         |
-| Add              | Yes<br/>Page to open: `po_payment_discount` |
+| Feature          | Settings                                    | On Click                                                                                       |
+|:---------------- |:------------------------------------------- |:---------------------------------------------------------------------------------------------- |
+| Search           | No                                          | N/A                                                                                            |
+| View Toggle      | No                                          | N/A                                                                                            |
+| Column Selection | No                                          | N/A                                                                                            |
+| Group by         | No                                          | N/A                                                                                            |
+| Filter           | No                                          | N/A                                                                                            |
+| Export           | No                                          | N/A                                                                                            |
+| Share            | No                                          | N/A                                                                                            |
+| Full Screen      | Yes                                         | Toggle the DataTable between normal and full-screen view.                                      |
+| Add              | Yes<br/>Page to open: `po_payment_discount` | Open the `po_payment_discount` page in create mode to add a new early payment discount record. |
 
 ### 2.1.4.2c. DataTable (Early Payment Discount) - Config
 
@@ -361,17 +361,17 @@ This section displays list of all products given in current PO.
 
 ### 2.1.4.3b. DataTable (Late Payment Penalty) - Toolbar Config
 
-| Feature          | Settings                                   |
-|:---------------- |:------------------------------------------ |
-| Search           | No                                         |
-| View Toggle      | No                                         |
-| Column Selection | No                                         |
-| Group by         | No                                         |
-| Filter           | No                                         |
-| Export           | No                                         |
-| Share            | No                                         |
-| Full Screen      | Yes                                        |
-| Add              | Yes<br/>Page to open: `po_payment_penalty` |
+| Feature          | Settings                                   | On Click                                                                                    |
+|:---------------- |:------------------------------------------ |:------------------------------------------------------------------------------------------- |
+| Search           | No                                         | N/A                                                                                         |
+| View Toggle      | No                                         | N/A                                                                                         |
+| Column Selection | No                                         | N/A                                                                                         |
+| Group by         | No                                         | N/A                                                                                         |
+| Filter           | No                                         | N/A                                                                                         |
+| Export           | No                                         | N/A                                                                                         |
+| Share            | No                                         | N/A                                                                                         |
+| Full Screen      | Yes                                        | Toggle the DataTable between normal and full-screen view.                                   |
+| Add              | Yes<br/>Page to open: `po_payment_penalty` | Open the `po_payment_penalty` page in create mode to add a new late payment penalty record. |
 
 ### 2.1.4.3c. DataTable (Late Payment Penalty) - Config
 
@@ -471,4 +471,4 @@ Frontend:
     /hooks
 ```
 
---
+-
