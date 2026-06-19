@@ -72,9 +72,10 @@ Sample Workflow Stages for Transactions:
 | `name_external`                | String  | -        | -             | -       | -                         |             |
 | `description`                  | String  | Yes      | -             | -       | -                         |             |
 | `badge_variant`                | String  | -        | -             | -       | -                         |             |
-| `to_set_by_user`               | Boolean | -        | True          | -       | -                         |             |
+| `is_internal`               | Boolean | -        | True          | -       | -                         |             |
 | `is_remarks_required`          | Boolean | -        | False         | -       | -                         |             |
-| `action_on_set`                | Array   | Yes      | -             | -       | s_category.`stage_action` |             |
+| `validation_before_set`                | Array   | Yes      | -             | -       |  |             |
+| `action_after_set`                | Array   | Yes      | -             | -       | s_category.`stage_action` |             |
 | `allow_delete`                 | Boolean | -        | False         | -       | -                         |             |
 | `allow_edit`                   | Boolean | -        | False         | -       | -                         |             |
 | `allow_cancel`                 | Boolean | -        | False         | -       | -                         |             |
