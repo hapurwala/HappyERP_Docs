@@ -78,7 +78,7 @@ Summary cards are the widgets showing summary of the data on specific criteria. 
 | Modify Date/Number | Open page: `modifyDocNumber`                                | - Modify permission<br/>- Modify allowed on stage                   | calendar-edit      | –       |
 | Set as <Stage_1>   | Set stage to Stage_1                                        | Allowed stage based on current stage                                | arrow-right-circle | –       |
 | Set as <Stage_2>   | Set stage to Stage_2                                        | –                                                                   | arrow-right-circle |         |
-| Undo Stage         | Move back to last stage                                     | - Permission to rollback from current status                        | undo-2             | –       |
+| Undo Stage         | Move back to last stage                                     | - Permission to rollback from current stage                         | undo-2             | –       |
 | Print              | Downloads PDF of the order in given format                  | - Print permission                                                  | printer            | –       |
 | Duplicate          | Create a copy of the PO. Stage will be set to `Draft`.      | - Add Permission                                                    |                    | -       |
 | Cancel             | - Show confirmation message<br/>- On Yes, mark as cancelled | - Cancel permission<br/>- Cancel allowed on current stage           | share-2            | -       |
@@ -187,7 +187,7 @@ This section displays list of all products given in current PO.
 | Modify           | Open page: `po`                                             | - Modify permission<br/>- Modify allowed on stage         | pencil             | –       |
 | Set as <Stage_1> | Set stage to Stage_1                                        | Allowed stage based on current stage                      | arrow-right-circle | –       |
 | Set as <Stage_2> | Set stage to Stage_2                                        | –                                                         | arrow-right-circle |         |
-| Undo Stage       | Move back to last stage                                     | - Permission to rollback from current status              | undo-2             | –       |
+| Undo Stage       | Move back to last stage                                     | - Permission to rollback from current stage              | undo-2             | –       |
 | Duplicate        | Create a copy of the PO. Stage will be set to `Draft`.      | - Add Permission                                          |                    | -       |
 | Cancel           | - Show confirmation message<br/>- On Yes, mark as cancelled | - Cancel permission<br/>- Cancel allowed on current stage | share-2            | -       |
 | Delete           | - Show confirmation message<br/>- On Yes, delete brand      | - Delete permission<br/>- Delete allowed on current stage | trash-2            | –       |
