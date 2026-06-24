@@ -92,11 +92,11 @@ This page shows the list of Product Varieties in tabular format. The varieties a
 
 ---
 
-### 2.3 Section (System Information)
+### 2.3 Right Section (System Information)
 
-|Name/Label|Data Source|Component|Component Specific Information|Required|Read Only|Validations|On Change|Description|Tooltip|
-|---|---|---|---|---|---|---|---|---|---|
-|Created By|System Generated|Text|User Name|No|Yes|–|–|User who created the Product Attribute|Created By|
-|Created On|System Generated|Date Time|DD/MM/YYYY HH:mm|No|Yes|–|–|Date and Time when the Product Attribute was created|Created On|
-|Modified By|System Generated|Text|User Name|No|Yes|–|–|User who last modified the Product Attribute|Modified By|
-|Modified On|System Generated|Date Time|DD/MM/YYYY HH:mm|No|Yes|–|–|Date and Time when the Product Attribute was last modified|Modified On|
+| Name/Label  | Data Source      | Component | Component Specific Information | Required | Read Only | Validations | On Change | Description                                              | Tooltip     |
+| ----------- | ---------------- | --------- | ------------------------------ | -------- | --------- | ----------- | --------- | -------------------------------------------------------- | ----------- |
+| Created By  | System Generated | Text      | User Name                      | No       | Yes       | –           | –         | User who created the Product Variety                     | Created By  |
+| Created On  | System Generated | Date Time | DD/MM/YYYY HH:mm               | No       | Yes       | –           | –         | Date and Time when the Product Variety was created       | Created On  |
+| Modified By | System Generated | Text      | User Name                      | No       | Yes       | –           | –         | User who last modified the Product Variety               | Modified By |
+| Modified On | System Generated | Date Time | DD/MM/YYYY HH:mm               | No       | Yes       | –           | –         | Date and Time when the Product Variety was last modified | Modified On |

@@ -102,9 +102,11 @@ Fields in the main form are grouped into different sections.
 
 ---
 
-### 2.1.2 Section (System Information)
+### 2.1.2 Right  Section (System Information)
 
-|Name/Label|Data Source|Component|Component Specific Information|Required|Read Only|Validations|On Change|Description|Tooltip|
-|---|---|---|---|---|---|---|---|---|---|
-|Modified By|System Generated|Text|User Name|No|Yes|–|–|User who last modified the UOM|Modified By|
-|Modified On|System Generated|Date Time|DD/MM/YYYY HH:mm|No|Yes|–|–|Date and Time when the UOM was last modified|Modified On|
+| Name/Label  | Data Source      | Component | Component Specific Information | Required | Read Only | Validations | On Change | Description                                  | Tooltip     |
+| ----------- | ---------------- | --------- | ------------------------------ | -------- | --------- | ----------- | --------- | -------------------------------------------- | ----------- |
+| Created By  | System Generated | Text      | User Name                      | No       | Yes       | –           | –         | User who created the UOM                     | Created By  |
+| Created On  | System Generated | Date Time | DD/MM/YYYY HH:mm               | No       | Yes       | –           | –         | Date and Time when the UOM was created       | Created On  |
+| Modified By | System Generated | Text      | User Name                      | No       | Yes       | –           | –         | User who last modified the UOM               | Modified By |
+| Modified On | System Generated | Date Time | DD/MM/YYYY HH:mm               | No       | Yes       | –           | –         | Date and Time when the UOM was last modified | Modified On |

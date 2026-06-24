@@ -101,10 +101,18 @@ Fields in the main form are grouped into different sections.
 
 ---
 
-### 2.1.2 Section (Images)
+### 2.1.2a Section (Images)
 
 | Name/Label    | Data Source                          | Component             | Component Specific Information                                                                                  | Required | Read Only | Validations             | On Change               | Description                                         | Tooltip       |
 | ------------- | ------------------------------------ | --------------------- | --------------------------------------------------------------------------------------------------------------- | -------- | --------- | ----------------------- | ----------------------- | --------------------------------------------------- | ------------- |
 | Primary Image | s_prd_product_group.`primary_image`  | Image Upload          | - Single Image Upload with Preview<br>- Supported Image Formats (JPG, JPEG, PNG)<br>- Maximum File Size: 2 MB   | No       | No        | Supported Image Formats | Preview Uploaded Image  | Primary image of the Product Group                  | Primary Image |
 | Other Images  | s_prd_product_group.`other_images[]` | Multiple Image Upload | - Multiple Image Upload with Preview<br>- Supported Image Formats (JPG, JPEG, PNG)<br>- Maximum File Size: 2 MB | No       | No        | Supported Image Formats | Preview Uploaded Images | Additional images associated with the Product Group | Other Images  |
 |               |                                      |                       |                                                                                                                 |          |           |                         |                         |                                                     |               |
+### 2.1.2b Right Section (System Information)
+
+| Name/Label  | Data Source      | Component | Component Specific Information | Required | Read Only | Validations | On Change | Description                                             | Tooltip     |
+| ----------- | ---------------- | --------- | ------------------------------ | -------- | --------- | ----------- | --------- | ------------------------------------------------------- | ----------- |
+| Created By  | System Generated | Text      | User Name                      | No       | Yes       | –           | –         | User who created the Product Group                      | Created By  |
+| Created On  | System Generated | Date Time | DD/MM/YYYY HH:mm               | No       | Yes       | –           | –         | Date and Time when the Product Group  was created       | Created On  |
+| Modified By | System Generated | Text      | User Name                      | No       | Yes       | –           | –         | User who last modified the Product Group                | Modified By |
+| Modified On | System Generated | Date Time | DD/MM/YYYY HH:mm               | No       | Yes       | –           | –         | Date and Time when the Product  Group was last modified | Modified On |

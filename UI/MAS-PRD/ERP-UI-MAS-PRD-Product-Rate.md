@@ -2,6 +2,15 @@
 
 This document provides UI details of all pages used in the ***MAS-PRD's*** Product Rate module.
 
+
+---
+### Currency Behaviour
+
+- Each Product Rate List is associated with exactly one Currency.
+- All Product Rates within the Rate List use the selected Currency.
+- Currency cannot be changed once Product Rates have been defined.
+- Exchange Rate management is maintained separately.
+
 ---
 
 # 1. Product Rate List Page UI 
@@ -12,14 +21,16 @@ This page displays a list of Product Rate  in tabular format.
 
 ### 1.1a. DataTable (Product Rate List) - Columns
 
-| Name         | Content                        | Format      | On Click              | Card Placement | Tooltip/On Hover |
-| ------------ | ------------------------------ | ----------- | --------------------- | -------------- | ---------------- |
-| Name         | s_prd_rate_list.`name`         | String      | Open View/Modify Page | Title          | –                |
-| Short Name   | s_prd_rate_list.`short_name`   | String      | –                     | Subtitle       | –                |
-| Rate Type    | s_prd_rate_list.`rate_type`    | String      | –                     | Body           | –                |
-| Process Type | s_prd_rate_list.`process_type` | String      | –                     | Body           | –                |
-| Start        | s_prd_rate_list.`start_date`   | Date        | –                     | Body           | –                |
-| Stage        | s_prd_rate_list_stage.`name`   | Stage Badge | -                     | Body           | –                |
+| Name         | Content                         | Format      | On Click              | Card Placement | Tooltip/On Hover                       |
+| ------------ | ------------------------------- | ----------- | --------------------- | -------------- | -------------------------------------- |
+| Name         | s_prd_rate_list.`name`          | String      | Open View/Modify Page | Title          | –                                      |
+| Short Name   | s_prd_rate_list.`short_name`    | String      | –                     | Subtitle       | –                                      |
+| Rate Type    | s_prd_rate_list.`rate_type`     | String      | –                     | Body           | –                                      |
+| Currency     | s_prd_rate_list.`currency_code` | String      | –                     | Body           | Currency applicable for this Rate List |
+| Process Type | s_prd_rate_list.`process_type`  | String      | –                     | Body           | –                                      |
+| Start        | s_prd_rate_list.`start_date`    | Date        | –                     | Body           | –                                      |
+| Stage        | s_prd_rate_list_stage.`name`    | Stage Badge | -                     | Body           | –                                      |
+
 
 ---
 
@@ -69,9 +80,10 @@ This page displays a list of Product Rate  in tabular format.
 
 ### 1.1e. DataTable (Product Rate List) - Filters Fields
 
-| Name       | Type         | Possible Values   | Default         |
-| ---------- | ------------ | ----------------- | --------------- |
-| Status     | Multi Select | Possible statuses | All Open Status |
+| Name   | Type         | Possible Values   | Default         |
+| ------ | ------------ | ----------------- | --------------- |
+| Status | Multi Select | Possible statuses | All Open Status |
+| Currency | Multi Select | Configured Currencies | All |
 
 ---
 
@@ -85,18 +97,19 @@ Fields in the main form are grouped into different sections.
 - Rate
 
 ### 2.1 Section (Basic Details)
-
-| Name/Label             | Data Source                    | Component             | Component Specific Information                                                                                                                                                 | Required | Read Only | Validations   | On Change                | Description                                             | Tooltip                                                     |
-| ---------------------- | ------------------------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | --------- | ------------- | ------------------------ | ------------------------------------------------------- | ----------------------------------------------------------- |
-| Name                   | s_prd_rate_list.`name`         | Text                  | Length 3-100                                                                                                                                                                   | Yes      | No        | Length: 3-100 | –                        | Name of the Rate List                                   | -                                                           |
-| Short Name             | s_prd_rate_list.`short_name`   | Text                  | Length 2-25                                                                                                                                                                    | Yes      | No        | Length: 2-25  | –                        | Code/Short Name of the Rate List                        | -                                                           |
-| Rate Type              | s_prd_rate_list.`rate_type`    | Dropdown              | Select Rate Type (MRP/Rate)                                                                                                                                                    | Yes      | No        | –             | –                        | Type of Rate maintained in this Rate List               | -                                                           |
-| Process Type           | s_prd_rate_list.`process_type` | Dropdown              | Purchase, Sale, Stock Transfer                                                                                                                                                 | Yes      | No        | –             | –                        | Business process for which this Rate List is applicable | The Business process for which this Rate List is applicable |
-| Customer/Supplier Type | s_prd_rate_list.`party_type`   | Dropdown              | Customer Type or Supplier Type based on Process Type<br><br>Sales: Customer Type, Customer<br><br>Purchase: Supplier Type, Supplier<br><br>Stock Transfer: Not implemented<br> | No       | No        | –             | Update available Parties | Applicable Customer/Supplier Type                       | Party Type                                                  |
-| Supplier(s)            | s_prd_rate_list_supplier_ids   | Multi Select Dropdown | Select one or more  Specific Suppliers for this rate list                                                                                                                      | No       | No        | –             | Update Supplier Mapping  | Suppliers for which this Rate List is applicable        | Applicable Suppliers                                        |
-| Agent(s)               | s_prd_rate_list_agent_ids      | Multi Select Dropdown  Select one or more Agents                                                                                                                                                      | No       | No        | –             | Update Agent Mapping     | Agents for which this Rate List is applicable           | Applicable Agents                                           |
-| Start Date             | s_prd_rate_list.`start_date`   | Date Picker           | DD/MM/YYYY                                                                                                                                                                     | Yes      | No        | Only Date     | –                        | Date from which this Rate List becomes applicable       | Effective From                                              |
-
+| Name/Label             | Data Source                    | Component             | Component Specific Information                                                                                                                                                                    | Required | Read Only | Validations        | On Change                  | Description                                             | Tooltip              |
+| ---------------------- | ------------------------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------- | ------------------ | -------------------------- | ------------------------------------------------------- | -------------------- |
+| Name                   | s_prd_rate_list.`name`         | Text                  | Length 3-100                                                                                                                                                                                      | Yes      | No        | Length: 3-100      | –                          | Name of the Rate List                                   | –                    |
+| Short Name             | s_prd_rate_list.`short_name`   | Text                  | - Length 2-25<br>- Unique                                                                                                                                                                         | Yes      | No        | Length: 2-25       | –                          | Code/Short Name of the Rate List                        | –                    |
+| Rate Type              | s_prd_rate_list.`rate_type`    | Dropdown              | Select Rate Type (MRP/Rate)                                                                                                                                                                       | Yes      | No        | –                  | –                          | Type of Rate maintained in this Rate List               | –                    |
+| Process Type           | s_prd_rate_list.`process_type` | Dropdown              | Purchase, Sale, Stock Transfer                                                                                                                                                                    | Yes      | No        | –                  | –                          | Business process for which this Rate List is applicable | Applicable Process   |
+| Currency               | s_prd_rate_list.`currency_id`  | Dropdown              | Select Currency                                                                                                                                                                                   | Yes      | No        | –                  | Update Rate Display Format | Currency applicable for this Rate List                  | Currency             |
+| Customer/Supplier Type | s_prd_rate_list.`party_type`   | Dropdown              | Customer Type or Supplier Type based on Process Type<br><br>Sales:<br>- Customer Type<br>- Customer<br><br>Purchase:<br>- Supplier Type<br>- Supplier<br><br>Stock Transfer:<br>- Not Implemented | No       | No        | –                  | Update Available Parties   | Applicable Customer/Supplier Type                       | Party Type           |
+| Supplier(s)            | s_prd_rate_list_supplier_ids   | Multi Select Dropdown | Select one or more Specific Suppliers for this Rate List                                                                                                                                          | No       | No        | –                  | Update Supplier Mapping    | Suppliers for which this Rate List is applicable        | Applicable Suppliers |
+| Agent(s)               | s_prd_rate_list_agent_ids      | Multi Select Dropdown | Select one or more Agents                                                                                                                                                                         | No       | No        | –                  | Update Agent Mapping       | Agents for which this Rate List is applicable           | Applicable Agents    |
+| Start Date             | s_prd_rate_list.`start_date`   | Date Picker           | DD/MM/YYYY                                                                                                                                                                                        | Yes      | No        | Only Date          | –                          | Date from which this Rate List becomes applicable       | Effective From       |
+| End Date               | s_prd_rate_list.`end_date`     | Date Picker           | DD/MM/YYYY                                                                                                                                                                                        | No       | Yes       | Only Date          | –                          | Date on which this Rate List was closed                 | Effective Until      |
+| Remarks                | s_prd_rate_list.`remarks`      | Text Area             | Multi-line                                                                                                                                                                                        | No       | No        | Max 255 Characters | –                          | Additional Notes                                        | Remarks              |
 
 
 ---
@@ -176,7 +189,7 @@ This popup displays the complete rate history of a Product/Product Pack and allo
 
 | Name/Label      | Data Source                         | Component      | Read Only | Description                      | Tooltip         |
 | --------------- | ----------------------------------- | -------------- | --------- | -------------------------------- | --------------- |
-| Rate            | s_prd_rate_list_detail.`rate`       | Currency Label | Yes       | Applicable Rate                  | Product Rate    |
+| Rate            | s_prd_rate_list_detail.`rate`       | Currency Label | Yes       | Applicable Rate in the selected Rate List Currency                 | Product Rate    |
 | Applicable From | s_prd_rate_list_detail.`start_date` | Date Label     | Yes       | Effective start date of the rate | Effective From  |
 | Applicable Upto | s_prd_rate_list_detail.`end_date`   | Date Label     | Yes       | Effective end date of the rate   | Effective Until |
 | Status          | s_prd_rate_list_detail.`status`     | Status Badge   | Yes       | Past / Current / Future          | Rate Status     |
@@ -193,3 +206,11 @@ This popup displays the complete rate history of a Product/Product Pack and allo
 | Applicable From | s_prd_rate_list_detail.`start_date` | Date Picker    | DD/MM/YYYY                     | Yes      | No        | Only Date     | Validate Timeline | Date from which the new rate becomes effective | Effective From |
 
 ---
+### 3.5 Right Section (System Information)
+
+|Name/Label|Data Source|Component|Component Specific Information|Required|Read Only|Validations|On Change|Description|Tooltip|
+|---|---|---|---|---|---|---|---|---|---|
+| Created By | System Generated | Text | User Name | No | Yes | – | – | User who created the Product Rate List | Created By |
+| Created On | System Generated | Date Time | DD/MM/YYYY HH:mm | No | Yes | – | – | Date and Time when the Product Rate List was created | Created On |
+| Modified By | System Generated | Text | User Name | No | Yes | – | – | User who last modified the Product Rate List | Modified By |
+| Modified On | System Generated | Date Time | DD/MM/YYYY HH:mm | No | Yes | – | – | Date and Time when the Product Rate List was last modified | Modified On |
