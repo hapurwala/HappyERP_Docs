@@ -110,3 +110,77 @@ Show:
 * Virtual Scrolling?
 
 * Cached lookups?
+
+## Entry Screens/Layouts
+
+Entry screens are used for add/modify data. This layout is normally divided in 2 parts:
+
+- **Left Side**: It is the main part of the entry screen. The main part may have one or more sections. A section contains related fields together. For example address section contains fields like street, city, state, country, pin etc.
+
+- **Right Side**: This is a smaller part of the screen. It normally contains profile picture (if applicable), summary sections and system section etc.  
+
+# Documentation Templates
+
+Separate documents are prepared giving description of pages. These documents are created in folder docs/ui. These documents use tables to give details of fields that will be shown along with the data source, validations etc. The blank table templates are given here.
+
+## Fields Information
+
+Following table is used to give details of fields in a section.
+
+| Name                        | Data Source                | Component                    | Component Specific Information                                                                             | Required                                       | Read Only                         | Validations                                            | On Change                                             | Description                                                                           | Tooltip                                                  |
+| --------------------------- | -------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | --------------------------------- | ------------------------------------------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| *Label given for the field* | *Corresponding data field* | *Component used on the page* | *Configuration of Component.<br/><br/>In case of Select component, option values/query is also given here* | *Is it mandatory for user to fill this field?* | *Is this field only for display?* | *Validations to applied on data entered in this field* | *Actions to be taken on entering data in this field.* | *Description related to this field. This information is useful for development team.* | *Tooltip to be shown to the user on hover on this field* |
+
+## DataTable Information
+
+On many entry pages, data is displayed/added/modified in tabular format. For example  product details in a Sales Order. We have a component named DataTable that we use for this purpose. Configuration data is important for this component. The configuration is to be given in a set of multiple tables. These tables are given below:
+
+### Table 1: Columns
+
+| Header          | Data Source                | Format                                                                                                                                                            | On Click                                                               | Card Placement                                                                                                        | Tooltip / On Hover                                                                            | Inline Edit Component                                                    |
+| --------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| *Column Header* | *Corresponding data field* | *Format in which data will be shown<br/>Image<br/>String<br/>Integer (with Comma Formatting Y/N)<br/>Decimal (with number of decimal places and Comma Formatting)<br/>Date* | *Any action to be taken on click. If yes,it would be shown as a link.* | *In card view, indicate where this field will be displayed in the card.<br/>Image<br/>Title<br/>Subtitle<br/>Details* | *Tooltip to be shown to the user on hover on this data. The tooltip may be static or dynamic* | *In case of inline editing, give the name of the component in edit mode* |
+
+### Table 2: Toolbar Config
+
+DataTable component has a toolbar. This toolbar contains buttons to take some common action on the table. Following table gives configuration parameters for this toolbar.  
+
+| Feature          | Settings | On Click                                                                |
+| ---------------- | -------- | ----------------------------------------------------------------------- |
+| Search           | *Yes/No* | -                                                                       |
+| View Toggle      | *Yes/No* | -                                                                       |
+| Column Selection | *Yes/No* | -                                                                       |
+| Group By         | *Yes/No* | -                                                                       |
+| Filter           | *Yes/No* | -                                                                       |
+| Export           | *Yes/No* | -                                                                       |
+| Share            | *Yes/No* | -                                                                       |
+| Full Screen      | *Yes/No* | -                                                                       |
+| Add              | *Yes/No* | *Action to take e.g.<br/>Show Popup<br/>Add Blank Row for inline entry* |
+
+### Table 3: Table Config
+
+| Feature        | Settings                |
+| -------------- | ----------------------- |
+| Row Selection  | *Yes/No*                |
+| Bulk Actions   | *Yes/No*                |
+| Sticky Header  | *Yes/No*                |
+| Column Resize  | *Yes/No*                |
+| Column Pinning | *Yes/No*                |
+| Sorting        | *Yes/No*                |
+| Pagination     | *Yes/No<br/>Page Size:* |
+
+### Table 4: RowAction Menu
+
+Action Menu is shown when user clicks on the 3 dots icons in last column of the DataTable. 
+
+| Name                        | Action                                           | Visibility Criteria                                                                         | Icon                          | Tooltip                                                      |
+| --------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------ |
+| *Text shown as Action Menu* | *Action to be taken on clicking this menu item.* | *Some action menu will be shown on specific conditions. That condition will be given here.* | *Icon to use along with text* | *Tooltip to be shown to the user on hover on this menu item* |
+
+### Table 5: Filer Panel Fields
+
+Filter panel will be shown as a drawer, if set to True. This Panel would consists of many criteria fields. User would select/enter values in these fields. Accordingly data will be fetched from the database. 
+
+| Name                        | Component        | Depends On                                                     | Possible Values                                                                                                                      | Default Values                                                                                 | Output                                                                                               | Required                                       | Tooltip                                                  |
+| --------------------------- | ---------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------- |
+| *Label given for the field* | *Component used* | *If this fields depends on another column, give its name here* | *Values / Validations for the component:<br/><br/>**Select**: LoV or Query<br/>**Number**: Min/Max Value<br/>**Date**: Min/Max Date* | *Initial value to be entered in this field. This vaue will also be set again on Reset Filter.* | *This gives the return value based on user selection. This vakue is used in the query to fetch data* | *Is it mandatory for user to fill this field?* | *Tooltip to be shown to the user on hover on this field* |
