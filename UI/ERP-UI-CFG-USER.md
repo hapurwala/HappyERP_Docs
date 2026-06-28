@@ -21,7 +21,7 @@ This page shows list of users in tabular format. The users appearing in the list
 
 | Header  | Data Source                                           | Format      | On Click           | Card Placement | Tooltip/On Hover |
 | ------- | ----------------------------------------------------- | ----------- | ------------------ | -------------- | ---------------- |
-| –       | m_party,attachments[].`url` where `is_primary` = True | Image       | Zoom image         | Image          | -                |
+| –       | m_party.attachments[].`url` where `is_primary` = True | Image       | Zoom image         | Image          | -                |
 | User Id | m_party.`short_name`                                  | String      | Open page `user`   | Title          | -                |
 | Name    | m_party.`display_name`                                | String      | –                  | Subtitle       | -                |
 | Mobile  | m_party.`mobile`                                      | String      | –                  | Body           | -                |
