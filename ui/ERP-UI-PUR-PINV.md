@@ -430,64 +430,9 @@ Business Rules:
 - Only authorized users can delete attachments.
 - At least one Vendor Invoice attachment is recommended.
 
----
-
-### 2.1.6a. DataTable (Attachments) - Columns
-
-| Name/Label  | Data Source | Type/Component | Component Specific Information | Required | Read Only | Validations             | On Change | Description        | Tooltip                   |
-|:----------- |:----------- |:-------------- |:------------------------------ |:-------- |:--------- |:----------------------- |:--------- |:------------------ |:------------------------- |
-| Preview     | preview_url | File Preview   | Image/PDF Preview              | No       | Yes       | –                       | –         | Document Preview   | Preview Attached Document |
-| File Name   | file_name   | Text           | Max Length 255                 | Yes      | Yes       | File Name Required      | –         | Uploaded File Name | Name Of Uploaded File     |
-| File Type   | file_type   | Badge          | PDF, JPG, PNG, DOCX, XLSX      | Yes      | Yes       | Allowed File Types Only | –         | File Extension     | Type Of Uploaded Document |
-| File Size   | file_size   | Text           | Auto Generated                 | Yes      | Yes       | Maximum Size Validation | –         | File Size          | Uploaded File Size        |
-| Uploaded By | uploaded_by | User           | Active Users                   | Yes      | Yes       | Valid User              | –         | Uploaded User      | User Who Uploaded File    |
-| Uploaded On | uploaded_on | DateTime       | Auto Generated                 | Yes      | Yes       | –                       | –         | Upload Date        | Date & Time Of Upload     |
-| Remarks     | remarks     | Text Area      | Multi Line                     | No       | No        | –                       | –         | Attachment Remarks | Additional Notes          |
-
----
-
-### 2.1.6b. DataTable (Attachments) - Toolbar Config
-
-| Feature     | Settings | On Click           |
-|:----------- |:-------- |:------------------ |
-| Search      | Yes      | Search Attachments |
-| Filter      | No       | –                  |
-| Export      | No       | –                  |
-| Full Screen | Yes      | Toggle Full Screen |
-| Add         | Yes      | Upload New File    |
-
----
-
-### 2.1.6c. DataTable (Attachments) - Config
-
-| Feature        | Settings |
-|:-------------- |:-------- |
-| Row Selection  | No       |
-| Bulk Actions   | No       |
-| Sticky Header  | Yes      |
-| Column Resize  | Yes      |
-| Column Pinning | No       |
-| Sorting        | Yes      |
-| Pagination     | No       |
-
----
-
-### 2.1.6d. DataTable (Attachments) - RowAction Menu
-
-| Name     | Action                | Visibility Criteria | Icon       | Tooltip            |
-|:-------- |:--------------------- |:------------------- |:---------- |:------------------ |
-| Preview  | Open File Preview     | View Permission     | eye        | Preview File       |
-| Download | Download Attachment   | Download Permission | download   | Download File      |
-| Replace  | Replace Existing File | Modify Permission   | refresh-cw | Replace Attachment |
-| Delete   | Delete Attachment     | Delete Permission   | trash      | Remove Attachment  |
-
----
-
-### 2.1.6e. DataTable (Attachments) - Filters Fields
-
-| Name | Component | Depends On | Possible Values | Default Values | Output | Tooltip |
-|:---- |:--------- |:---------- |:--------------- |:-------------- |:------ |:------- |
-| –    | –         | –          | –               | –              | –      | –       |
+| Name/Label  | Data Source                    | Type/Component   | Component Specific Information                       | Required | Read Only | Validations | On Change | Description | Tooltip |
+|:----------- |:------------------------------ |:---------------- |:---------------------------------------------------- |:-------- |:--------- |:----------- |:--------- |:----------- |:------- |
+| Attachments | purchase_invoice.`attachments` | AttachmentViewer | Prefix=PINV, Auto Increment, Format=PINV-YYYY-000001 | No       | No        | -           | -         | PI Media    | -       |
 
 ---
 

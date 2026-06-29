@@ -429,7 +429,7 @@ This section captures product-wise quality inspection details before stock becom
 
 | Name/Label | Data Source | Type/Component | Required | Read Only | Description                 | Tooltip                   |
 |:---------- |:----------- |:-------------- |:-------- |:--------- |:--------------------------- |:------------------------- |
-| Preview    | –           | File Viewer    | No       | Yes       | Preview File                | View File Before Download |
+| Preview    |             | File Viewer    | No       | Yes       | Preview File                | View File Before Download |
 | File Name  | file_name   | Text Display   | Yes      | Yes       | File Name                   | Uploaded File Name        |
 | File Type  | file_type   | Badge          | Yes      | Yes       | File Type                   | PDF, JPG, PNG, XLSX, DOCX |
 | Actions    | –           | Action Menu    | No       | No        | Preview / Download / Delete | Manage Attachment         |
