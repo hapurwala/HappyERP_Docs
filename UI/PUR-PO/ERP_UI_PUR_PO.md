@@ -121,37 +121,37 @@ Fields in the main form are grouped in different sections.
 
 ### 2.1.1. Section (General Information)
 
-| Name/Label   | Data Source  | Type/Component | Component Specific Information                                                  | Required | Read Only | Validations    | On Change                     | Description                  | Tooltip                    |
-|:------------ |:------------ |:-------------- |:------------------------------------------------------------------------------- |:-------- |:--------- |:-------------- |:----------------------------- |:---------------------------- |:-------------------------- |
-| PO Number    | po_number    | Text           | Prefix=PO, Auto Increment, Format=PO-YYYY-000001                                | Yes      | Yes       | Must Be Unique | Auto Generated                | Unique Purchase Order Number | System Generated PO Number |
-| Vendor       | vendor_id    | Select         | Single Select, Searchable, Async Lookup, Source=active vendors                  | Yes      | No        | -              | Load Vendor Details: currency | Vendor Selection             | -                          |
-| PO Date      | po_date      | DatePicker     | Single Date Picker                                                              | Yes      | No        | -              | -                             | Purchase Order Date          | -                          |
-| Currency     | currency_id  | Select         | Single Select, Searchable, Source=vendors active currencies                     | Yes      | No        | -              | Recalculate Amounts           | Transaction Currency         | -                          |
-| Freight Type | freight_type | Select         | Single Select, Options=Company Paid, Vendor Paid, Included In Rate, Third Party | Yes      | No        | -              | Update Freight Rules          | Freight Responsibility       | -                          |
-| Remarks      | remarks      | RichTextBox    |                                                                                 | No       | No        | -              | -                             | Remarks                      | -                          |
+| Name         | Data Source  | Component   | Component Specific Information                                                  | Required | Read Only | Validations    | On Change                     | Description                  | Tooltip                    |
+|:------------ |:------------ |:----------- |:------------------------------------------------------------------------------- |:-------- |:--------- |:-------------- |:----------------------------- |:---------------------------- |:-------------------------- |
+| PO Number    | po_number    | Text        | Prefix=PO, Auto Increment, Format=PO-YYYY-000001                                | Yes      | Yes       | Must Be Unique | Auto Generated                | Unique Purchase Order Number | System Generated PO Number |
+| Vendor       | vendor_id    | Select      | Single Select, Searchable, Async Lookup, Source=active vendors                  | Yes      | No        | -              | Load Vendor Details: currency | Vendor Selection             | -                          |
+| PO Date      | po_date      | DatePicker  | Single Date Picker                                                              | Yes      | No        | -              | -                             | Purchase Order Date          | -                          |
+| Currency     | currency_id  | Select      | Single Select, Searchable, Source=vendors active currencies                     | Yes      | No        | -              | Recalculate Amounts           | Transaction Currency         | -                          |
+| Freight Type | freight_type | Select      | Single Select, Options=Company Paid, Vendor Paid, Included In Rate, Third Party | Yes      | No        | -              | Update Freight Rules          | Freight Responsibility       | -                          |
+| Remarks      | remarks      | RichTextBox |                                                                                 | No       | No        | -              | -                             | Remarks                      | -                          |
 
 ### 2.1.2. Section (Product Details)
 
 This section displays list of all products given in current PO.
 
-| Name/Label      | Data Source | Type/Component | Component Specific Information | Required | Read Only | Validations | On Change | Description | Tooltip |
-|:--------------- |:----------- |:-------------- |:------------------------------ |:-------- |:--------- |:----------- |:--------- |:----------- |:------- |
-| Barcode Scan    | -           | Input          |                                | No       | No        |             | -         |             |         |
-| Product Details | product     | DataTable      |                                | Yes      | No        |             |           |             |         |
+| Name            | Data Source | Component | Component Specific Information | Required | Read Only | Validations | On Change | Description | Tooltip |
+|:--------------- |:----------- |:--------- |:------------------------------ |:-------- |:--------- |:----------- |:--------- |:----------- |:------- |
+| Barcode Scan    | -           | Input     |                                | No       | No        |             | -         |             |         |
+| Product Details | product     | DataTable |                                | Yes      | No        |             |           |             |         |
 
 ### 2.1.2a. DataTable (Product Details) - Columns
 
-| Name/Label                     | Data Source                                                     | Type/Component | Component Specific Information                          | Required | Read Only | Validations                                    | On Change            | Description              | Tooltip                                                     |
-|:------------------------------ |:--------------------------------------------------------------- |:-------------- |:------------------------------------------------------- |:-------- |:--------- |:---------------------------------------------- |:-------------------- |:------------------------ |:----------------------------------------------------------- |
-| Product                        | product_id                                                      | Select         | Single Select, Searchable, Async Lookup                 | Yes      | No        | Product Must Be Active                         | Load Product Details | Product Selection        | Select Product                                              |
-| Variety                        | variety_id                                                      | Select         | Single Select, Filtered By Product                      | No       | No        | -                                              | Load Variety Details | Product Variety          | Select Product Variety                                      |
-| Quantity                       | quantity + uom_id                                               | Input          | Suffix: uom_short_name; Decimal Allowed, Min=0          | Yes      | No        | Quantity Must Be Greater Than Zero             | Recalculate Amounts  | Ordered Quantity         | -                                                           |
-| Rate                           | rate                                                            | Input          | Decimal Currency Input                                  | Yes      | No        | Rate Must Be Greater Than Zero                 | Recalculate Amounts  | Purchase Rate            | -                                                           |
-| Discount                       | discount                                                        | Input          | Fixed Amount Or Percentage Or Unit                      | No       | No        | Discount Cannot Exceed Line Amount             | Recalculate Amounts  | Line Discount            | -                                                           |
-| Discount Type                  | discount_type                                                   | Select         | Single Select, Possible Values: Unit, Percentage, Fixed | Yes      | No        |                                                | Recalculate Amounts  |                          | -                                                           |
-| Product  Amount After Discount | product_amount = product_value_before_discount - discount_value | Text           | -                                                       | Yes      | Yes       | product_value_before_discount - discount_value | Recalculate Amounts  | Calculate after discount | Discounted Value                                            |
-| Tax                            | tax_amount <br/>= SUM (taxes[].`tax_value`)                     | Text           | -                                                       | No       | No        | Valid Tax Configuration Required               | Recalculate Amounts  | Tax Amount               | Tax Breckup<br/>Tax 1<br/>Tax 2<br/>...                     |
-| Total                          | line_total<br/>product_value_after_discount + tax_value         | Text           | -                                                       | Yes      | Yes       | Formula Validation                             | Auto Calculate       | Total Amount             | Amount Breckup <br/>Product Amount<br/>Tax Amount<br/>Total |
+| Name                           | Data Source                                                     | Component | Component Specific Information                          | Required | Read Only | Validations                                    | On Change            | Description              | Tooltip                                                     |
+|:------------------------------ |:--------------------------------------------------------------- |:--------- |:------------------------------------------------------- |:-------- |:--------- |:---------------------------------------------- |:-------------------- |:------------------------ |:----------------------------------------------------------- |
+| Product                        | product_id                                                      | Select    | Single Select, Searchable, Async Lookup                 | Yes      | No        | Product Must Be Active                         | Load Product Details | Product Selection        | Select Product                                              |
+| Variety                        | variety_id                                                      | Select    | Single Select, Filtered By Product                      | No       | No        | -                                              | Load Variety Details | Product Variety          | Select Product Variety                                      |
+| Quantity                       | quantity + uom_id                                               | Input     | Suffix: uom_short_name; Decimal Allowed, Min=0          | Yes      | No        | Quantity Must Be Greater Than Zero             | Recalculate Amounts  | Ordered Quantity         | -                                                           |
+| Rate                           | rate                                                            | Input     | Decimal Currency Input                                  | Yes      | No        | Rate Must Be Greater Than Zero                 | Recalculate Amounts  | Purchase Rate            | -                                                           |
+| Discount                       | discount                                                        | Input     | Fixed Amount Or Percentage Or Unit                      | No       | No        | Discount Cannot Exceed Line Amount             | Recalculate Amounts  | Line Discount            | -                                                           |
+| Discount Type                  | discount_type                                                   | Select    | Single Select, Possible Values: Unit, Percentage, Fixed | Yes      | No        |                                                | Recalculate Amounts  |                          | -                                                           |
+| Product  Amount After Discount | product_amount = product_value_before_discount - discount_value | Text      | -                                                       | Yes      | Yes       | product_value_before_discount - discount_value | Recalculate Amounts  | Calculate after discount | Discounted Value                                            |
+| Tax                            | tax_amount <br/>= SUM (taxes[].`tax_value`)                     | Text      | -                                                       | No       | No        | Valid Tax Configuration Required               | Recalculate Amounts  | Tax Amount               | Tax Breckup<br/>Tax 1<br/>Tax 2<br/>...                     |
+| Total                          | line_total<br/>product_value_after_discount + tax_value         | Text      | -                                                       | Yes      | Yes       | Formula Validation                             | Auto Calculate       | Total Amount             | Amount Breckup <br/>Product Amount<br/>Tax Amount<br/>Total |
 
 ### 2.1.2b. DataTable (Product Details) - Toolbar Config
 
@@ -193,7 +193,7 @@ This section displays list of all products given in current PO.
 
 ### 2.1.3a. DataTable (Delivery Schedule) - Columns
 
-| Name/Label             | Data Source                                                                                              | Type/Component   | Component Specific Information    | Required | Read Only | Validations                                                                        | On Change                           | Description               | Tooltip                         |
+| Name                   | Data Source                                                                                              | Component        | Component Specific Information    | Required | Read Only | Validations                                                                        | On Change                           | Description               | Tooltip                         |
 |:---------------------- |:-------------------------------------------------------------------------------------------------------- |:---------------- |:--------------------------------- |:-------- |:--------- |:---------------------------------------------------------------------------------- |:----------------------------------- |:------------------------- |:------------------------------- |
 | Product Pack Name      | product_pack_id                                                                                          | Select           |                                   | Yes      | No        |                                                                                    |                                     |                           | Product Pack name               |
 | Branch Name            | branch_id                                                                                                | Select           |                                   | No       | No        | if party selected so can't select branch                                           | on select party should be disabled  |                           | Branch Id                       |
@@ -242,7 +242,7 @@ This section displays list of all products given in current PO.
 
 ### 2.1.4. Section (Payment Terms)
 
-| Name/Label             | Data Source       | Type/Component     | Component Specific Information               | Required | Read Only | Validations                        | On Change              | Description                       | Tooltip                       |
+| Name                   | Data Source       | Component          | Component Specific Information               | Required | Read Only | Validations                        | On Change              | Description                       | Tooltip                       |
 |:---------------------- |:----------------- |:------------------ |:-------------------------------------------- |:-------- |:--------- |:---------------------------------- |:---------------------- |:--------------------------------- |:----------------------------- |
 | Payment Mode           | payment_mode      | AppMultiSelect     | Cash, Bank Transfer, UPI, Cheque, NEFT, RTGS | No       | No        | Valid Payment Mode Required        | Update Payment Rules   | Allowed Payment Methods           | Accepted Payment Modes        |
 | Base Date              | base_date         | AppSelect          | Invoice Date, Delivery Date                  | Yes      | No        | Valid Option Required              | Recalculate Due Date   | Base Date For Payment Calculation | Select Payment Reference Date |
@@ -257,7 +257,7 @@ This section displays list of all products given in current PO.
 
 ### 2.1.4.1a. DataTable (Payment Schedule) - Columns
 
-| Name/Label  | Data Source | Type/Component     | Component Specific Information          | Required | Read Only | Validations                        | On Change            | Description               | Tooltip |
+| Name        | Data Source | Component          | Component Specific Information          | Required | Read Only | Validations                        | On Change            | Description               | Tooltip |
 |:----------- |:----------- |:------------------ |:--------------------------------------- |:-------- |:--------- |:---------------------------------- |:-------------------- |:------------------------- |:------- |
 | Base Date   | base_date   | AppSelect          | Invoice Date, Delivery Date, Order Date | Yes      | No        | Valid Option Required              | Recalculate Due Date | Payment Reference Date    | -       |
 | Days Within | days_within | AppNumberInput     | Integer Only                            | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Due Date | Days From Base Date       | -       |
@@ -303,7 +303,7 @@ This section displays list of all products given in current PO.
 
 ### 2.1.4.2a. DataTable (Early Payment Discount) - Columns
 
-| Name/Label         | Data Source | Type/Component   | Component Specific Information          | Required | Read Only | Validations                        | On Change                 | Description                             | Tooltip                     |
+| Name               | Data Source | Component        | Component Specific Information          | Required | Read Only | Validations                        | On Change                 | Description                             | Tooltip                     |
 |:------------------ |:----------- |:---------------- |:--------------------------------------- |:-------- |:--------- |:---------------------------------- |:------------------------- |:--------------------------------------- |:--------------------------- |
 | Base Date          | base_date   | AppSelect        | Invoice Date, Delivery Date, Order Date | Yes      | No        | Valid Option Required              | Recalculate Discount Date | Reference Date For Discount Calculation | Select Discount Base Date   |
 | Days Within        | days_within | AppNumberInput   | Integer Only                            | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Discount Date | Days Within Base Date                   | Discount Eligibility Period |
@@ -351,7 +351,7 @@ This section displays list of all products given in current PO.
 
 ### 2.1.4.3a. DataTable (Late Payment Penalty) - Columns
 
-| Name/Label        | Data Source | Type/Component   | Component Specific Information                    | Required | Read Only | Validations                        | On Change                | Description                            | Tooltip                  |
+| Name              | Data Source | Component        | Component Specific Information                    | Required | Read Only | Validations                        | On Change                | Description                            | Tooltip                  |
 |:----------------- |:----------- |:---------------- |:------------------------------------------------- |:-------- |:--------- |:---------------------------------- |:------------------------ |:-------------------------------------- |:------------------------ |
 | Base Date         | base_date   | AppSelect        | Due Date, Invoice Date, Delivery Date, Order Date | Yes      | No        | Valid Option Required              | Recalculate Penalty Date | Reference Date For Penalty Calculation | Select Penalty Base Date |
 | Days After        | days_after  | AppNumberInput   | Integer Only                                      | Yes      | No        | Must Be Greater Than Or Equal To 0 | Recalculate Penalty Date | Days After Base Date                   | Penalty Grace Period     |
@@ -395,12 +395,9 @@ This section displays list of all products given in current PO.
 
 ### 2.1.5. Section: Attachments
 
-| Name/Label | Data (Collection Name > Doc > Field Name)                     | Type/Component | Component Specific Information            | Required | Read Only | Validations              | On Change      | Description               | Tooltip                   |
-|:---------- |:------------------------------------------------------------- |:-------------- |:----------------------------------------- |:-------- |:--------- |:------------------------ |:-------------- |:------------------------- |:------------------------- |
-| Preview    | -                                                             | AppFileViewer  | PDF, Image, DOC Preview                   | No       | Yes       | -                        | Open Preview   | Preview Uploaded Document | View File Before Download |
-| File Name  | purchase_orders>{po_id}>attachments>{attachment_id}>file_name | AppTextDisplay | Auto Generated From Uploaded File         | Yes      | Yes       | Cannot Be Blank          | Auto Populate  | Uploaded File Name        | Name Of Uploaded File     |
-| File Type  | purchase_orders>{po_id}>attachments>{attachment_id}>file_type | AppBadge       | Auto Detected (PDF, JPG, PNG, XLSX, DOCX) | Yes      | Yes       | Supported File Type Only | Auto Detect    | Uploaded File Type        | Document Format           |
-| Actions    | -                                                             | AppActionMenu  | Preview, Download, Delete                 | No       | No        | Permission Based Actions | Execute Action | Attachment Actions        | Manage Uploaded File      |
+| Name        | Data Source                   | Component        | Component Specific Information | Required | Read Only | Validations | On Change | Description | Tooltip |
+|:----------- |:----------------------------- |:---------------- |:------------------------------ |:-------- |:--------- |:----------- |:--------- |:----------- |:------- |
+| Attachments | purchase_orders.`attachments` | AttachmentViewer | PDF, Image, DOC Preview        | No       | No        | -           | -         | PO Media    | -       |
 
 ---
 
@@ -426,7 +423,7 @@ Component to use: `Summary Card`
 
 Component to use: `StageHistoryViewer`
 
-| Name/Label | Data Source | Component                                        | Tooltip   |
+| Name       | Data Source | Component                                        | Tooltip   |
 |:---------- |:----------- |:------------------------------------------------ |:--------- |
 | Stage      | stage_name  | Text                                             | -         |
 | Set At     | set_on      | Text                                             | -         |

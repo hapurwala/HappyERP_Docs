@@ -119,17 +119,17 @@ Fields in the main form are grouped into different sections.
 
 ### 2.1.1. Section (General Information)
 
-| Name/Label            | Data Source           | Type/Component | Component Specific Information                       | Required | Read Only | Validations               | On Change                | Description            | Tooltip                          |
-|:--------------------- |:--------------------- |:-------------- |:---------------------------------------------------- |:-------- |:--------- |:------------------------- |:------------------------ |:---------------------- |:-------------------------------- |
-| Invoice Number        | invoice_number        | Text           | Prefix=PINV, Auto Increment, Format=PINV-YYYY-000001 | Yes      | Yes       | Must Be Unique            | Auto Generated           | Unique Invoice Number  | System Generated Invoice Number  |
-| Invoice Date          | invoice_date          | DatePicker     | Single Date Picker                                   | Yes      | No        | Cannot Be Future Date     | –                        | Purchase Invoice Date  | Internal Invoice Date            |
-| Vendor Invoice Number | vendor_invoice_number | Text           | Max Length 50                                        | Yes      | No        | Unique Per Vendor         | –                        | Vendor Invoice Number  | Vendor Provided Invoice Number   |
-| Vendor Invoice Date   | vendor_invoice_date   | DatePicker     | Single Date Picker                                   | Yes      | No        | Cannot Be Future Date     | Update Due Date          | Vendor Invoice Date    | Date Mentioned On Vendor Invoice |
-| Reference Type        | reference_type        | Select         | PO, GRN, Direct Purchase, Mixed                      | Yes      | No        | Valid Reference Type      | Load References          | Invoice Source         | Source Of Purchase Invoice       |
-| Vendor                | vendor_id             | Select         | Searchable Async Lookup                              | Yes      | No        | Vendor Must Be Active     | Load Vendor Details      | Vendor Selection       | Select Vendor                    |
-| Currency              | currency_id           | Select         | Auto Filled From Reference Or Organisation Default   | Yes      | No        | Valid Currency            | Update Amount Fields     | Transaction Currency   | Currency Used In Invoice         |
-| Exchange Rate         | exchange_rate         | Number Input   | Decimal Allowed                                      | No       | No        | Must Be Greater Than Zero | Update Converted Amounts | Currency Exchange Rate | Exchange Rate To Base Currency   |
-| Remarks               | remarks               | RichTextBox    | –                                                    | No       | No        | –                         | –                        | General Remarks        | Additional Notes                 |
+| Name                  | Data Source           | Component    | Component Specific Information                       | Required | Read Only | Validations               | On Change                | Description            | Tooltip                          |
+|:--------------------- |:--------------------- |:------------ |:---------------------------------------------------- |:-------- |:--------- |:------------------------- |:------------------------ |:---------------------- |:-------------------------------- |
+| Invoice Number        | invoice_number        | Text         | Prefix=PINV, Auto Increment, Format=PINV-YYYY-000001 | Yes      | Yes       | Must Be Unique            | Auto Generated           | Unique Invoice Number  | System Generated Invoice Number  |
+| Invoice Date          | invoice_date          | DatePicker   | Single Date Picker                                   | Yes      | No        | Cannot Be Future Date     | –                        | Purchase Invoice Date  | Internal Invoice Date            |
+| Vendor Invoice Number | vendor_invoice_number | Text         | Max Length 50                                        | Yes      | No        | Unique Per Vendor         | –                        | Vendor Invoice Number  | Vendor Provided Invoice Number   |
+| Vendor Invoice Date   | vendor_invoice_date   | DatePicker   | Single Date Picker                                   | Yes      | No        | Cannot Be Future Date     | Update Due Date          | Vendor Invoice Date    | Date Mentioned On Vendor Invoice |
+| Reference Type        | reference_type        | Select       | PO, GRN, Direct Purchase, Mixed                      | Yes      | No        | Valid Reference Type      | Load References          | Invoice Source         | Source Of Purchase Invoice       |
+| Vendor                | vendor_id             | Select       | Searchable Async Lookup                              | Yes      | No        | Vendor Must Be Active     | Load Vendor Details      | Vendor Selection       | Select Vendor                    |
+| Currency              | currency_id           | Select       | Auto Filled From Reference Or Organisation Default   | Yes      | No        | Valid Currency            | Update Amount Fields     | Transaction Currency   | Currency Used In Invoice         |
+| Exchange Rate         | exchange_rate         | Number Input | Decimal Allowed                                      | No       | No        | Must Be Greater Than Zero | Update Converted Amounts | Currency Exchange Rate | Exchange Rate To Base Currency   |
+| Remarks               | remarks               | RichTextBox  | –                                                    | No       | No        | –                         | –                        | General Remarks        | Additional Notes                 |
 
 ---
 
@@ -152,17 +152,17 @@ Business Rules:
 - Direct Purchase products require approval before payment.
 - Mixed mode invoices are supported.
 
-| Name/Label            | Data Source           | Type/Component | Component Specific Information                | Required | Read Only | Validations                            | On Change            | Description            | Tooltip                            |
-|:--------------------- |:--------------------- |:-------------- |:--------------------------------------------- |:-------- |:--------- |:-------------------------------------- |:-------------------- |:---------------------- |:---------------------------------- |
-| Purchase Orders       | po_ids                | Multi Select   | Searchable, Async Lookup                      | No       | No        | All POs Must Belong To Same Vendor     | Load PO Products     | Linked Purchase Orders | Select One Or Multiple POs         |
-| Goods Receipt Notes   | grn_ids               | Multi Select   | Searchable, Async Lookup                      | No       | No        | All GRNs Must Belong To Same Vendor    | Load GRN Products    | Linked GRNs            | Select One Or Multiple GRNs        |
-| Allow Direct Purchase | allow_direct_purchase | Toggle         | Yes / No                                      | Yes      | No        | Purchase Manager Permission Required   | Show Direct Products | Allow Direct Products  | Add Products Without PO Or GRN     |
-| Vendor                | vendor_id             | Auto Filled    | Loaded From PO/GRN Or Manual Selection        | Yes      | No        | Vendor Must Match All References       | Auto Populate        | Vendor Information     | Vendor For Current Invoice         |
-| Currency              | currency_id           | Auto Filled    | Loaded From Reference Or Organisation Default | Yes      | Yes       | All References Must Have Same Currency | Auto Populate        | Transaction Currency   | Currency Used In Invoice           |
-| Total PO Value        | total_po_value        | Currency       | Calculated Field                              | No       | Yes       | –                                      | Auto Calculate       | Total PO Value         | Sum Of Selected Purchase Orders    |
-| Total GRN Value       | total_grn_value       | Currency       | Calculated Field                              | No       | Yes       | –                                      | Auto Calculate       | Total GRN Value        | Sum Of Selected GRNs               |
-| Total Direct Value    | total_direct_value    | Currency       | Calculated Field                              | No       | Yes       | –                                      | Auto Calculate       | Direct Purchase Value  | Sum Of Direct Purchase Products    |
-| Direct Purchase Stage | direct_purchase_stage | Status         | Pending, Approved, Rejected                   | No       | Yes       | Required If Direct Products Exist      | Auto Update          | Direct Purchase Status | Approval Status Of Direct Products |
+| Name                  | Data Source           | Component    | Component Specific Information                | Required | Read Only | Validations                            | On Change            | Description            | Tooltip                            |
+|:--------------------- |:--------------------- |:------------ |:--------------------------------------------- |:-------- |:--------- |:-------------------------------------- |:-------------------- |:---------------------- |:---------------------------------- |
+| Purchase Orders       | po_ids                | Multi Select | Searchable, Async Lookup                      | No       | No        | All POs Must Belong To Same Vendor     | Load PO Products     | Linked Purchase Orders | Select One Or Multiple POs         |
+| Goods Receipt Notes   | grn_ids               | Multi Select | Searchable, Async Lookup                      | No       | No        | All GRNs Must Belong To Same Vendor    | Load GRN Products    | Linked GRNs            | Select One Or Multiple GRNs        |
+| Allow Direct Purchase | allow_direct_purchase | Toggle       | Yes / No                                      | Yes      | No        | Purchase Manager Permission Required   | Show Direct Products | Allow Direct Products  | Add Products Without PO Or GRN     |
+| Vendor                | vendor_id             | Auto Filled  | Loaded From PO/GRN Or Manual Selection        | Yes      | No        | Vendor Must Match All References       | Auto Populate        | Vendor Information     | Vendor For Current Invoice         |
+| Currency              | currency_id           | Auto Filled  | Loaded From Reference Or Organisation Default | Yes      | Yes       | All References Must Have Same Currency | Auto Populate        | Transaction Currency   | Currency Used In Invoice           |
+| Total PO Value        | total_po_value        | Currency     | Calculated Field                              | No       | Yes       | –                                      | Auto Calculate       | Total PO Value         | Sum Of Selected Purchase Orders    |
+| Total GRN Value       | total_grn_value       | Currency     | Calculated Field                              | No       | Yes       | –                                      | Auto Calculate       | Total GRN Value        | Sum Of Selected GRNs               |
+| Total Direct Value    | total_direct_value    | Currency     | Calculated Field                              | No       | Yes       | –                                      | Auto Calculate       | Direct Purchase Value  | Sum Of Direct Purchase Products    |
+| Direct Purchase Stage | direct_purchase_stage | Status       | Pending, Approved, Rejected                   | No       | Yes       | Required If Direct Products Exist      | Auto Update          | Direct Purchase Status | Approval Status Of Direct Products |
 
 ---
 
@@ -183,20 +183,20 @@ Products may come from:
 
 ### 2.1.3a. DataTable (Invoice Product Details) - Columns
 
-| Name/Label                    | Data Source                                                     | Type/Component | Component Specific Information                           | Required | Read Only | Validations                                    | On Change            | Description              | Tooltip                                                    |
-|:----------------------------- |:--------------------------------------------------------------- |:-------------- |:-------------------------------------------------------- |:-------- |:--------- |:---------------------------------------------- |:-------------------- |:------------------------ |:---------------------------------------------------------- |
-| Receipt Source                | receipt_source                                                  | Select         | Single Select, Possible Values: PO, GRN, Direct Purchase | Yes      | No        | Valid Source Required                          | Load Reference Data  | Product Source           | Source Of Product                                          |
-| Reference Number              | reference_number                                                | Lookup         | Based On Receipt Source                                  | No       | Yes       | Must Exist In Selected Reference               | Load Product Details | Source Document Number   | PO/GRN Reference                                           |
-| Product                       | product_id                                                      | Select         | Single Select, Searchable, Async Lookup                  | Yes      | No        | Product Must Be Active                         | Load Product Details | Product Selection        | Select Product                                             |
-| Variety                       | variety_id                                                      | Select         | Single Select, Filtered By Product                       | No       | No        | –                                              | Load Variety Details | Product Variety          | Select Product Variety                                     |
-| Pack                          | pack_id                                                         | Select         | Single Select, Filtered By Product                       | No       | No        | –                                              | Load Pack Details    | Product Pack             | Select Product Packaging                                   |
-| Quantity                      | quantity + uom_id                                               | Input          | Suffix: uom_short_name; Decimal Allowed, Min=0           | Yes      | No        | Quantity Must Be Greater Than Zero             | Recalculate Amounts  | Invoice Quantity         | Quantity Included In Invoice                               |
-| Rate                          | rate                                                            | Input          | Decimal Currency Input                                   | Yes      | No        | Rate Must Be Greater Than Zero                 | Recalculate Amounts  | Purchase Rate            | Product Purchase Rate                                      |
-| Discount                      | discount                                                        | Input          | Fixed Amount Or Percentage Or Unit                       | No       | No        | Discount Cannot Exceed Line Amount             | Recalculate Amounts  | Line Discount            | Product Level Discount                                     |
-| Discount Type                 | discount_type                                                   | Select         | Single Select, Possible Values: Unit, Percentage, Fixed  | Yes      | No        | Valid Discount Type                            | Recalculate Amounts  | Discount Type            | Discount Calculation Method                                |
-| Product Amount After Discount | product_amount = product_value_before_discount - discount_value | Text           | –                                                        | Yes      | Yes       | product_value_before_discount - discount_value | Recalculate Amounts  | Calculate After Discount | Discounted Product Value                                   |
-| Tax                           | tax_amount <br/>= SUM(taxes[].tax_value)                        | Text           | –                                                        | No       | Yes       | Valid Tax Configuration Required               | Recalculate Amounts  | Tax Amount               | Tax Breakup<br/>CGST<br/>SGST<br/>IGST<br/>TDS             |
-| Total                         | line_total = product_amount + tax_amount                        | Text           | –                                                        | Yes      | Yes       | Formula Validation                             | Auto Calculate       | Total Amount             | Amount Breakup<br/>Product Amount<br/>Tax Amount<br/>Total |
+| Name                          | Data Source                                                     | Component | Component Specific Information                           | Required | Read Only | Validations                                    | On Change            | Description              | Tooltip                                                    |
+|:----------------------------- |:--------------------------------------------------------------- |:--------- |:-------------------------------------------------------- |:-------- |:--------- |:---------------------------------------------- |:-------------------- |:------------------------ |:---------------------------------------------------------- |
+| Receipt Source                | receipt_source                                                  | Select    | Single Select, Possible Values: PO, GRN, Direct Purchase | Yes      | No        | Valid Source Required                          | Load Reference Data  | Product Source           | Source Of Product                                          |
+| Reference Number              | reference_number                                                | Lookup    | Based On Receipt Source                                  | No       | Yes       | Must Exist In Selected Reference               | Load Product Details | Source Document Number   | PO/GRN Reference                                           |
+| Product                       | product_id                                                      | Select    | Single Select, Searchable, Async Lookup                  | Yes      | No        | Product Must Be Active                         | Load Product Details | Product Selection        | Select Product                                             |
+| Variety                       | variety_id                                                      | Select    | Single Select, Filtered By Product                       | No       | No        | –                                              | Load Variety Details | Product Variety          | Select Product Variety                                     |
+| Pack                          | pack_id                                                         | Select    | Single Select, Filtered By Product                       | No       | No        | –                                              | Load Pack Details    | Product Pack             | Select Product Packaging                                   |
+| Quantity                      | quantity + uom_id                                               | Input     | Suffix: uom_short_name; Decimal Allowed, Min=0           | Yes      | No        | Quantity Must Be Greater Than Zero             | Recalculate Amounts  | Invoice Quantity         | Quantity Included In Invoice                               |
+| Rate                          | rate                                                            | Input     | Decimal Currency Input                                   | Yes      | No        | Rate Must Be Greater Than Zero                 | Recalculate Amounts  | Purchase Rate            | Product Purchase Rate                                      |
+| Discount                      | discount                                                        | Input     | Fixed Amount Or Percentage Or Unit                       | No       | No        | Discount Cannot Exceed Line Amount             | Recalculate Amounts  | Line Discount            | Product Level Discount                                     |
+| Discount Type                 | discount_type                                                   | Select    | Single Select, Possible Values: Unit, Percentage, Fixed  | Yes      | No        | Valid Discount Type                            | Recalculate Amounts  | Discount Type            | Discount Calculation Method                                |
+| Product Amount After Discount | product_amount = product_value_before_discount - discount_value | Text      | –                                                        | Yes      | Yes       | product_value_before_discount - discount_value | Recalculate Amounts  | Calculate After Discount | Discounted Product Value                                   |
+| Tax                           | tax_amount <br/>= SUM(taxes[].tax_value)                        | Text      | –                                                        | No       | Yes       | Valid Tax Configuration Required               | Recalculate Amounts  | Tax Amount               | Tax Breakup<br/>CGST<br/>SGST<br/>IGST<br/>TDS             |
+| Total                         | line_total = product_amount + tax_amount                        | Text      | –                                                        | Yes      | Yes       | Formula Validation                             | Auto Calculate       | Total Amount             | Amount Breakup<br/>Product Amount<br/>Tax Amount<br/>Total |
 
 ---
 
@@ -269,15 +269,15 @@ Business Rules:
 
 ### 2.1.4a. DataTable (Tax Details) - Columns
 
-| Name/Label     | Data Source    | Type/Component | Component Specific Information | Required | Read Only | Validations               | On Change            | Description     | Tooltip                   |
-|:-------------- |:-------------- |:-------------- |:------------------------------ |:-------- |:--------- |:------------------------- |:-------------------- |:--------------- |:------------------------- |
-| Product        | product_id     | Lookup         | Linked Invoice Products        | Yes      | Yes       | Product Must Exist        | Load Tax Rules       | Invoice Product | Product For Current Tax   |
-| Tax            | tax_id         | Lookup         | Active Tax Masters             | Yes      | No        | Valid Tax                 | Calculate Tax Amount | Applied Tax     | Tax Applied On Product    |
-| Tax Type       | tax_type       | Badge          | CGST, SGST, IGST, TDS, CESS    | Yes      | Yes       | –                         | –                    | Tax Category    | Type Of Tax               |
-| Taxable Amount | taxable_amount | Currency       | Auto Calculated                | Yes      | Yes       | Must Be Greater Than Zero | Auto Calculate       | Taxable Value   | Amount Before Tax         |
-| Tax Percentage | tax_percentage | Number Input   | Decimal Allowed                | Yes      | No        | Between 0 To 100          | Calculate Tax Amount | Tax Rate        | Applicable Tax Percentage |
-| Tax Amount     | tax_amount     | Currency       | Auto Calculated                | Yes      | Yes       | Formula Validation        | Auto Calculate       | Tax Value       | Calculated Tax Amount     |
-| Remarks        | remarks        | Text Area      | Multi Line                     | No       | No        | –                         | –                    | Tax Remarks     | Additional Notes          |
+| Name           | Data Source    | Component    | Component Specific Information | Required | Read Only | Validations               | On Change            | Description     | Tooltip                   |
+|:-------------- |:-------------- |:------------ |:------------------------------ |:-------- |:--------- |:------------------------- |:-------------------- |:--------------- |:------------------------- |
+| Product        | product_id     | Lookup       | Linked Invoice Products        | Yes      | Yes       | Product Must Exist        | Load Tax Rules       | Invoice Product | Product For Current Tax   |
+| Tax            | tax_id         | Lookup       | Active Tax Masters             | Yes      | No        | Valid Tax                 | Calculate Tax Amount | Applied Tax     | Tax Applied On Product    |
+| Tax Type       | tax_type       | Badge        | CGST, SGST, IGST, TDS, CESS    | Yes      | Yes       | –                         | –                    | Tax Category    | Type Of Tax               |
+| Taxable Amount | taxable_amount | Currency     | Auto Calculated                | Yes      | Yes       | Must Be Greater Than Zero | Auto Calculate       | Taxable Value   | Amount Before Tax         |
+| Tax Percentage | tax_percentage | Number Input | Decimal Allowed                | Yes      | No        | Between 0 To 100          | Calculate Tax Amount | Tax Rate        | Applicable Tax Percentage |
+| Tax Amount     | tax_amount     | Currency     | Auto Calculated                | Yes      | Yes       | Formula Validation        | Auto Calculate       | Tax Value       | Calculated Tax Amount     |
+| Remarks        | remarks        | Text Area    | Multi Line                     | No       | No        | –                         | –                    | Tax Remarks     | Additional Notes          |
 
 ---
 
@@ -337,7 +337,7 @@ Business Rules:
 * Supports Late Payment Penalties.
 * Supports TDS Deduction.
 
-| Name/Label             | Data Source       | Type/Component     | Component Specific Information               | Required | Read Only | Validations                        | On Change              | Description                       | Tooltip                       |
+| Name                   | Data Source       | Component          | Component Specific Information               | Required | Read Only | Validations                        | On Change              | Description                       | Tooltip                       |
 |:---------------------- |:----------------- |:------------------ |:-------------------------------------------- |:-------- |:--------- |:---------------------------------- |:---------------------- |:--------------------------------- |:----------------------------- |
 | Payment Mode           | payment_mode      | AppMultiSelect     | Cash, Bank Transfer, UPI, Cheque, NEFT, RTGS | No       | No        | Valid Payment Mode Required        | Update Payment Rules   | Allowed Payment Methods           | Accepted Payment Modes        |
 | Base Date              | base_date         | AppSelect          | Invoice Date, GRN Date, PO Date              | Yes      | No        | Valid Option Required              | Recalculate Due Date   | Base Date For Payment Calculation | Select Payment Reference Date |
@@ -356,13 +356,13 @@ Business Rules:
 
 ### 2.1.5a. DataTable (Payment Schedule) - Columns
 
-| Name/Label  | Data Source | Type/Component | Component Specific Information | Required | Read Only | Validations           | On Change          | Description        | Tooltip                      |
-|:----------- |:----------- |:-------------- |:------------------------------ |:-------- |:--------- |:--------------------- |:------------------ |:------------------ |:---------------------------- |
-| Base Date   | base_date   | Select         | Invoice Date, GRN Date         | Yes      | No        | Valid Base Date       | Calculate Due Date | Reference Date     | Base Date For Schedule       |
-| Days Within | days_within | Number Input   | Integer Only                   | Yes      | No        | Cannot Be Negative    | Calculate Due Date | Credit Days        | Days From Base Date          |
-| Due Date    | due_date    | Date Display   | Auto Calculated                | Yes      | Yes       | Formula Validation    | Auto Calculate     | Due Date           | Payment Due Date             |
-| Percentage  | percentage  | Number Input   | Decimal Allowed                | Yes      | No        | Total Must Equal 100% | Calculate Amount   | Payment Percentage | Percentage Of Invoice Amount |
-| Amount      | amount      | Currency       | Auto Calculated                | Yes      | Yes       | Formula Validation    | Auto Calculate     | Payment Amount     | Amount To Be Paid            |
+| Name        | Data Source | Component    | Component Specific Information | Required | Read Only | Validations           | On Change          | Description        | Tooltip                      |
+|:----------- |:----------- |:------------ |:------------------------------ |:-------- |:--------- |:--------------------- |:------------------ |:------------------ |:---------------------------- |
+| Base Date   | base_date   | Select       | Invoice Date, GRN Date         | Yes      | No        | Valid Base Date       | Calculate Due Date | Reference Date     | Base Date For Schedule       |
+| Days Within | days_within | Number Input | Integer Only                   | Yes      | No        | Cannot Be Negative    | Calculate Due Date | Credit Days        | Days From Base Date          |
+| Due Date    | due_date    | Date Display | Auto Calculated                | Yes      | Yes       | Formula Validation    | Auto Calculate     | Due Date           | Payment Due Date             |
+| Percentage  | percentage  | Number Input | Decimal Allowed                | Yes      | No        | Total Must Equal 100% | Calculate Amount   | Payment Percentage | Percentage Of Invoice Amount |
+| Amount      | amount      | Currency     | Auto Calculated                | Yes      | Yes       | Formula Validation    | Auto Calculate     | Payment Amount     | Amount To Be Paid            |
 
 ---
 
@@ -410,29 +410,11 @@ Business Rules:
 
 ---
 
-### 2.1.6. Section (Attachments)
+### 2.1.6. Section: Attachments
 
-This section stores all supporting documents related to Purchase Invoice.
-
-Examples:
-
-- Vendor Invoice PDF
-- E-Way Bill
-- Transport Receipt
-- Delivery Challan
-- Tax Documents
-- Other Supporting Documents
-
-Business Rules:
-
-- Multiple attachments are allowed.
-- Maximum file size depends on Organisation Settings.
-- Only authorized users can delete attachments.
-- At least one Vendor Invoice attachment is recommended.
-
-| Name/Label  | Data Source                    | Type/Component   | Component Specific Information                       | Required | Read Only | Validations | On Change | Description | Tooltip |
-|:----------- |:------------------------------ |:---------------- |:---------------------------------------------------- |:-------- |:--------- |:----------- |:--------- |:----------- |:------- |
-| Attachments | purchase_invoice.`attachments` | AttachmentViewer | Prefix=PINV, Auto Increment, Format=PINV-YYYY-000001 | No       | No        | -           | -         | PI Media    | -       |
+| Name        | Data Source                    | Component        | Component Specific Information | Required | Read Only | Validations | On Change | Description | Tooltip |
+|:----------- |:------------------------------ |:---------------- |:------------------------------ |:-------- |:--------- |:----------- |:--------- |:----------- |:------- |
+| Attachments | purchase_invoice.`attachments` | AttachmentViewer | PDF, Image, DOC Preview        | No       | No        | -           | -         | PI Media    | -       |
 
 ---
 
@@ -499,123 +481,3 @@ Component to use: StageHistoryViewer
 | Attachment | Supporting Attachment |
 
 ---
-
-# Purchase Invoice Business Scenarios
-
-The following scenarios are supported:
-
-```text
-1. Purchase Invoice With Purchase Order
-PO
-↓
-Purchase Invoice
-
-2. Purchase Invoice With GRN
-PO
-↓
-GRN
-↓
-Purchase Invoice
-
-3. Purchase Invoice Without GRN
-PO
-↓
-Purchase Invoice
-
-4. Direct Purchase Invoice
-No PO
-No GRN
-↓
-Purchase Invoice
-
-5. Mixed Purchase Invoice
-PO Products
-+
-Direct Purchase Products
-↓
-Single Purchase Invoice
-
-6. Multiple Purchase Orders
-PO-001
-PO-002
-PO-003
-↓
-Single Purchase Invoice
-
-7. Multiple GRNs
-GRN-001
-GRN-002
-↓
-Single Purchase Invoice
-
-8. Partial Invoice
-GRN Value = ₹100,000
-Invoice Value = ₹60,000
-
-9. Multiple Invoices Against Same PO
-PO-001
-↓
-Invoice-001
-Invoice-002
-
-10. Credit/Debit Adjustments
-Purchase Invoice
-↓
-Debit Note / Credit Note
-```
-
----
-
-# Purchase Invoice Workflow
-
-```text
-Draft
-↓
-Submitted
-↓
-Verified
-↓
-Approved
-↓
-Partially Paid
-↓
-Paid
-```
-
-Alternative Flows:
-
-```text
-Draft
-↓
-Cancelled
-```
-
-```text
-Submitted
-↓
-Rejected
-```
-
----
-
-# Purchase Invoice Module Completion Status
-
-```text
-✓ PI List Page
-✓ General Information
-✓ Reference Documents
-✓ Invoice Product Details
-✓ Tax Details
-✓ Payment Terms
-✓ Attachments
-✓ Invoice Summary
-✓ Payment Summary
-✓ Vendor Summary
-✓ Workflow Timeline
-✓ Direct Purchase Support
-✓ Mixed Purchase Support
-✓ Multiple PO Support
-✓ Multiple GRN Support
-✓ Partial Invoice Support
-✓ Credit/Debit Adjustment Support
-```

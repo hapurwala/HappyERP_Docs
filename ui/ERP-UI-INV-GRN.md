@@ -109,18 +109,18 @@ Fields in the main form are grouped into different sections.
 
 ### 2.1.1. Section (General Information)
 
-| Name/Label       | Data Source           | Type/Component | Component Specific Information                                        | Required | Read Only | Validations              | On Change            | Description           | Tooltip                          |
-|:---------------- |:--------------------- |:-------------- |:--------------------------------------------------------------------- |:-------- |:--------- |:------------------------ |:-------------------- |:--------------------- |:-------------------------------- |
-| GRN Number       | grn_number            | Text           | Prefix=GRN, Auto Increment, Format=GRN-YYYY-000001                    | Yes      | Yes       | Must Be Unique           | Auto Generated       | Unique GRN Number     | System Generated GRN Number      |
-| GRN Date         | grn_date              | DatePicker     | Single Date Picker                                                    | Yes      | No        | Cannot Be Future Date    | –                    | Goods Receipt Date    | Date Of Material Receipt         |
-| Receipt Type     | receipt_type          | Select         | Regular Receipt, Returnable Receipt, Sample Receipt, Transfer Receipt | Yes      | No        | Valid Receipt Type       | Update Receipt Rules | Type Of Receipt       | Receipt Classification           |
-| Vendor           | vendor_id             | Select         | Single Select, Searchable, Async Lookup                               | Yes      | No        | Vendor Must Be Active    | Load Vendor Details  | Vendor Selection      | Select Vendor                    |
-| Vehicle Number   | vehicle_number        | Text           | Max Length 20                                                         | No       | No        | –                        | –                    | Vehicle Number        | Transport Vehicle Number         |
-| LR Number        | lr_number             | Text           | Max Length 50                                                         | No       | No        | –                        | –                    | Lorry Receipt Number  | Transport LR Number              |
-| Transporter Name | transporter_name      | Text           | Max Length 100                                                        | No       | No        | –                        | –                    | Transport Company     | Transporter Details              |
-| Invoice Number   | vendor_invoice_number | Text           | Max Length 50                                                         | No       | No        | –                        | –                    | Vendor Invoice Number | Vendor Reference Invoice         |
-| Invoice Date     | vendor_invoice_date   | DatePicker     | Single Date Picker                                                    | No       | No        | Invoice Date <= GRN Date | –                    | Vendor Invoice Date   | Invoice Date Mentioned By Vendor |
-| Remarks          | remarks               | RichTextBox    | –                                                                     | No       | No        | –                        | –                    | Remarks               | Additional Notes                 |
+| Name             | Data Source           | Component   | Component Specific Information                                        | Required | Read Only | Validations              | On Change            | Description           | Tooltip                          |
+|:---------------- |:--------------------- |:----------- |:--------------------------------------------------------------------- |:-------- |:--------- |:------------------------ |:-------------------- |:--------------------- |:-------------------------------- |
+| GRN Number       | grn_number            | Text        | Prefix=GRN, Auto Increment, Format=GRN-YYYY-000001                    | Yes      | Yes       | Must Be Unique           | Auto Generated       | Unique GRN Number     | System Generated GRN Number      |
+| GRN Date         | grn_date              | DatePicker  | Single Date Picker                                                    | Yes      | No        | Cannot Be Future Date    | –                    | Goods Receipt Date    | Date Of Material Receipt         |
+| Receipt Type     | receipt_type          | Select      | Regular Receipt, Returnable Receipt, Sample Receipt, Transfer Receipt | Yes      | No        | Valid Receipt Type       | Update Receipt Rules | Type Of Receipt       | Receipt Classification           |
+| Vendor           | vendor_id             | Select      | Single Select, Searchable, Async Lookup                               | Yes      | No        | Vendor Must Be Active    | Load Vendor Details  | Vendor Selection      | Select Vendor                    |
+| Vehicle Number   | vehicle_number        | Text        | Max Length 20                                                         | No       | No        | –                        | –                    | Vehicle Number        | Transport Vehicle Number         |
+| LR Number        | lr_number             | Text        | Max Length 50                                                         | No       | No        | –                        | –                    | Lorry Receipt Number  | Transport LR Number              |
+| Transporter Name | transporter_name      | Text        | Max Length 100                                                        | No       | No        | –                        | –                    | Transport Company     | Transporter Details              |
+| Invoice Number   | vendor_invoice_number | Text        | Max Length 50                                                         | No       | No        | –                        | –                    | Vendor Invoice Number | Vendor Reference Invoice         |
+| Invoice Date     | vendor_invoice_date   | DatePicker  | Single Date Picker                                                    | No       | No        | Invoice Date <= GRN Date | –                    | Vendor Invoice Date   | Invoice Date Mentioned By Vendor |
+| Remarks          | remarks               | RichTextBox | –                                                                     | No       | No        | –                        | –                    | Remarks               | Additional Notes                 |
 
 ---
 
@@ -138,15 +138,15 @@ Business Rules:
 - Direct Receipt products require Purchase Manager approval before stock posting.
 - Currency of all selected POs must be same.
 
-| Name/Label             | Data Source            | Type/Component | Component Specific Information         | Required | Read Only | Validations                                 | On Change        | Description            | Tooltip                                |
-|:---------------------- |:---------------------- |:-------------- |:-------------------------------------- |:-------- |:--------- |:------------------------------------------- |:---------------- |:---------------------- |:-------------------------------------- |
-| Purchase Orders        | po_ids                 | Multi Select   | Searchable, Async Lookup               | No       | No        | All Selected POs Must Belong To Same Vendor | Load PO Products | Linked Purchase Orders | Select One Or Multiple Purchase Orders |
-| Vendor                 | vendor_id              | Auto Filled    | Loaded From PO Or Manual Selection     | Yes      | No        | Vendor Must Match All Products              | Auto Populate    | Vendor Information     | Vendor For Current GRN                 |
-| Currency               | currency_id            | Auto Filled    | Loaded From PO Or Organisation Default | Yes      | Yes       | All POs Must Have Same Currency             | Auto Populate    | Transaction Currency   | Currency Used In GRN                   |
-| Total PO Quantity      | total_po_quantity      | Text           | Calculated Field                       | No       | Yes       | –                                           | Auto Calculate   | Total Ordered Quantity | Sum Of Selected PO Quantities          |
-| Total Pending Quantity | total_pending_quantity | Text           | Calculated Field                       | No       | Yes       | –                                           | Auto Calculate   | Total Pending Quantity | Pending Receipt Quantity               |
-| Total Receipt Quantity | total_receipt_quantity | Text           | Calculated Field                       | No       | Yes       | –                                           | Auto Calculate   | Total Current Receipt  | Total Quantity In Current GRN          |
-| Total PO Value         | total_po_value         | Currency       | Calculated Field                       | No       | Yes       | –                                           | Auto Calculate   | Total PO Value         | Sum Of Selected PO Values              |
+| Name                   | Data Source            | Component    | Component Specific Information         | Required | Read Only | Validations                                 | On Change        | Description            | Tooltip                                |
+|:---------------------- |:---------------------- |:------------ |:-------------------------------------- |:-------- |:--------- |:------------------------------------------- |:---------------- |:---------------------- |:-------------------------------------- |
+| Purchase Orders        | po_ids                 | Multi Select | Searchable, Async Lookup               | No       | No        | All Selected POs Must Belong To Same Vendor | Load PO Products | Linked Purchase Orders | Select One Or Multiple Purchase Orders |
+| Vendor                 | vendor_id              | Auto Filled  | Loaded From PO Or Manual Selection     | Yes      | No        | Vendor Must Match All Products              | Auto Populate    | Vendor Information     | Vendor For Current GRN                 |
+| Currency               | currency_id            | Auto Filled  | Loaded From PO Or Organisation Default | Yes      | Yes       | All POs Must Have Same Currency             | Auto Populate    | Transaction Currency   | Currency Used In GRN                   |
+| Total PO Quantity      | total_po_quantity      | Text         | Calculated Field                       | No       | Yes       | –                                           | Auto Calculate   | Total Ordered Quantity | Sum Of Selected PO Quantities          |
+| Total Pending Quantity | total_pending_quantity | Text         | Calculated Field                       | No       | Yes       | –                                           | Auto Calculate   | Total Pending Quantity | Pending Receipt Quantity               |
+| Total Receipt Quantity | total_receipt_quantity | Text         | Calculated Field                       | No       | Yes       | –                                           | Auto Calculate   | Total Current Receipt  | Total Quantity In Current GRN          |
+| Total PO Value         | total_po_value         | Currency     | Calculated Field                       | No       | Yes       | –                                           | Auto Calculate   | Total PO Value         | Sum Of Selected PO Values              |
 
 ---
 
@@ -208,16 +208,16 @@ Business Rules:
 
 This section displays all products loaded from selected Purchase Orders.
 
-| Name/Label      | Data Source | Type/Component | Component Specific Information  | Required | Read Only | Validations | On Change    | Description             | Tooltip                 |
-|:--------------- |:----------- |:-------------- |:------------------------------- |:-------- |:--------- |:----------- |:------------ |:----------------------- |:----------------------- |
-| Barcode Scan    | –           | Input          | Barcode Scanner Supported       | No       | No        | –           | Load Product | Scan Product Barcode    |                         |
-| Product Details | products    | DataTable      | Auto Loaded From Selected PO(s) | Yes      | No        | –           | –            | Product Receipt Details | Products Being Received |
+| Name            | Data Source | Component | Component Specific Information  | Required | Read Only | Validations | On Change    | Description             | Tooltip                 |
+|:--------------- |:----------- |:--------- |:------------------------------- |:-------- |:--------- |:----------- |:------------ |:----------------------- |:----------------------- |
+| Barcode Scan    | –           | Input     | Barcode Scanner Supported       | No       | No        | –           | Load Product | Scan Product Barcode    |                         |
+| Product Details | products    | DataTable | Auto Loaded From Selected PO(s) | Yes      | No        | –           | –            | Product Receipt Details | Products Being Received |
 
 ---
 
 ### 2.1.3a. DataTable (Product Receipt Details) - Columns
 
-| Name/Label              | Data Source               | Type/Component | Component Specific Information  | Required | Read Only | Validations                       | On Change         | Description              | Tooltip                          |
+| Name                    | Data Source               | Component      | Component Specific Information  | Required | Read Only | Validations                       | On Change         | Description              | Tooltip                          |
 |:----------------------- |:------------------------- |:-------------- |:------------------------------- |:-------- |:--------- |:--------------------------------- |:----------------- |:------------------------ |:-------------------------------- |
 | Receipt Source          | receipt_source            | Select         | PO Receipt, Direct Receipt      | Yes      | No        | Valid Receipt Source              | Update Rules      | Receipt Type             | Source Of Current Product        |
 | PO Number               | po_number                 | Lookup         | Visible Only For PO Receipt     | No       | Yes       | Product Must Exist In Selected PO | Load PO Product   | Source PO                | Purchase Order Reference         |
@@ -283,22 +283,22 @@ This section displays all products loaded from selected Purchase Orders.
 
 This section is used to capture batch-wise receipt information for traceability and inventory control.
 
-| Name/Label    | Data Source   | Type/Component | Component Specific Information      | Required | Read Only | Validations | On Change | Description       | Tooltip               |
-|:------------- |:------------- |:-------------- |:----------------------------------- |:-------- |:--------- |:----------- |:--------- |:----------------- |:--------------------- |
-| Batch Details | batch_details | DataTable      | One Or Multiple Batches Per Product | No       | No        | –           | –         | Batch Information | Product Batch Details |
+| Name          | Data Source   | Component | Component Specific Information      | Required | Read Only | Validations | On Change | Description       | Tooltip               |
+|:------------- |:------------- |:--------- |:----------------------------------- |:-------- |:--------- |:----------- |:--------- |:----------------- |:--------------------- |
+| Batch Details | batch_details | DataTable | One Or Multiple Batches Per Product | No       | No        | –           | –         | Batch Information | Product Batch Details |
 
 ---
 
 ### 2.1.4a. DataTable (Batch Details) - Columns
 
-| Name/Label         | Data Source        | Type/Component | Component Specific Information | Required | Read Only | Validations                             | On Change     | Description        | Tooltip                    |
-|:------------------ |:------------------ |:-------------- |:------------------------------ |:-------- |:--------- |:--------------------------------------- |:------------- |:------------------ |:-------------------------- |
-| Product            | product_id         | Auto Filled    | Loaded From Product Receipt    | Yes      | Yes       | –                                       | –             | Product            | Product Name               |
-| Batch Number       | batch_number       | Text           | Max Length 100                 | No       | No        | Unique Within Product                   | –             | Batch Number       | Manufacturer Batch Number  |
-| Manufacturing Date | manufacturing_date | Date Picker    | Single Date                    | No       | No        | Cannot Be Future Date                   | –             | Manufacturing Date | Product Manufacturing Date |
-| Expiry Date        | expiry_date        | Date Picker    | Single Date                    | No       | No        | Must Be Greater Than Manufacturing Date | –             | Expiry Date        | Product Expiry Date        |
-| Received Qty       | quantity           | Number Input   | Decimal Allowed                | Yes      | No        | Cannot Exceed Product Receipt Qty       | Update Totals | Batch Quantity     | Quantity In Batch          |
-| Remarks            | remarks            | Text Area      | Multi Line                     | No       | No        | –                                       | –             | Remarks            | Batch Remarks              |
+| Name               | Data Source        | Component    | Component Specific Information | Required | Read Only | Validations                             | On Change     | Description        | Tooltip                    |
+|:------------------ |:------------------ |:------------ |:------------------------------ |:-------- |:--------- |:--------------------------------------- |:------------- |:------------------ |:-------------------------- |
+| Product            | product_id         | Auto Filled  | Loaded From Product Receipt    | Yes      | Yes       | –                                       | –             | Product            | Product Name               |
+| Batch Number       | batch_number       | Text         | Max Length 100                 | No       | No        | Unique Within Product                   | –             | Batch Number       | Manufacturer Batch Number  |
+| Manufacturing Date | manufacturing_date | Date Picker  | Single Date                    | No       | No        | Cannot Be Future Date                   | –             | Manufacturing Date | Product Manufacturing Date |
+| Expiry Date        | expiry_date        | Date Picker  | Single Date                    | No       | No        | Must Be Greater Than Manufacturing Date | –             | Expiry Date        | Product Expiry Date        |
+| Received Qty       | quantity           | Number Input | Decimal Allowed                | Yes      | No        | Cannot Exceed Product Receipt Qty       | Update Totals | Batch Quantity     | Quantity In Batch          |
+| Remarks            | remarks            | Text Area    | Multi Line                     | No       | No        | –                                       | –             | Remarks            | Batch Remarks              |
 
 ---
 
@@ -351,7 +351,7 @@ This section captures product-wise quality inspection details before stock becom
 
 ### 2.1.5a. DataTable (Quality Inspection) - Columns
 
-| Name/Label          | Data Source         | Type/Component | Component Specific Information       | Required | Read Only | Validations                              | On Change                   | Description            | Tooltip                             |
+| Name                | Data Source         | Component      | Component Specific Information       | Required | Read Only | Validations                              | On Change                   | Description            | Tooltip                             |
 |:------------------- |:------------------- |:-------------- |:------------------------------------ |:-------- |:--------- |:---------------------------------------- |:--------------------------- |:---------------------- |:----------------------------------- |
 | PO Number           | po_number           | Text           | Auto Filled From GRN Products        | Yes      | Yes       | –                                        | –                           | Purchase Order         | Source Purchase Order               |
 | Product             | product_id          | Lookup         | Auto Filled From GRN Products        | Yes      | Yes       | Product Must Exist In Selected PO        | –                           | Product                | Product Under Inspection            |
@@ -425,14 +425,11 @@ This section captures product-wise quality inspection details before stock becom
 
 ---
 
-## 2.1.6. Section (Attachments)
+## 2.1.6. Section: Attachments
 
-| Name/Label | Data Source | Type/Component | Required | Read Only | Description                 | Tooltip                   |
-|:---------- |:----------- |:-------------- |:-------- |:--------- |:--------------------------- |:------------------------- |
-| Preview    |             | File Viewer    | No       | Yes       | Preview File                | View File Before Download |
-| File Name  | file_name   | Text Display   | Yes      | Yes       | File Name                   | Uploaded File Name        |
-| File Type  | file_type   | Badge          | Yes      | Yes       | File Type                   | PDF, JPG, PNG, XLSX, DOCX |
-| Actions    | –           | Action Menu    | No       | No        | Preview / Download / Delete | Manage Attachment         |
+| Name        | Data Source                 | Component        | Component Specific Information | Required | Read Only | Validations | On Change | Description | Tooltip |
+|:----------- |:--------------------------- |:---------------- |:------------------------------ |:-------- |:--------- |:----------- |:--------- |:----------- |:------- |
+| Attachments | goods_receive.`attachments` | AttachmentViewer | PDF, Image, DOC Preview        | No       | No        | -           | -         | GRN Media   | -       |
 
 ---
 
