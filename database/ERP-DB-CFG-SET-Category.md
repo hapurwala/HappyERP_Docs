@@ -19,12 +19,12 @@ All such categories are kept together in this collection. In effect, this collec
 | `id`              | Auto        | -        | -             | Primary | -         | Document Id                            |
 | `key`             | String      | -        | -             | Unique  | -         | Internal Key Name                      |
 | `name`            | String      | -        | -             | Unique  | -         | Key Name to Display                    |
-| `description`     | String      | Yes      | -             | Unique  | -         |                                        |
-| `values`          | Array (Map) | -        | -             | -       | -         |                                        |
+| `description`     | String      | Yes      | -             | -       | -         | -                                      |
+| `is_internal`     | Boolean     | -        | False         | -       | -         | Visible to user?                       |
+| `values`          | Array (Map) | -        | -             | -       | -         | -                                      |
 | values.`id`       | Number      | -        | -             | Unique  | -         | Unique within current Key              |
 | values.`value`    | String      | -        | -             | Unique  | -         |                                        |
 | values.`is_fixed` | String      | -        | False         | Unique  | -         | If Fixed, user cannot modify/delete it |
-| `is_internal`     | Boolean     | -        | False         | Unique  | -         | System defined category                |
 
 ## Collection: s_config
 
