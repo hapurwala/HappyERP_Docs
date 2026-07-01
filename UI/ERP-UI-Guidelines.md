@@ -137,8 +137,8 @@ On many entry pages, data is displayed/added/modified in tabular format. For exa
 
 ### Table 1: Columns
 
-| Header          | Data Source                | Format                                                                                                                                                            | On Click                                                               | Card Placement                                                                                                        | Tooltip / On Hover                                                                            | Inline Edit Component                                                    |
-| --------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Header          | Data Source                | Format                                                                                                                                                                      | On Click                                                               | Card Placement                                                                                                        | Tooltip / On Hover                                                                            | Inline Edit Component                                                    |
+| --------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | *Column Header* | *Corresponding data field* | *Format in which data will be shown<br/>Image<br/>String<br/>Integer (with Comma Formatting Y/N)<br/>Decimal (with number of decimal places and Comma Formatting)<br/>Date* | *Any action to be taken on click. If yes,it would be shown as a link.* | *In card view, indicate where this field will be displayed in the card.<br/>Image<br/>Title<br/>Subtitle<br/>Details* | *Tooltip to be shown to the user on hover on this data. The tooltip may be static or dynamic* | *In case of inline editing, give the name of the component in edit mode* |
 
 ### Table 2: Toolbar Config
@@ -159,15 +159,15 @@ DataTable component has a toolbar. This toolbar contains buttons to take some co
 
 ### Table 3: Table Config
 
-| Feature        | Settings                |
-| -------------- | ----------------------- |
-| Row Selection  | *Yes/No*                |
-| Bulk Actions   | *Yes/No*                |
-| Sticky Header  | *Yes/No*                |
-| Column Resize  | *Yes/No*                |
-| Column Pinning | *Yes/No*                |
-| Sorting        | *Yes/No*                |
-| Pagination     | *Yes/No<br/>Page Size:* |
+| Feature        | Settings                        |
+| -------------- | ------------------------------- |
+| Row Selection  | *Yes/No*                        |
+| Bulk Actions   | *Yes/No*                        |
+| Sticky Header  | *Yes/No*                        |
+| Column Resize  | *Yes/No*                        |
+| Column Pinning | *Yes/No*                        |
+| Sorting        | *Yes/No*                        |
+| Pagination     | *Yes/No<br/>Default Page Size:* |
 
 ### Table 4: RowAction Menu
 
