@@ -38,37 +38,6 @@ This document gives basic design details of following module.
 | Submitted | Product submitted for review and approval                | User            | Yes          | No           | Yes          | Product Manager, System Admin                                                                                                    | Notify Approval Roles                                 |
 | Approved  | Product approved and available for business transactions | User            | Yes          | No           | No           | Product Executive, Product Manager, Inventory Manager, Sales Manager, Purchase Manager, Production Manager, System Admin, Viewer | Available for Sales, Purchase, Inventory & Production |
 
-
----
-
-## Operational Status
-
-Operational Status defines whether a product is available for use in business transactions. It is a manually controlled field, set by an authorized user, and represents a deliberate business decision — independent of inventory levels or workflow stage.
-
-Each status controls which transaction types (Sales, Purchase, Production) the product is permitted to participate in.
-
-| Status       | Description                                                                                       | Sales       | Purchase    | Production  |
-| :----------- | :------------------------------------------------------------------------------------------------ | :---------- | :---------- | :---------- |
-| Active       | Product is fully available for all applicable transactions.                                       | Allowed     | Allowed     | Allowed     |
-| Inactive     | Product is temporarily paused. Purchasing and production remain active to allow restocking.       | Not Allowed | Allowed     | Allowed     |
-| Discontinued | Product is permanently retired from future transactions. Historical records remain intact.        | Not Allowed | Not Allowed | Not Allowed |
-
-> **Note:** Operational Status is independent of Stock Status. A product may be Active but out of stock, or Inactive but fully stocked.
-
----
-
-## Stock Status
-
-Stock Status indicates the current inventory availability of a product. It is system-derived — calculated automatically from stock quantity — and cannot be set manually.
-
-| Status       | Condition                          | Meaning                                              |
-| :----------- | :--------------------------------- | :--------------------------------------------------- |
-| In Stock     | `s_prd_product.`current_stock` > s_prd_product.`reorder_stock_qty``   | Stock is sufficient for fulfilling orders        |
-| Low Stock    | `s_prd_product.`current_stock` > 0`<br/>AND `s_prd_product.`current_stock` ≤ s_prd_product.`reorder_stock_qty`` | Stock is running low; restocking recommended |
-| Out of Stock | `s_prd_product.`current_stock` = 0`                                    | No stock available; orders cannot be fulfilled   |
-
-> **Note:** Stock Status is only applicable to products where `Maintain Stock = true`. Products with `Maintain Stock = false` (e.g., services) do not have a Stock Status.
-
 ---
 
 ## Workflow - Role Matrix
@@ -110,23 +79,23 @@ Stock Status indicates the current inventory availability of a product. It is sy
 | Product Group | Product Classification            | Text  |
 | UoM           | Unit of Measurement               | Text  |
 | Current Stage | Current Workflow Stage            | Badge |
-| Operational Status | Active / Inactive / Discontinued  | Badge |
+| Operational Status | Active / Inactive / Phasing Out / Discontinued  | Badge |
 
 ---
 
 ## Functions
 
-|Field|Description|Type|
-|:--|:--|:--|
-|Sale Enabled|Indicates whether this Product is available for sale|Boolean|
-|Minimum Sale Quantity|Minimum quantity required in a single sale order|Number|
-|Maximum Sale Quantity|Maximum quantity allowed in a single sale order|Number|
-|Sale Delivery Lead Time|Minimum number of days required to deliver this Product for sale|Number|
-|Purchase Enabled|Indicates whether this Product is available for purchase|Boolean|
-|Minimum Purchase Quantity|Minimum quantity required in a single purchase order|Number|
-|Maximum Purchase Quantity|Maximum quantity allowed in a single purchase order|Number|
-|Purchase Delivery Lead Time|Minimum number of days required to receive this Product after purchase|Number|
-|Production Enabled|Indicates whether this Product is produced/manufactured by the company|Boolean|
+| Field                       | Description                                                            | Type    |
+| :-------------------------- | :--------------------------------------------------------------------- | :------ |
+| Sale Enabled                | Indicates whether this Product is available for sale                   | Boolean |
+| Minimum Sale Quantity       | Minimum quantity required in a single sale order                       | Number  |
+| Maximum Sale Quantity       | Maximum quantity allowed in a single sale order                        | Number  |
+| Sale Delivery Lead Time     | Minimum number of days required to deliver this Product for sale       | Number  |
+| Purchase Enabled            | Indicates whether this Product is available for purchase               | Boolean |
+| Minimum Purchase Quantity   | Minimum quantity required in a single purchase order                   | Number  |
+| Maximum Purchase Quantity   | Maximum quantity allowed in a single purchase order                    | Number  |
+| Purchase Delivery Lead Time | Minimum number of days required to receive this Product after purchase | Number  |
+| Production Enabled          | Indicates whether this Product is produced/manufactured by the company | Boolean |
 
 ---
 
@@ -245,7 +214,7 @@ Stock Status indicates the current inventory availability of a product. It is sy
 | maxStockQty               | number     | Maximum Stock Quantity                                           |
 | reorderStockQty           | number     | Reorder Quantity                                                 |
 | stage                     | string     | Current Workflow Stage (Draft / Submitted / Approved)            |
-| status                    | string     | Operational Status (Active / Inactive / Discontinued)            |
+| status                    | string     | Operational Status (Active / Inactive / Phasing Out / Discontinued) |
 | startDate                 | timestamp  | Activation Date                                                  |
 | endDate                   | timestamp  | Closure Date                                                     |
 | remarks                   | string     | Additional Notes                                                 |
@@ -319,3 +288,4 @@ Data Source: `stageHistory` array (see `stageHistory` Structure above)
 | Set At     | actionAt                  | Text      | -         |
 | Set By     | actionBy / actionByName   | Avatar    | User name |
 | Remarks    | remarks                   | Text      | -         |
+
