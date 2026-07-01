@@ -245,30 +245,30 @@ Tax information is stored inside each product line.
 
 ## Summary Fields
 
-| Name                                                       | Type   | Optional | Default Value | Key     | Reference  | Remarks                                   |
-| ---------------------------------------------------------- | ------ | -------- | ------------- | ------- | ---------- | ----------------------------------------- |
-| `total_items`                                              | Int64  | –        | 0             | –       | –          | Number Of Products                        |
-| `total_count`                                              | Int64  | Yes      | 0             | –       | –          | Sum Of Product Pack Count                 |
-| `total_quantity`<br/>`total_current_invoiced_quantity`(AI) | Double | –        | 0             | –       | –          | Total Invoice Quantity                    |
-| `total_received_quantity`                                  | Double | Yes      | 0             | –       | –          | Quantity Received Through GRNs            |
-| `total_invoiced_quantity`                                  | Double | –        | 0             | –       | –          | Total Quantity Covered In Current Invoice |
-| `total_pending_invoice_quantity`                           | Double | Yes      | 0             | –       | –          | Remaining Quantity To Be Invoiced         |
-| `total_weight`                                             | Double | Yes      | 0             | –       | –          | Total Weight                              |
-| `weight_uom_id`                                            | String | Yes      | –             | Foreign | m_uom.`id` | Weight UOM                                |
-| `weight_uom_short_name`                                    | String | Yes      | –             | –       | –          | Weight UOM Short Name                     |
-| `total_product_value_before_discount`                      | Double | –        | 0             | –       | –          | Total Product Value Before Discount       |
-| `total_discount_value`                                     | Double | Yes      | 0             | –       | –          | Total Discount Value                      |
-| `total_product_value_after_discount`                       | Double | –        | 0             | –       | –          | Product Value After Discount              |
-| `total_tax_value`                                          | Double | Yes      | 0             | –       | –          | Total Tax Value                           |
-| `total_tds_value`                                          | Double | Yes      | 0             | –       | –          | Total TDS Deduction                       |
-| `total_expense_value`                                      | Double | Yes      | 0             | –       | –          | Additional Expenses                       |
-| `total_charge_value`                                       | Double | Yes      | 0             | –       | –          | Total Additional Charges                  |
-| `total_freight_tpt_value`                                  | Double | Yes      | 0             | –       | –          | Freight Paid To Transporter               |
-| `total_freight_party_value`                                | Double | Yes      | 0             | –       | –          | Freight Paid By Vendor                    |
-| `additional_discount_value`                                | Double | Yes      | 0             | –       | –          | Additional Invoice Level Discount         |
-| `adjustment_value`                                         | Double | Yes      | 0             | –       | –          | Manual Adjustment                         |
-| `round_off_value`                                          | Double | Yes      | 0             | –       | –          | Round Off Difference                      |
-| `total_net_value`                                          | Double | –        | 0             | –       | –          | Final Invoice Value                       |
+| Name                                                                | Type   | Optional | Default Value | Key     | Reference  | Remarks                                   |
+| ------------------------------------------------------------------- | ------ | -------- | ------------- | ------- | ---------- | ----------------------------------------- |
+| `total_items`                                                       | Int64  | –        | 0             | –       | –          | Number Of Products                        |
+| `total_count`                                                       | Int64  | Yes      | 0             | –       | –          | Sum Of Product Pack Count                 |
+| `total_quantity`<br/>`total_current_invoiced_quantity`(AI)          | Double | –        | 0             | –       | –          | Total Invoice Quantity                    |
+| `total_received_quantity`                                           | Double | Yes      | 0             | –       | –          | Quantity Received Through GRNs            |
+| `total_invoiced_quantity`<br/>`total_current_invoiced_quantity`(AI) | Double | –        | 0             | –       | –          | Total Quantity Covered In Current Invoice |
+| `total_pending_invoice_quantity`                                    | Double | Yes      | 0             | –       | –          | Remaining Quantity To Be Invoiced         |
+| `total_weight`                                                      | Double | Yes      | 0             | –       | –          | Total Weight                              |
+| `weight_uom_id`                                                     | String | Yes      | –             | Foreign | m_uom.`id` | Weight UOM                                |
+| `weight_uom_short_name`                                             | String | Yes      | –             | –       | –          | Weight UOM Short Name                     |
+| `total_product_value_before_discount`                               | Double | –        | 0             | –       | –          | Total Product Value Before Discount       |
+| `total_discount_value`                                              | Double | Yes      | 0             | –       | –          | Total Discount Value                      |
+| `total_product_value_after_discount`                                | Double | –        | 0             | –       | –          | Product Value After Discount              |
+| `total_tax_value`                                                   | Double | Yes      | 0             | –       | –          | Total Tax Value                           |
+| `total_tds_value`                                                   | Double | Yes      | 0             | –       | –          | Total TDS Deduction                       |
+| `total_expense_value`                                               | Double | Yes      | 0             | –       | –          | Additional Expenses                       |
+| `total_charge_value`                                                | Double | Yes      | 0             | –       | –          | Total Additional Charges                  |
+| `total_freight_tpt_value`                                           | Double | Yes      | 0             | –       | –          | Freight Paid To Transporter               |
+| `total_freight_party_value`                                         | Double | Yes      | 0             | –       | –          | Freight Paid By Vendor                    |
+| `additional_discount_value`                                         | Double | Yes      | 0             | –       | –          | Additional Invoice Level Discount         |
+| `adjustment_value`                                                  | Double | Yes      | 0             | –       | –          | Manual Adjustment                         |
+| `round_off_value`                                                   | Double | Yes      | 0             | –       | –          | Round Off Difference                      |
+| `total_net_value`                                                   | Double | –        | 0             | –       | –          | Final Invoice Value                       |
 
 ---
 
