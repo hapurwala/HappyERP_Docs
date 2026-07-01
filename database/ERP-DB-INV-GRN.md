@@ -62,20 +62,20 @@ Contains GRN transaction data.
 
 ## Purchase Order References
 
-| Name                                    | Type      | Optional | Default Value | Key     | Reference           | Remarks                      |
-| --------------------------------------- | --------- | -------- | ------------- | ------- | ------------------- | ---------------------------- |
-| `purchase_orders`                       | Array Map | Yes      | –             | –       | –                   | Linked Purchase Orders       |
-| purchase_orders[].`id`                  | String    | –        | –             | –       | –                   | Row Id                       |
-| purchase_orders[].`po_id`               | String    | –        | –             | Foreign | purchase_order.`id` | Purchase Order Id            |
-| purchase_orders[].`po_number`           | String    | –        | –             | –       | –                   | Purchase Order Number        |
-| purchase_orders[].`po_date`             | Timestamp | Yes      | –             | –       | –                   | Purchase Order Date          |
-| purchase_orders[].`po_stage`            | String    | Yes      | –             | –       | –                   | Current PO Stage             |
-| purchase_orders[].`currency_id`         | String    | Yes      | –             | Foreign | m_currency.`id`     | Currency Id                  |
-| purchase_orders[].`currency_short_name` | String    | Yes      | –             | –       | –                   | Currency Short Name          |
-| purchase_orders[].`total_quantity`      | Double    | Yes      | 0             | –       | –                   | Total Ordered Quantity       |
-| purchase_orders[].`received_quantity`   | Double    | Yes      | 0             | –       | –                   | Previously Received Quantity |
-| purchase_orders[].`pending_quantity`    | Double    | Yes      | 0             | –       | –                   | Pending Quantity             |
-| purchase_orders[].`net_value`           | Double    | Yes      | 0             | –       | –                   | PO Net Value                 |
+| Name                                                                      | Type      | Optional | Default Value | Key     | Reference           | Remarks                      |
+| ------------------------------------------------------------------------- | --------- | -------- | ------------- | ------- | ------------------- | ---------------------------- |
+| `purchase_orders`                                                         | Array Map | Yes      | –             | –       | –                   | Linked Purchase Orders       |
+| purchase_orders[].`id`                                                    | String    | –        | –             | –       | –                   | Row Id                       |
+| purchase_orders[].`po_id`                                                 | String    | –        | –             | Foreign | purchase_order.`id` | Purchase Order Id            |
+| purchase_orders[].`po_number`                                             | String    | –        | –             | –       | –                   | Purchase Order Number        |
+| purchase_orders[].`po_date`                                               | Timestamp | Yes      | –             | –       | –                   | Purchase Order Date          |
+| purchase_orders[].`po_stage`                                              | String    | Yes      | –             | –       | –                   | Current PO Stage             |
+| purchase_orders[].`currency_id`                                           | String    | Yes      | –             | Foreign | m_currency.`id`     | Currency Id                  |
+| purchase_orders[].`currency_short_name`                                   | String    | Yes      | –             | –       | –                   | Currency Short Name          |
+| purchase_orders[].`quantity`<br/>`total_ordered_quantity`(AI)             | Double    | Yes      | 0             | –       | –                   | Total Ordered Quantity       |
+| purchase_orders[].`received_quantity`<br/>`current_received_quantity`(AI) | Double    | Yes      | 0             | –       | –                   | Previously Received Quantity |
+| purchase_orders[].`pending_quantity`                                      | Double    | Yes      | 0             | –       | –                   | Pending Quantity             |
+| purchase_orders[].`net_value`                                             | Double    | Yes      | 0             | –       | –                   | PO Net Value                 |
 
 ---
 
@@ -92,35 +92,48 @@ Contains GRN transaction data.
 
 ## Product Details
 
-| Name                                    | Type      | Optional | Default Value | Key     | Reference              | Remarks                          |
-| --------------------------------------- | --------- | -------- | ------------- | ------- | ---------------------- | -------------------------------- |
-| `products`                              | Array Map | –        | –             | –       | –                      | Received Products                |
-| products[].`id`                         | String    | –        | –             | –       | –                      | Row Id                           |
-| products[].`sequence`                   | Int64     | –        | 0             | –       | –                      | Display Sequence                 |
-| products[].`receipt_source`             | String    | –        | PO            | –       | –                      | PO / Direct Receipt              |
-| products[].`po_id`                      | String    | Yes      | –             | Foreign | purchase_order.`id`    | Purchase Order Id                |
-| products[].`po_number`                  | String    | Yes      | –             | –       | –                      | Purchase Order Number            |
-| products[].`po_product_id`              | String    | Yes      | –             | –       | –                      | Product Row Id In PO             |
-| products[].`product_id`                 | String    | –        | –             | Foreign | m_product.`id`         | Product Id                       |
-| products[].`product_name`               | String    | –        | –             | –       | –                      | Product Name                     |
-| products[].`product_short_name`         | String    | Yes      | –             | –       | –                      | Product Short Name               |
-| products[].`variety_id`                 | String    | Yes      | –             | Foreign | m_product_variety.`id` | Variety Id                       |
-| products[].`variety_display_name`       | String    | Yes      | –             | –       | –                      | Variety Name                     |
-| products[].`product_pack_id`            | String    | Yes      | –             | Foreign | m_product_pack.`id`    | Product Pack Id                  |
-| products[].`product_pack_name`          | String    | Yes      | –             | –       | –                      | Product Pack Name                |
-| products[].`product_pack_short_name`    | String    | Yes      | –             | –       | –                      | Product Pack Short Name          |
-| products[].`count`                      | Int64     | Yes      | 0             | –       | –                      | Number Of Packs                  |
-| products[].`ordered_quantity`           | Double    | Yes      | 0             | –       | –                      | Quantity Ordered In PO           |
-| products[].`previous_received_quantity` | Double    | Yes      | 0             | –       | –                      | Quantity Received Earlier        |
-| products[].`current_received_quantity`  | Double    | –        | 0             | –       | –                      | Quantity Received In Current GRN |
-| products[].`pending_quantity`           | Double    | Yes      | 0             | –       | –                      | Remaining Quantity               |
-| products[].`rejected_quantity`          | Double    | Yes      | 0             | –       | –                      | Rejected Quantity                |
-| products[].`approved_quantity`          | Double    | Yes      | 0             | –       | –                      | Approved Quantity                |
-| products[].`uom_id`                     | String    | –        | –             | Foreign | m_uom.`id`             | UOM Id                           |
-| products[].`uom_short_name`             | String    | –        | –             | –       | –                      | UOM Short Name                   |
-| products[].`rate`                       | Double    | Yes      | 0             | –       | –                      | Purchase Rate                    |
-| products[].`product_value`              | Double    | Yes      | 0             | –       | –                      | Quantity × Rate                  |
-| products[].`remarks`                    | String    | Yes      | –             | –       | –                      | Product Remarks                  |
+| Name                                                                                         | Type      | Optional | Default Value | Key     | Reference              | Remarks                          |
+| -------------------------------------------------------------------------------------------- | --------- | -------- | ------------- | ------- | ---------------------- | -------------------------------- |
+| `products`                                                                                   | Array Map | –        | –             | –       | –                      | Received Products                |
+| products[].`id`                                                                              | String    | –        | –             | –       | –                      | Row Id                           |
+| products[].`sequence`                                                                        | Int64     | –        | 0             | –       | –                      | Display Sequence                 |
+| products[].`receipt_source`                                                                  | String    | –        | PO            | –       | –                      | PO / Direct Receipt              |
+| products[].`po_id`                                                                           | String    | Yes      | –             | Foreign | purchase_order.`id`    | Purchase Order Id                |
+| products[].`po_number`                                                                       | String    | Yes      | –             | –       | –                      | Purchase Order Number            |
+| products[].`po_product_id`                                                                   | String    | Yes      | –             | –       | –                      | Product Row Id In PO             |
+| products[].`product_id`                                                                      | String    | –        | –             | Foreign | m_product.`id`         | Product Id                       |
+| products[].`product_name`                                                                    | String    | –        | –             | –       | –                      | Product Name                     |
+| products[].`product_short_name`                                                              | String    | Yes      | –             | –       | –                      | Product Short Name               |
+| products[].`variety_id`                                                                      | String    | Yes      | –             | Foreign | m_product_variety.`id` | Variety Id                       |
+| products[].`variety_display_name`                                                            | String    | Yes      | –             | –       | –                      | Variety Name                     |
+| products[].`product_pack_id`                                                                 | String    | Yes      | –             | Foreign | m_product_pack.`id`    | Product Pack Id                  |
+| products[].`product_pack_name`                                                               | String    | Yes      | –             | –       | –                      | Product Pack Name                |
+| products[].`product_pack_short_name`                                                         | String    | Yes      | –             | –       | –                      | Product Pack Short Name          |
+| products[].`count`                                                                           | Int64     | Yes      | 0             | –       | –                      | Number Of Packs                  |
+| products[].`ordered_quantity`                                                                | Double    | Yes      | 0             | –       | –                      | Quantity Ordered In PO           |
+| products[].`previous_received_quantity`<br/>`total_received_quantity_before_current_grn`(AI) | Double    | Yes      | 0             | –       | –                      | Quantity Received Earlier        |
+| products[].`current_received_quantity`(AI)                                                   | Double    | –        | 0             | –       | –                      | Quantity Received In Current GRN |
+| products[].`pending_quantity`                                                                | Double    | Yes      | 0             | –       | –                      | Remaining Quantity               |
+| products[].`rejected_quantity`                                                               | Double    | Yes      | 0             | –       | –                      | Rejected Quantity                |
+| products[].`approved_quantity`                                                               | Double    | Yes      | 0             | –       | –                      | Approved Quantity                |
+| products[].`uom_id`                                                                          | String    | –        | –             | Foreign | m_uom.`id`             | UOM Id                           |
+| products[].`uom_short_name`                                                                  | String    | –        | –             | –       | –                      | UOM Short Name                   |
+| products[].`rate`                                                                            | Double    | Yes      | 0             | –       | –                      | Purchase Rate                    |
+| products[].`rate`                                                                            | Double    | Yes      | 0             | –       | –                      | Purchase Rate                    |
+| products[].`product_value_before_discount`(AI)                                               | Double    | Yes      | 0             | –       | –                      | Product Value = Quantity × Rate  |
+| products[].`discount_type`(AI)                                                               | String    | Yes      | Fixed         | –       | –                      | Per Unit / Percent / Fixed       |
+| products[].`discount_rate`(AI)                                                               | Double    | Yes      | 0             | –       | –                      | Entered Discount                 |
+| products[].`discount_value`(AI)                                                              | Double    | Yes      | 0             | –       | –                      | Calculated Discount Value        |
+| products[].`product_value_after_discount`(AI)                                                | Double    | Yes      | 0             | –       | –                      | Product Value After Discount     |
+| products[].`taxes`(AI)                                                                       | Array Map | Yes      | –             | –       | –                      | Tax Breakup                      |
+| products[].taxes[].`tax_id`(AI)                                                              | String    | Yes      | –             | Foreign | m_tax.`id`             | Tax Id                           |
+| products[].taxes[].`tax_name`(AI)                                                            | String    | Yes      | –             | –       | –                      | Tax Name                         |
+| products[].taxes[].`taxable_value`(AI)                                                       | Double    | Yes      | 0             | –       | –                      | Amount After Discount            |
+| products[].taxes[].`tax_rate_percent`(AI)                                                    | Double    | Yes      | 0             | –       | –                      | Tax Rate In Percent              |
+| products[].taxes[].`tax_value`(AI)                                                           | Double    | Yes      | 0             | –       | –                      | Tax Amount                       |
+| products[].`tax_value`(AI)                                                                   | Double    | Yes      | 0             | –       | –                      | Total Tax Amount                 |
+| products[].`net_value`(AI)                                                                   | Double    | Yes      | 0             | –       | –                      | Final Product Amount             |
+| products[].`remarks`(AI)                                                                     | String    | Yes      | –             | –       | –                      | Product Remarks                  |
 
 ---
 
@@ -149,23 +162,23 @@ Contains GRN transaction data.
 
 ## Quality Inspection
 
-| Name                                        | Type      | Optional | Default Value | Key     | Reference           | Remarks                                 |
-| ------------------------------------------- | --------- | -------- | ------------- | ------- | ------------------- | --------------------------------------- |
-| `quality_inspections`                       | Array Map | Yes      | –             | –       | –                   | Product Wise Quality Inspection         |
-| quality_inspections[].`id`                  | String    | –        | –             | –       | –                   | Row Id                                  |
-| quality_inspections[].`po_id`               | String    | Yes      | –             | Foreign | purchase_order.`id` | Related PO                              |
-| quality_inspections[].`po_number`           | String    | Yes      | –             | –       | –                   | Purchase Order Number                   |
-| quality_inspections[].`product_id`          | String    | –        | –             | Foreign | m_product.`id`      | Product Id                              |
-| quality_inspections[].`product_name`        | String    | –        | –             | –       | –                   | Product Name                            |
-| quality_inspections[].`batch_number`        | String    | Yes      | –             | –       | –                   | Related Batch                           |
-| quality_inspections[].`inspection_required` | Boolean   | –        | False         | –       | –                   | Inspection Required                     |
-| quality_inspections[].`inspection_status`   | String    | Yes      | Pending       | –       | –                   | Pending / Approved / Rejected / Partial |
-| quality_inspections[].`inspected_by`        | String    | Yes      | –             | Foreign | m_user.`id`         | Inspector                               |
-| quality_inspections[].`inspection_date`     | Timestamp | Yes      | –             | –       | –                   | Inspection Date                         |
-| quality_inspections[].`received_quantity`   | Double    | –        | 0             | –       | –                   | Current Received Quantity               |
-| quality_inspections[].`approved_quantity`   | Double    | Yes      | 0             | –       | –                   | Approved Quantity                       |
-| quality_inspections[].`rejected_quantity`   | Double    | Yes      | 0             | –       | –                   | Rejected Quantity                       |
-| quality_inspections[].`remarks`             | String    | Yes      | –             | –       | –                   | Inspection Remarks                      |
+| Name                                                                      | Type      | Optional | Default Value | Key     | Reference           | Remarks                                 |
+| ------------------------------------------------------------------------- | --------- | -------- | ------------- | ------- | ------------------- | --------------------------------------- |
+| `quality_inspections`                                                     | Array Map | Yes      | –             | –       | –                   | Product Wise Quality Inspection         |
+| quality_inspections[].`id`                                                | String    | –        | –             | –       | –                   | Row Id                                  |
+| quality_inspections[].`po_id`                                             | String    | Yes      | –             | Foreign | purchase_order.`id` | Related PO                              |
+| quality_inspections[].`po_number`                                         | String    | Yes      | –             | –       | –                   | Purchase Order Number                   |
+| quality_inspections[].`product_id`                                        | String    | –        | –             | Foreign | m_product.`id`      | Product Id                              |
+| quality_inspections[].`product_name`                                      | String    | –        | –             | –       | –                   | Product Name                            |
+| quality_inspections[].`batch_number`                                      | String    | Yes      | –             | –       | –                   | Related Batch                           |
+| quality_inspections[].`inspection_required`                               | Boolean   | –        | False         | –       | –                   | Inspection Required                     |
+| quality_inspections[].`inspection_status`                                 | String    | Yes      | Pending       | –       | –                   | Pending / Approved / Rejected / Partial |
+| quality_inspections[].`inspected_by`                                      | String    | Yes      | –             | Foreign | m_user.`id`         | Inspector                               |
+| quality_inspections[].`inspection_date`                                   | Timestamp | Yes      | –             | –       | –                   | Inspection Date                         |
+| quality_inspections[].`received_quantity`<br/>`current_received_quantity` | Double    | –        | 0             | –       | –                   | Current Received Quantity               |
+| quality_inspections[].`approved_quantity`                                 | Double    | Yes      | 0             | –       | –                   | Approved Quantity                       |
+| quality_inspections[].`rejected_quantity`                                 | Double    | Yes      | 0             | –       | –                   | Rejected Quantity                       |
+| quality_inspections[].`remarks`                                           | String    | Yes      | –             | –       | –                   | Inspection Remarks                      |
 
 ---
 
@@ -201,21 +214,24 @@ Contains GRN transaction data.
 
 ## Summary Fields
 
-| Name                            | Type   | Optional | Default Value | Key     | Reference  | Remarks                  |
-| ------------------------------- | ------ | -------- | ------------- | ------- | ---------- | ------------------------ |
-| `total_items`                   | Int64  | Yes      | 0             | –       | –          | Total Products           |
-| `total_count`                   | Int64  | Yes      | 0             | –       | –          | Total Product Packs      |
-| `total_received_quantity`       | Double | Yes      | 0             | –       | –          | Total Received Quantity  |
-| `total_approved_quantity`       | Double | Yes      | 0             | –       | –          | Total Approved Quantity  |
-| `total_rejected_quantity`       | Double | Yes      | 0             | –       | –          | Total Rejected Quantity  |
-| `total_pending_quantity`        | Double | Yes      | 0             | –       | –          | Total Pending Quantity   |
-| `total_weight`                  | Double | Yes      | 0             | –       | –          | Total Weight             |
-| `weight_uom_id`                 | String | Yes      | –             | Foreign | m_uom.`id` | Weight UOM               |
-| `weight_uom_short_name`         | String | Yes      | –             | –       | –          | Weight UOM Short Name    |
-| `total_product_value`           | Double | Yes      | 0             | –       | –          | Total Product Value      |
-| `total_additional_charge_value` | Double | Yes      | 0             | –       | –          | Total Additional Charges |
-| `round_off_value`               | Double | Yes      | 0             | –       | –          | Round Off Difference     |
-| `total_net_value`               | Double | Yes      | 0             | –       | –          | Final GRN Value          |
+| Name                                                          | Type   | Optional | Default Value | Key     | Reference  | Remarks                             |
+| ------------------------------------------------------------- | ------ | -------- | ------------- | ------- | ---------- | ----------------------------------- |
+| `total_items`                                                 | Int64  | Yes      | 0             | –       | –          | Total Products                      |
+| `total_count`                                                 | Int64  | Yes      | 0             | –       | –          | Total Product Packs                 |
+| `total_received_quantity`                                     | Double | Yes      | 0             | –       | –          | Total Received Quantity             |
+| `total_approved_quantity`                                     | Double | Yes      | 0             | –       | –          | Total Approved Quantity             |
+| `total_rejected_quantity`                                     | Double | Yes      | 0             | –       | –          | Total Rejected Quantity             |
+| `total_pending_quantity`                                      | Double | Yes      | 0             | –       | –          | Total Pending Quantity              |
+| `total_weight`                                                | Double | Yes      | 0             | –       | –          | Total Weight                        |
+| `weight_uom_id`                                               | String | Yes      | –             | Foreign | m_uom.`id` | Weight UOM                          |
+| `weight_uom_short_name`                                       | String | Yes      | –             | –       | –          | Weight UOM Short Name               |
+| `total_product_value_before_discount`                         | Double | Yes      | 0             | –       | –          | Total Product Value Before Discount |
+| `total_discount_value`                                        | Double | Yes      | 0             | –       | –          | Total Discount Value                |
+| `total_product_value_after_discount`                          | Double | Yes      | 0             | –       | –          | Total Product Value After Discount  |
+| `total_tax_value`                                             | Double | Yes      | 0             | –       | –          | Total Tax Value                     |
+| `total_additional_charge_value`<br/>`total_charge_value` (AI) | Double | Yes      | 0             | –       | –          | Total Additional Charges            |
+| `round_off_value`                                             | Double | Yes      | 0             | –       | –          | Round Off Difference                |
+| `total_net_value`                                             | Double | Yes      | 0             | –       | –          | Final GRN Value                     |
 
 ---
 
