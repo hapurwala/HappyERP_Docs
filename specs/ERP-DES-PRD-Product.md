@@ -43,13 +43,31 @@ This document gives basic design details of following module.
 
 ## Operational Status
 
-Operational Status controls whether the product can participate in business transactions. It is independent of the workflow stage.
+Operational Status defines whether a product is available for use in business transactions. It is a manually controlled field, set by an authorized user, and represents a deliberate business decision — independent of inventory levels or workflow stage.
 
-| Status       | Description                                                                                         | Sales       | Purchase    | Production  |
-| :----------- | :-------------------------------------------------------------------------------------------------- | :---------- | :---------- | :---------- |
-| Active       | Product is available for all applicable transactions.                                               | Allowed     | Allowed     | Allowed     |
-| Inactive     | Product is temporarily paused for sales. Purchase and Production remain active to allow restocking. | Not Allowed | Allowed     | Allowed     |
-| Discontinued | Product is permanently discontinued for future transactions. Historical records remain available.   | Not Allowed | Not Allowed | Not Allowed |
+Each status controls which transaction types (Sales, Purchase, Production) the product is permitted to participate in.
+
+| Status       | Description                                                                                       | Sales       | Purchase    | Production  |
+| :----------- | :------------------------------------------------------------------------------------------------ | :---------- | :---------- | :---------- |
+| Active       | Product is fully available for all applicable transactions.                                       | Allowed     | Allowed     | Allowed     |
+| Inactive     | Product is temporarily paused. Purchasing and production remain active to allow restocking.       | Not Allowed | Allowed     | Allowed     |
+| Discontinued | Product is permanently retired from future transactions. Historical records remain intact.        | Not Allowed | Not Allowed | Not Allowed |
+
+> **Note:** Operational Status is independent of Stock Status. A product may be Active but out of stock, or Inactive but fully stocked.
+
+---
+
+## Stock Status
+
+Stock Status indicates the current inventory availability of a product. It is system-derived — calculated automatically from stock quantity — and cannot be set manually.
+
+| Status       | Condition                          | Meaning                                              |
+| :----------- | :--------------------------------- | :--------------------------------------------------- |
+| In Stock     | `s_prd_product.`current_stock` > s_prd_product.`reorder_stock_qty``   | Stock is sufficient for fulfilling orders        |
+| Low Stock    | `s_prd_product.`current_stock` > 0`<br/>AND `s_prd_product.`current_stock` ≤ s_prd_product.`reorder_stock_qty`` | Stock is running low; restocking recommended |
+| Out of Stock | `s_prd_product.`current_stock` = 0`                                    | No stock available; orders cannot be fulfilled   |
+
+> **Note:** Stock Status is only applicable to products where `Maintain Stock = true`. Products with `Maintain Stock = false` (e.g., services) do not have a Stock Status.
 
 ---
 
