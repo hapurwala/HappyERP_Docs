@@ -81,58 +81,58 @@ Contains Purchase Invoice transaction data.
 | grns[].`grn_date`   | Timestamp | Yes      | –             | –       | –         | GRN Date                   |
 | grns[].`net_value`  | Double    | Yes      | 0             | –       | –         | GRN Net Value              |
 
-| Name                                      | Type      | Optional | Default Value | Key     | Reference      | Remarks                           |
-| ----------------------------------------- | --------- | -------- | ------------- | ------- | -------------- | --------------------------------- |
-| `direct_purchase_products`                | Array Map | Yes      | –             | –       | –              | Products Purchased Without PO/GRN |
-| direct_purchase_products[].`id`           | String    | –        | –             | –       | –              | Row Id                            |
-| direct_purchase_products[].`product_id`   | String    | –        | –             | Foreign | m_product.`id` | Product Id                        |
-| direct_purchase_products[].`product_name` | String    | –        | –             | –       | –              | Product Name                      |
-| direct_purchase_products[].`quantity`     | Double    | –        | 0             | –       | –              | Direct Purchase Quantity          |
-| direct_purchase_products[].`uom_id`       | String    | –        | –             | Foreign | m_uom.`id`     | UOM Id                            |
-| direct_purchase_products[].`rate`         | Double    | –        | 0             | –       | –              | Purchase Rate                     |
-| direct_purchase_products[].`net_value`    | Double    | –        | 0             | –       | –              | Total Value                       |
-| direct_purchase_products[].`remarks`      | String    | Yes      | –             | –       | –              | Remarks                           |
+| Name                                                  | Type      | Optional | Default Value | Key     | Reference      | Remarks                           |
+| ----------------------------------------------------- | --------- | -------- | ------------- | ------- | -------------- | --------------------------------- |
+| `direct_purchase_products`                            | Array Map | Yes      | –             | –       | –              | Products Purchased Without PO/GRN |
+| direct_purchase_products[].`id`                       | String    | –        | –             | –       | –              | Row Id                            |
+| direct_purchase_products[].`product_id`               | String    | –        | –             | Foreign | m_product.`id` | Product Id                        |
+| direct_purchase_products[].`product_name`             | String    | –        | –             | –       | –              | Product Name                      |
+| direct_purchase_products[].`direct_purchase_quantity` | Double    | –        | 0             | –       | –              | Direct Purchase Quantity          |
+| direct_purchase_products[].`uom_id`                   | String    | –        | –             | Foreign | m_uom.`id`     | UOM Id                            |
+| direct_purchase_products[].`rate`                     | Double    | –        | 0             | –       | –              | Purchase Rate                     |
+| direct_purchase_products[].`net_value`                | Double    | –        | 0             | –       | –              | Total Value                       |
+| direct_purchase_products[].`remarks`                  | String    | Yes      | –             | –       | –              | Remarks                           |
 
 ## Product Details
 
-| Name                                       | Type      | Optional | Default Value | Key     | Reference              | Remarks                             |
-| ------------------------------------------ | --------- | -------- | ------------- | ------- | ---------------------- | ----------------------------------- |
-| `products`                                 | Array Map | –        | –             | –       | –                      | Invoice Product Lines               |
-| products[].`id`                            | String    | –        | –             | –       | –                      | Row Id                              |
-| products[].`sequence`                      | Int64     | –        | 0             | –       | –                      | Display Sequence                    |
-| products[].`receipt_source`                | String    | –        | PO            | –       | –                      | PO / GRN / Direct Purchase          |
-| products[].`reference_id`                  | String    | Yes      | –             | –       | –                      | Source Document Id                  |
-| products[].`reference_number`              | String    | Yes      | –             | –       | –                      | PO Number / GRN Number              |
-| products[].`product_id`                    | String    | –        | –             | Foreign | m_product.`id`         | Product                             |
-| products[].`product_name`                  | String    | –        | –             | –       | –                      | Product Name                        |
-| products[].`product_short_name`            | String    | Yes      | –             | –       | –                      | Product Short Name                  |
-| products[].`variety_id`                    | String    | Yes      | –             | Foreign | m_product_variety.`id` | Product Variety                     |
-| products[].`variety_display_name`          | String    | Yes      | –             | –       | –                      | Variety Name                        |
-| products[].`product_pack_id`               | String    | Yes      | –             | Foreign | m_product_pack.`id`    | Product Pack Id                     |
-| products[].`product_pack_name`             | String    | Yes      | –             | –       | –                      | Product Pack Name                   |
-| products[].`product_pack_short_name`       | String    | Yes      | –             | –       | –                      | Product Pack Short Name             |
-| products[].`count`                         | Int64     | Yes      | 0             | –       | –                      | Number Of Packs                     |
-| products[].`quantity`                      | Double    | –        | 0             | –       | –                      | Invoice Quantity                    |
-| products[].`uom_id`                        | String    | –        | –             | Foreign | m_uom.`id`             | UOM                                 |
-| products[].`uom_short_name`                | String    | –        | –             | –       | –                      | UOM Short Name                      |
-| products[].`rate`                          | Double    | –        | 0             | –       | –                      | Purchase Rate                       |
-| products[].`product_value_before_discount` | Double    | –        | 0             | –       | –                      | Quantity × Rate                     |
-| products[].`discount_type`                 | String    | Yes      | Fixed         | –       | –                      | Per Unit / Percent / Fixed          |
-| products[].`discount_rate`                 | Double    | Yes      | 0             | –       | –                      | Entered Discount                    |
-| products[].`discount_value`                | Double    | Yes      | 0             | –       | –                      | Calculated Discount Value           |
-| products[].`product_value_after_discount`  | Double    | –        | 0             | –       | –                      | Product Value After Discount        |
-| products[].`taxes`                         | Array Map | Yes      | –             | –       | –                      | Tax Breakup                         |
-| products[].taxes[].`tax_id`                | String    | –        | –             | Foreign | m_tax.`id`             | Tax Id                              |
-| products[].taxes[].`tax_name`              | String    | –        | –             | –       | –                      | Tax Name                            |
-| products[].taxes[].`taxable_value`         | Double    | –        | 0             | –       | –                      | Amount After Discount               |
-| products[].taxes[].`tax_rate_percent`      | Double    | –        | 0             | –       | –                      | Tax Rate Percentage                 |
-| products[].taxes[].`tax_value`             | Double    | –        | 0             | –       | –                      | Tax Amount                          |
-| products[].`tax_value`                     | Double    | Yes      | 0             | –       | –                      | Total Tax Amount                    |
-| products[].`net_value`                     | Double    | –        | 0             | –       | –                      | Final Line Amount                   |
-| products[].`received_quantity`             | Double    | Yes      | 0             | –       | –                      | Quantity Received Through GRN       |
-| products[].`invoiced_quantity`             | Double    | Yes      | 0             | –       | –                      | Quantity Covered In Current Invoice |
-| products[].`pending_invoice_quantity`      | Double    | Yes      | 0             | –       | –                      | Remaining Quantity To Be Invoiced   |
-| products[].`remarks`                       | String    | Yes      | –             | –       | –                      | Item Remarks                        |
+| Name                                                              | Type      | Optional | Default Value | Key     | Reference              | Remarks                             |
+| ----------------------------------------------------------------- | --------- | -------- | ------------- | ------- | ---------------------- | ----------------------------------- |
+| `products`                                                        | Array Map | –        | –             | –       | –                      | Invoice Product Lines               |
+| products[].`id`                                                   | String    | –        | –             | –       | –                      | Row Id                              |
+| products[].`sequence`                                             | Int64     | –        | 0             | –       | –                      | Display Sequence                    |
+| products[].`receipt_source`                                       | String    | –        | PO            | –       | –                      | PO / GRN / Direct Purchase          |
+| products[].`reference_id`                                         | String    | Yes      | –             | –       | –                      | Source Document Id                  |
+| products[].`reference_number`                                     | String    | Yes      | –             | –       | –                      | PO Number / GRN Number              |
+| products[].`product_id`                                           | String    | –        | –             | Foreign | m_product.`id`         | Product                             |
+| products[].`product_name`                                         | String    | –        | –             | –       | –                      | Product Name                        |
+| products[].`product_short_name`                                   | String    | Yes      | –             | –       | –                      | Product Short Name                  |
+| products[].`variety_id`                                           | String    | Yes      | –             | Foreign | m_product_variety.`id` | Product Variety                     |
+| products[].`variety_display_name`                                 | String    | Yes      | –             | –       | –                      | Variety Name                        |
+| products[].`product_pack_id`                                      | String    | Yes      | –             | Foreign | m_product_pack.`id`    | Product Pack Id                     |
+| products[].`product_pack_name`                                    | String    | Yes      | –             | –       | –                      | Product Pack Name                   |
+| products[].`product_pack_short_name`                              | String    | Yes      | –             | –       | –                      | Product Pack Short Name             |
+| products[].`count`                                                | Int64     | Yes      | 0             | –       | –                      | Number Of Packs                     |
+| products[].`invoice_quantity`<br/>`current_invoiced_quantity`(AI) | Double    | –        | 0             | –       | –                      | Invoice Quantity                    |
+| products[].`uom_id`                                               | String    | –        | –             | Foreign | m_uom.`id`             | UOM                                 |
+| products[].`uom_short_name`                                       | String    | –        | –             | –       | –                      | UOM Short Name                      |
+| products[].`rate`                                                 | Double    | –        | 0             | –       | –                      | Purchase Rate                       |
+| products[].`product_value_before_discount`                        | Double    | –        | 0             | –       | –                      | Quantity × Rate                     |
+| products[].`discount_type`                                        | String    | Yes      | Fixed         | –       | –                      | Per Unit / Percent / Fixed          |
+| products[].`discount_rate`                                        | Double    | Yes      | 0             | –       | –                      | Entered Discount                    |
+| products[].`discount_value`                                       | Double    | Yes      | 0             | –       | –                      | Calculated Discount Value           |
+| products[].`product_value_after_discount`                         | Double    | –        | 0             | –       | –                      | Product Value After Discount        |
+| products[].`taxes`                                                | Array Map | Yes      | –             | –       | –                      | Tax Breakup                         |
+| products[].taxes[].`tax_id`                                       | String    | –        | –             | Foreign | m_tax.`id`             | Tax Id                              |
+| products[].taxes[].`tax_name`                                     | String    | –        | –             | –       | –                      | Tax Name                            |
+| products[].taxes[].`taxable_value`                                | Double    | –        | 0             | –       | –                      | Amount After Discount               |
+| products[].taxes[].`tax_rate_percent`                             | Double    | –        | 0             | –       | –                      | Tax Rate Percentage                 |
+| products[].taxes[].`tax_value`                                    | Double    | –        | 0             | –       | –                      | Tax Amount                          |
+| products[].`tax_value`                                            | Double    | Yes      | 0             | –       | –                      | Total Tax Amount                    |
+| products[].`net_value`                                            | Double    | –        | 0             | –       | –                      | Final Line Amount                   |
+| products[].`received_quantity`<br/>`total_received_quantity`      | Double    | Yes      | 0             | –       | –                      | Quantity Received Through GRN       |
+| products[].`invoiced_quantity`                                    | Double    | Yes      | 0             | –       | –                      | Quantity Covered In Current Invoice |
+| products[].`pending_invoice_quantity`                             | Double    | Yes      | 0             | –       | –                      | Remaining Quantity To Be Invoiced   |
+| products[].`remarks`                                              | String    | Yes      | –             | –       | –                      | Item Remarks                        |
 
 ---
 
@@ -245,30 +245,30 @@ Tax information is stored inside each product line.
 
 ## Summary Fields
 
-| Name                                  | Type   | Optional | Default Value | Key     | Reference  | Remarks                                   |
-| ------------------------------------- | ------ | -------- | ------------- | ------- | ---------- | ----------------------------------------- |
-| `total_items`                         | Int64  | –        | 0             | –       | –          | Number Of Products                        |
-| `total_count`                         | Int64  | Yes      | 0             | –       | –          | Sum Of Product Pack Count                 |
-| `total_quantity`                      | Double | –        | 0             | –       | –          | Total Invoice Quantity                    |
-| `total_received_quantity`             | Double | Yes      | 0             | –       | –          | Quantity Received Through GRNs            |
-| `total_invoiced_quantity`             | Double | –        | 0             | –       | –          | Total Quantity Covered In Current Invoice |
-| `total_pending_invoice_quantity`      | Double | Yes      | 0             | –       | –          | Remaining Quantity To Be Invoiced         |
-| `total_weight`                        | Double | Yes      | 0             | –       | –          | Total Weight                              |
-| `weight_uom_id`                       | String | Yes      | –             | Foreign | m_uom.`id` | Weight UOM                                |
-| `weight_uom_short_name`               | String | Yes      | –             | –       | –          | Weight UOM Short Name                     |
-| `total_product_value_before_discount` | Double | –        | 0             | –       | –          | Total Product Value Before Discount       |
-| `total_discount_value`                | Double | Yes      | 0             | –       | –          | Total Discount Value                      |
-| `total_product_value_after_discount`  | Double | –        | 0             | –       | –          | Product Value After Discount              |
-| `total_tax_value`                     | Double | Yes      | 0             | –       | –          | Total Tax Value                           |
-| `total_tds_value`                     | Double | Yes      | 0             | –       | –          | Total TDS Deduction                       |
-| `total_expense_value`                 | Double | Yes      | 0             | –       | –          | Additional Expenses                       |
-| `total_charge_value`                  | Double | Yes      | 0             | –       | –          | Total Additional Charges                  |
-| `total_freight_tpt_value`             | Double | Yes      | 0             | –       | –          | Freight Paid To Transporter               |
-| `total_freight_party_value`           | Double | Yes      | 0             | –       | –          | Freight Paid By Vendor                    |
-| `additional_discount_value`           | Double | Yes      | 0             | –       | –          | Additional Invoice Level Discount         |
-| `adjustment_value`                    | Double | Yes      | 0             | –       | –          | Manual Adjustment                         |
-| `round_off_value`                     | Double | Yes      | 0             | –       | –          | Round Off Difference                      |
-| `total_net_value`                     | Double | –        | 0             | –       | –          | Final Invoice Value                       |
+| Name                                                       | Type   | Optional | Default Value | Key     | Reference  | Remarks                                   |
+| ---------------------------------------------------------- | ------ | -------- | ------------- | ------- | ---------- | ----------------------------------------- |
+| `total_items`                                              | Int64  | –        | 0             | –       | –          | Number Of Products                        |
+| `total_count`                                              | Int64  | Yes      | 0             | –       | –          | Sum Of Product Pack Count                 |
+| `total_quantity`<br/>`total_current_invoiced_quantity`(AI) | Double | –        | 0             | –       | –          | Total Invoice Quantity                    |
+| `total_received_quantity`                                  | Double | Yes      | 0             | –       | –          | Quantity Received Through GRNs            |
+| `total_invoiced_quantity`                                  | Double | –        | 0             | –       | –          | Total Quantity Covered In Current Invoice |
+| `total_pending_invoice_quantity`                           | Double | Yes      | 0             | –       | –          | Remaining Quantity To Be Invoiced         |
+| `total_weight`                                             | Double | Yes      | 0             | –       | –          | Total Weight                              |
+| `weight_uom_id`                                            | String | Yes      | –             | Foreign | m_uom.`id` | Weight UOM                                |
+| `weight_uom_short_name`                                    | String | Yes      | –             | –       | –          | Weight UOM Short Name                     |
+| `total_product_value_before_discount`                      | Double | –        | 0             | –       | –          | Total Product Value Before Discount       |
+| `total_discount_value`                                     | Double | Yes      | 0             | –       | –          | Total Discount Value                      |
+| `total_product_value_after_discount`                       | Double | –        | 0             | –       | –          | Product Value After Discount              |
+| `total_tax_value`                                          | Double | Yes      | 0             | –       | –          | Total Tax Value                           |
+| `total_tds_value`                                          | Double | Yes      | 0             | –       | –          | Total TDS Deduction                       |
+| `total_expense_value`                                      | Double | Yes      | 0             | –       | –          | Additional Expenses                       |
+| `total_charge_value`                                       | Double | Yes      | 0             | –       | –          | Total Additional Charges                  |
+| `total_freight_tpt_value`                                  | Double | Yes      | 0             | –       | –          | Freight Paid To Transporter               |
+| `total_freight_party_value`                                | Double | Yes      | 0             | –       | –          | Freight Paid By Vendor                    |
+| `additional_discount_value`                                | Double | Yes      | 0             | –       | –          | Additional Invoice Level Discount         |
+| `adjustment_value`                                         | Double | Yes      | 0             | –       | –          | Manual Adjustment                         |
+| `round_off_value`                                          | Double | Yes      | 0             | –       | –          | Round Off Difference                      |
+| `total_net_value`                                          | Double | –        | 0             | –       | –          | Final Invoice Value                       |
 
 ---
 
