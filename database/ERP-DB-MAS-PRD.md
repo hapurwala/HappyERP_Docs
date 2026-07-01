@@ -19,18 +19,19 @@ Following collections are maintained for Product Master
 
 ## Collection: m_brand
 
-| Name          | Type      | Optional | Default Value | Key     | Reference        | Remarks                    |
-|:------------- |:--------- |:-------- |:------------- |:------- |:---------------- |:-------------------------- |
-| `id`          | String    | –        | –             | Primary | –                | Document Id                |
-| `name`        | String    | –        | –             | –       | –                |                            |
-| `short_name`  | String    | –        | –             | –       | –                |                            |
-| `attachments` | Array Map | Yes      | –             | –       | `Attachment` Map | Documents                  |
-| `start_date`  | Timestamp | –        | –             | –       | –                |                            |
-| `end_date`    | Timestamp | Yes      | –             | –       | –                |                            |
-| `reason_end`  | String    | Yes      | –             | –       | –                |                            |
-| `stage`       | Map       | –        | –             | –       | `Stage` Map      | Current Stage              |
-| `stage_logs`  | Array Map | Yes      | –             | –       | `Stage` Map      | Workflow History           |
-| `notes`       | Array Map | -        | -             | -       | `Note` Map       | It is an array of Note map |
+| Name           | Type      | Optional | Default Value | Key     | Reference        | Remarks                    |
+|:-------------- |:--------- |:-------- |:------------- |:------- |:---------------- |:-------------------------- |
+| `id`           | String    | –        | –             | Primary | –                | Document Id                |
+| `name`         | String    | –        | –             | –       | –                |                            |
+| `short_name`   | String    | –        | –             | –       | –                |                            |
+| `is_own_brand` | Boolean   | -        | False         | -       | -                | Whether it is own brand    |
+| `attachments`  | Array Map | Yes      | –             | –       | `Attachment` Map | Documents                  |
+| `start_date`   | Timestamp | –        | –             | –       | –                |                            |
+| `end_date`     | Timestamp | Yes      | –             | –       | –                |                            |
+| `reason_end`   | String    | Yes      | –             | –       | –                |                            |
+| `stage`        | Map       | –        | –             | –       | `Stage` Map      | Current Stage              |
+| `stage_logs`   | Array Map | Yes      | –             | –       | `Stage` Map      | Workflow History           |
+| `notes`        | Array Map | -        | -             | -       | `Note` Map       | It is an array of Note map |
 
 ## Collection: m_product_group
 
@@ -250,7 +251,7 @@ Following collections are maintained for Product Master
 | `rate`               | String    | -        | -             | -       | -                        | It can be a value or a formula |
 | `stage`              | Map       | –        | –             | –       | `Stage` Map              | Current Stage                  |
 
-## Collection:
+## Collection: m_product_rate
 
 This collection will have final rates of products. User will not make any direct entry in this collection. This table will be populated when rates are approved in rate list for a given period, party, product etc. 
 
