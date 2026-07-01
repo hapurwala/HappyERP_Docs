@@ -41,6 +41,7 @@ Following collections are maintained for Party Master
 | `is_vendor`         | Boolean   | –        | False         | –       | –                  |                            |
 | `main_address`      | Map       | Yes      | –             | –       | `Address` Map      |                            |
 | `other_addresses`   | Array Map | Yes      | –             | –       | `Address` Map      |                            |
+| `bank_accounts`     | Array Map | Yes      | –             | –       | `BankAccount` Map  | Bank Accounts              |
 | `regulatory_ids`    | Array Map | Yes      | –             | –       | `RegulatoryID` Map | Ids                        |
 | `attachments`       | Array Map | Yes      | –             | –       | `Attachment` Map   | Branch Documents           |
 | `stage`             | Map       | –        | –             | –       | `Stage` Map        | Current Stage              |
@@ -78,19 +79,19 @@ Applicable in case of Employee only
 
 Applicable in case of Customer and Vendor only
 
-| Name                                    | Type      | Optional | Default Value | Key     | Reference             | Remarks                          |
-|:--------------------------------------- |:--------- |:-------- |:------------- |:------- |:--------------------- |:-------------------------------- |
-| `party_data`                            | Map       | Yes      | –             | –       | –                     | Applicable for Customer / Vendor |
-| party_data.`customer_type`              | String    | Yes      | –             | Foreign | m_party_category.`id` |                                  |
-| party_data.`vendor_type`                | String    | Yes      | –             | Foreign | m_party_category.`id` |                                  |
-| party_data.`contact_person`             | String    | Yes      | –             | –       |                       |                                  |
-| party_data.`parent_party_id`            | String    | Yes      | –             | Foreign | m_party.`id`          |                                  |
-| party_data.`credit_limit`               | Int64     | Yes      | –             | –       | –                     |                                  |
-| party_data.`organisations`              | Array Map | Yes      | –             | –       | –                     |                                  |
-| party_data.organisations[].`id`         | String    | –        | –             | Foreign | m_organisation.`id`   |                                  |
-| party_data.organisations[].`start_date` | Timestamp | –        | –             | –       | –                     |                                  |
-| party_data.organisations[].`end_date`   | Timestamp | Yes      | –             | –       | –                     |                                  |
-| party_data.organisations[].`reason_end` | String    | Yes      | –             | –       | –                     |                                  |
+| Name                                    | Type      | Optional | Default Value | Key     | Reference           | Remarks                          |
+|:--------------------------------------- |:--------- |:-------- |:------------- |:------- |:------------------- |:-------------------------------- |
+| `party_data`                            | Map       | Yes      | –             | –       | –                   | Applicable for Customer / Vendor |
+| party_data.`customer_type`              | String    | Yes      | –             | Foreign | m_party_type.`id`   |                                  |
+| party_data.`vendor_type`                | String    | Yes      | –             | Foreign | m_party_type.`id`   |                                  |
+| party_data.`contact_person`             | String    | Yes      | –             | –       |                     |                                  |
+| party_data.`parent_party_id`            | String    | Yes      | –             | Foreign | m_party.`id`        |                                  |
+| party_data.`credit_limit`               | Int64     | Yes      | –             | –       | –                   |                                  |
+| party_data.`organisations`              | Array Map | Yes      | –             | –       | –                   |                                  |
+| party_data.organisations[].`id`         | String    | –        | –             | Foreign | m_organisation.`id` |                                  |
+| party_data.organisations[].`start_date` | Timestamp | –        | –             | –       | –                   |                                  |
+| party_data.organisations[].`end_date`   | Timestamp | Yes      | –             | –       | –                   |                                  |
+| party_data.organisations[].`reason_end` | String    | Yes      | –             | –       | –                   |                                  |
 
 ### Login Information
 

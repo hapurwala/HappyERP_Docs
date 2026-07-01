@@ -63,23 +63,23 @@ Sample Workflow Stages for Transactions:
     Completed
 ```
 
-| Name                           | Type    | Optional | Default Value | Key     | Reference                 | Remarks     |
-| ------------------------------ | ------- | -------- | ------------- | ------- | ------------------------- | ----------- |
-| `id`                           | String  | -        | -             | Primary | -                         | Document Id |
-| `app_object_id`                | Number  | Yes      | -             | Foreign | s_app_object.`id`         |             |
-| `sequence`                     | Number  | -        | -             | -       | -                         |             |
-| `name`                         | String  | -        | -             | -       | -                         |             |
-| `name_external`                | String  | -        | -             | -       | -                         |             |
-| `description`                  | String  | Yes      | -             | -       | -                         |             |
-| `badge_variant`                | String  | -        | -             | -       | -                         |             |
-| `is_internal`               | Boolean | -        | True          | -       | -                         |             |
-| `is_remarks_required`          | Boolean | -        | False         | -       | -                         |             |
-| `validation_before_set`                | Array   | Yes      | -             | -       |  |             |
-| `action_after_set`                | Array   | Yes      | -             | -       | s_category.`stage_action` |             |
-| `allow_delete`                 | Boolean | -        | False         | -       | -                         |             |
-| `allow_edit`                   | Boolean | -        | False         | -       | -                         |             |
-| `allow_cancel`                 | Boolean | -        | False         | -       | -                         |             |
-| `is_available_for_next_module` | Boolean | -        | False         | -       | -                         |             |
+| Name                           | Type    | Optional | Default Value | Key     | Reference                 | Remarks                                                                               |
+| ------------------------------ | ------- | -------- | ------------- | ------- | ------------------------- | ------------------------------------------------------------------------------------- |
+| `id`                           | String  | -        | -             | Primary | -                         | Document Id                                                                           |
+| `app_object_id`                | Number  | Yes      | -             | Foreign | s_app_object.`id`         |                                                                                       |
+| `sequence`                     | Number  | -        | -             | -       | -                         |                                                                                       |
+| `name`                         | String  | -        | -             | -       | -                         |                                                                                       |
+| `name_external`                | String  | -        | -             | -       | -                         |                                                                                       |
+| `description`                  | String  | Yes      | -             | -       | -                         |                                                                                       |
+| `badge_variant`                | String  | -        | -             | -       | -                         |                                                                                       |
+| `is_internal`                  | Boolean | -        | True          | -       | -                         |                                                                                       |
+| `is_remarks_required`          | Boolean | -        | False         | -       | -                         |                                                                                       |
+| `validation_before_set`        | Array   | Yes      | -             | -       | -                         | Validations for eligibility to set this stage                                         |
+| `action_after_set`             | Array   | Yes      | -             | -       | s_category.`stage_action` | Actions to perform after this stage is set                                            |
+| `allow_delete`                 | Boolean | -        | False         | -       | -                         | Can the object be deleted after this stage is set?                                    |
+| `allow_edit`                   | Boolean | -        | False         | -       | -                         | Can the object be modified after this stage is set?                                   |
+| `allow_cancel`                 | Boolean | -        | False         | -       | -                         | Can the object be cancelled after this stage is set? Applicable for transactions only |
+| `is_available_for_next_module` | Boolean | -        | False         | -       | -                         | Indicates is this object is available for next module e.g. A PO for GRN and so on     |
 
 ## Collection: s_app_role
 

@@ -28,7 +28,7 @@ All such categories are kept together in this collection. In effect, this collec
 
 ## Collection: s_config
 
-These are configuration settings done by admin at software/organisation level. Settings saved here will be used thouggout the software. For example format to display date etc may be saved here. Some of the settings saved here may affect the working of the software e.g. rounding to be used in sales invoice may change the final value of the invoice.
+These are configuration settings done by admin at software/organisation level. Settings saved here will be used throughout the software. For example format to display date etc may be saved here. Some of the settings saved here may affect the working of the software e.g. rounding to be used in sales invoice may change the final value of the invoice.
 
 | Name            | Type    | Optional | Default Value | Key     | Reference | Remarks                      |
 | --------------- | ------- | -------- | ------------- | ------- | --------- | ---------------------------- |
