@@ -116,12 +116,12 @@ Applicable in case of Customer and Vendor only
 
 ## Collection: m_party_type
 
-| Name                       | Type    | Optional | Default Value | Key     | Reference         | Remarks       |
-|:-------------------------- |:------- |:-------- |:------------- |:------- |:----------------- |:------------- |
-| `id`                       | String  | –        | –             | Primary | –                 | Document Id   |
-| `name`                     | String  | –        | –             | –       | –                 |               |
-| `parent_party_category_id` | String  | Yes      | –             | Foreign | m_party_type.`id` | Party Channel |
-| `maintain_account_head`    | Boolean | –        | False         | –       | –                 |               |
-| `is_employee`              | Boolean | –        | False         | –       | –                 |               |
-| `is_customer`              | Boolean | –        | False         | –       | –                 |               |
-| `is_vendor`                | Boolean | –        | False         | –       | –                 |               |
+| Name                    | Type    | Optional | Default Value | Key     | Reference         | Remarks       |
+|:----------------------- |:------- |:-------- |:------------- |:------- |:----------------- |:------------- |
+| `id`                    | String  | –        | –             | Primary | –                 | Document Id   |
+| `name`                  | String  | –        | –             | –       | –                 |               |
+| `parent_party_type_id`  | String  | Yes      | –             | Foreign | m_party_type.`id` | Party Channel |
+| `maintain_account_head` | Boolean | –        | False         | –       | –                 |               |
+| `is_employee`           | Boolean | –        | False         | –       | –                 |               |
+| `is_customer`           | Boolean | –        | False         | –       | –                 |               |
+| `is_vendor`             | Boolean | –        | False         | –       | –                 |               |

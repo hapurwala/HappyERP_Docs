@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HappyERP - Purchase Invoice Details</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Shared Style -->
+  <link rel="stylesheet" href="invoice-style.css">
+  <style>
+    /* Details Entry Page Specific Custom Styles */
+    .banner-alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      animation: slideDown 0.3s ease-out;
+    }
+    .banner-direct {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: #fbbf24;
+    }
+    .banner-mixed {
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.25);
+      color: #a78bfa;
+    }
+    .banner-adj {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: #34d399;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Tabs inside Entry Form */
+    .entry-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+      gap: 16px;
+    }
+    .entry-tab-btn {
+      padding: 10px 4px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+    }
+    .entry-tab-btn.active {
+      color: var(--primary);
+    }
+    .entry-tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--primary);
+    }
+    .tab-content-pane {
+      display: none;
+    }
+    .tab-content-pane.active {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navbar -->
+  <header>
+    <a href="invoice-list.html" class="logo-container">
+      <div style="width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg, var(--primary), #a78bfa); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-family:'Outfit'; font-size:1.2rem; box-shadow:0 0 12px var(--primary-glow);">
+        H
+      </div>
+      <div class="logo-text">Happy<span>ERP</span></div>
+    </a>
+    
+    <div class="header-title-module">
+      <i data-lucide="receipt" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i>
+      Invoice Record Details
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-ghost" id="theme-btn" onclick="toggleTheme()" title="Toggle Theme">
+        <i data-lucide="sun"></i>
+      </button>
+      <a href="invoice-list.html" class="btn btn-secondary" style="padding:8px 14px;">
+        <i data-lucide="arrow-left" style="width:16px; height:16px;"></i> Back to List
+      </a>
+    </div>
+  </header>
+
+  <!-- App Main Content -->
+  <div id="app-container">
+    <div id="main-content">
+      
+      <!-- Grid Container: Left (Form), Right (Sidebar & Tester) -->
+      <div class="grid-container-entry">
+        
+        <!-- Left Part: Main Form -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+          
+          <!-- Direct / Mixed / Adjustment Visual Banners -->
+          <div id="direct-purchase-banner" class="banner-alert banner-direct" style="display:none;">
+            <i data-lucide="alert-triangle" style="flex-shrink:0; width:18px; height:18px; margin-top:2px;"></i>
+            <div>
+              <strong>Direct Purchase Invoice Detected:</strong> This invoice contains items purchased without a Purchase Order or Goods Receipt Note reference. Workflow stage requires **Purchase Manager Approval** before CFO posting.
+            </div>
+          </div>
+
+          <div id="mixed-invoice-banner" class="banner-alert banner-mixed" style="display:none;">
+            <i data-lucide="layers" style="flex-shrink:0; width:18px; height:18px; margin-top:2px;"></i>
+            <div>
+              <strong>Mixed-Mode Invoicing:</strong> Consolidating items from both pre-approved references and manual ad-hoc lines. Direct purchase lines will undergo individual manager authorization.
+            </div>
+          </div>
+
+          <div id="adjustment-banner" class="banner-alert banner-adj" style="display:none;">
+            <i data-lucide="scale" style="flex-shrink:0; width:18px; height:18px; margin-top:2px;"></i>
+            <div>
+              <strong>Linked Adjustment Notes:</strong> This invoice has linked **Debit/Credit adjustments** modifying the original vendor balance. An adjustment value of <span id="adj-banner-val" style="font-weight:700;">₹50,000.00</span> has been deducted.
+            </div>
+          </div>
+
+          <!-- General Information -->
+          <div class="card">
+            <div class="section-title">
+              <span class="section-title-label"><i data-lucide="info" style="color:var(--primary);"></i> General Information</span>
+              <span class="badge badge-draft" id="invoice-stage-badge">DRAFT</span>
+            </div>
+            
+            <div class="grid-container-3">
+              <div class="form-group">
+                <label>Invoice Number</label>
+                <input type="text" class="form-control" id="inv-number" value="PINV-2026-000012" disabled>
+              </div>
+              
+              <div class="form-group">
+                <label>Invoice Date *</label>
+                <input type="date" class="form-control" id="inv-date" onchange="validateInvoiceDate(this.value)">
+              </div>
+
+              <div class="form-group">
+                <label>Vendor Invoice Number *</label>
+                <input type="text" class="form-control" id="vendor-inv-number" placeholder="Enter Vendor Bill Number">
+              </div>
+
+              <div class="form-group">
+                <label>Vendor Invoice Date *</label>
+                <input type="date" class="form-control" id="vendor-inv-date" onchange="handleVendorDateChange(this.value)">
+              </div>
+
+              <div class="form-group">
+                <label>Reference Type *</label>
+                <select class="form-control" id="inv-ref-type" onchange="handleRefTypeChange(this.value)">
+                  <option value="PO">Purchase Order (PO)</option>
+                  <option value="GRN">Goods Receipt Note (GRN)</option>
+                  <option value="Direct Purchase">Direct Purchase</option>
+                  <option value="Mixed">Mixed Mode</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Vendor *</label>
+                <select class="form-control" id="inv-vendor" onchange="handleVendorChange(this.value)">
+                  <option value="">Select Vendor...</option>
+                  <option value="Hindalco Industries">Hindalco Industries</option>
+                  <option value="Tata Steel">Tata Steel</option>
+                  <option value="Jindal Stainless">Jindal Stainless</option>
+                  <option value="Reliance Industries">Reliance Industries</option>
+                  <option value="Local Agro Farm">Local Agro Farm</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Currency *</label>
+                <select class="form-control" id="inv-currency" onchange="handleCurrencyChange(this.value)">
+                  <option value="INR">INR (₹)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Exchange Rate</label>
+                <input type="number" class="form-control" id="inv-ex-rate" value="1.0" step="0.01" min="0.01" onchange="calculateAllTotals()">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0; margin-top:8px;">
+              <label>General Remarks</label>
+              <textarea class="form-control" id="inv-remarks" rows="2" placeholder="Add additional purchase remarks or comments..."></textarea>
+            </div>
+          </div>
+
+          <!-- Reference Documents Selector Card -->
+          <div class="card" id="ref-docs-section">
+            <div class="section-title">
+              <span class="section-title-label"><i data-lucide="link" style="color:var(--primary);"></i> Reference Documents Linkage</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" id="toggle-allow-direct" onchange="handleDirectToggle(this.checked)" style="cursor:pointer; width:15px; height:15px;">
+                <label for="toggle-allow-direct" style="margin-bottom:0; font-size:0.75rem; font-weight:700; cursor:pointer;">Allow Direct Purchase</label>
+              </div>
+            </div>
+
+            <div class="grid-container-3" style="margin-bottom:16px;">
+              <div class="form-group">
+                <label>Purchase Orders Reference</label>
+                <div class="po-selector-container" id="po-checkboxes">
+                  <!-- JS renders checkboxes -->
+                  <span style="font-size:0.8rem; color:var(--text-muted);">Select Vendor to load POs...</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Goods Receipt Notes Reference</label>
+                <div class="po-selector-container" id="grn-checkboxes">
+                  <!-- JS renders checkboxes -->
+                  <span style="font-size:0.8rem; color:var(--text-muted);">Select Vendor to load GRNs...</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Reference Totals Summary</label>
+                <div style="font-size:0.8rem; display:flex; flex-direction:column; gap:6px; background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; border:1px solid var(--border);">
+                  <div style="display:flex; justify-content:space-between;"><span>Total PO Value:</span><span id="ref-sum-po" style="font-weight:700;">₹0.00</span></div>
+                  <div style="display:flex; justify-content:space-between;"><span>Total GRN Value:</span><span id="ref-sum-grn" style="font-weight:700;">₹0.00</span></div>
+                  <div style="display:flex; justify-content:space-between;"><span>Direct Purchase Value:</span><span id="ref-sum-direct" style="font-weight:700;">₹0.00</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="direct-approval-card" style="background:rgba(245, 158, 11, 0.05); border:1px dashed var(--warning); padding:12px 16px; border-radius:8px; display:none; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--warning); font-weight:600;">
+                <i data-lucide="shield-alert" style="width:16px; height:16px;"></i>
+                Direct Purchase Approval Stage: <span id="direct-approval-status" class="badge badge-verified" style="margin-left:4px;">PENDING MANAGER APPROVAL</span>
+              </div>
+              <div style="display:flex; gap:8px;" id="direct-approval-buttons">
+                <button class="btn btn-success" style="padding:4px 10px; font-size:0.7rem;" onclick="approveDirectPurchase()">Approve</button>
+                <button class="btn btn-danger" style="padding:4px 10px; font-size:0.7rem;" onclick="rejectDirectPurchase()">Reject</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Tabs (Products, Taxes, Payment Terms, Attachments) -->
+          <div>
+            <div class="entry-tabs">
+              <button class="entry-tab-btn active" onclick="switchEntryTab('tab-products')">Invoice Products (<span id="tab-prod-count">0</span>)</button>
+              <button class="entry-tab-btn" onclick="switchEntryTab('tab-taxes')">Tax Breakdown</button>
+              <button class="entry-tab-btn" onclick="switchEntryTab('tab-payments')">Payment Terms & Schedule</button>
+              <button class="entry-tab-btn" onclick="switchEntryTab('tab-attachments')">Supporting Attachments</button>
+            </div>
+
+            <!-- Tab Content Pane: Products Details -->
+            <div class="tab-content-pane active" id="tab-products">
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width:120px;">Source</th>
+                      <th>Ref Number</th>
+                      <th>Product</th>
+                      <th>Variety / Pack</th>
+                      <th style="text-align:right; width:100px;">Qty</th>
+                      <th>UOM</th>
+                      <th style="text-align:right; width:110px;">Rate</th>
+                      <th style="text-align:right; width:120px;">Net Amount</th>
+                      <th style="text-align:center; width:80px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="product-rows-container">
+                    <!-- JS renders lines -->
+                  </tbody>
+                </table>
+              </div>
+              <button class="btn btn-secondary" style="align-self:flex-start;" onclick="openProductModal('add')">
+                <i data-lucide="plus" style="width:14px; height:14px;"></i> Add Product Line
+              </button>
+            </div>
+
+            <!-- Tab Content Pane: Tax Details -->
+            <div class="tab-content-pane" id="tab-taxes">
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Tax Code</th>
+                      <th>Tax Type</th>
+                      <th style="text-align:right;">Taxable Value</th>
+                      <th style="text-align:right; width:120px;">Percentage</th>
+                      <th style="text-align:right; width:140px;">Tax Amount</th>
+                      <th style="text-align:center; width:80px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tax-rows-container">
+                    <!-- JS renders tax lines -->
+                  </tbody>
+                </table>
+              </div>
+              <button class="btn btn-secondary" style="align-self:flex-start;" onclick="addTaxRow()">
+                <i data-lucide="plus" style="width:14px; height:14px;"></i> Add Tax Line
+              </button>
+            </div>
+
+            <!-- Tab Content Pane: Payment Terms -->
+            <div class="tab-content-pane" id="tab-payments">
+              <div class="card" style="padding:20px; border-radius:12px;">
+                <div class="grid-container-3" style="margin-bottom:16px;">
+                  <div class="form-group">
+                    <label>Payment Mode *</label>
+                    <select class="form-control" id="pay-mode">
+                      <option value="Credit" selected>Bank Credit (Credit Purchase)</option>
+                      <option value="Bank Transfer">Bank Transfer (Immediate)</option>
+                      <option value="Cheque">Post Dated Cheque</option>
+                      <option value="Cash">Cash / UPI</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Base Date *</label>
+                    <select class="form-control" id="pay-base-date" onchange="calculateDueDate()">
+                      <option value="Invoice Date" selected>Vendor Invoice Date</option>
+                      <option value="GRN Date">Goods Receipt Note Date</option>
+                      <option value="PO Date">Purchase Order Date</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Credit Days</label>
+                    <input type="number" class="form-control" id="pay-credit-days" value="30" oninput="calculateDueDate()">
+                  </div>
+                </div>
+
+                <div class="grid-container-4" style="margin-bottom:20px;">
+                  <div class="form-group">
+                    <label>Payment Due Date</label>
+                    <input type="text" class="form-control" id="pay-due-date" disabled>
+                  </div>
+                  <div class="form-group">
+                    <label style="display:flex; align-items:center; gap:6px;">
+                      <input type="checkbox" id="pay-tds-applicable" onchange="toggleTdsFields(this.checked)" style="width:14px; height:14px; cursor:pointer;">
+                      TDS Applicable
+                    </label>
+                    <select class="form-control" id="pay-tds-category" disabled onchange="handleTdsCategoryChange(this.value)">
+                      <option value="">Select Category...</option>
+                      <option value="194C">Sec 194C (Contractors) - 1%</option>
+                      <option value="194J">Sec 194J (Professional) - 10%</option>
+                      <option value="194Q">Sec 194Q (Goods Purchase) - 0.1%</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>TDS Rate (%)</label>
+                    <input type="text" class="form-control" id="pay-tds-percent" disabled value="0.0">
+                  </div>
+                  <div class="form-group">
+                    <label>Calculated TDS Amount</label>
+                    <input type="text" class="form-control" id="pay-tds-amount" disabled value="₹0.00">
+                  </div>
+                </div>
+
+                <h4 style="font-size:0.85rem; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; font-weight:700;"><i data-lucide="calendar" style="width:14px; height:14px; vertical-align:middle; margin-right:4px;"></i> Payment Schedules Installments</h4>
+                <div class="table-container" style="margin-bottom:12px;">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Installment #</th>
+                        <th>Base Date</th>
+                        <th style="width:120px;">Days Within</th>
+                        <th>Due Date</th>
+                        <th style="width:120px; text-align:right;">Percentage (%)</th>
+                        <th style="text-align:right; width:150px;">Amount</th>
+                        <th style="text-align:center; width:80px;">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="payment-schedule-rows">
+                      <!-- JS renders schedule -->
+                    </tbody>
+                  </table>
+                </div>
+                <button class="btn btn-secondary" style="align-self:flex-start;" onclick="addScheduleRow()">
+                  <i data-lucide="plus" style="width:14px; height:14px;"></i> Add Installment
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab Content Pane: Attachments -->
+            <div class="tab-content-pane" id="tab-attachments">
+              <div class="file-dropzone" onclick="simulateFileUpload()">
+                <i data-lucide="upload-cloud" style="width:36px; height:36px; color:var(--primary); margin-bottom:10px;"></i>
+                <h4 style="font-size:0.9rem; font-weight:600; color:var(--text);">Drag & Drop Vendor Invoices or Receipts here</h4>
+                <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Supports PDF, PNG, JPG, XLSX (Max 10MB per file)</p>
+              </div>
+
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>File Name</th>
+                      <th>Type</th>
+                      <th>Size</th>
+                      <th>Uploaded By</th>
+                      <th>Uploaded On</th>
+                      <th>Remarks</th>
+                      <th style="text-align:center; width:120px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attachment-rows-container">
+                    <!-- JS renders files -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Part: Sidebar Summary, Stages & Interactive Scenario Tester -->
+        <div class="right-sidebar">
+          
+          <!-- Scenario Tester Sidebar Card -->
+          <div class="card" style="border:1px dashed var(--primary); background:rgba(99, 102, 241, 0.03);">
+            <div class="section-title" style="border-bottom:none; margin-bottom:12px;">
+              <span class="section-title-label" style="color:var(--primary); font-size:0.95rem; font-weight:700;"><i data-lucide="play-circle"></i> Scenario Tester Panel</span>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">Select a pre-defined Purchase Invoice scenario to instantly load realistic mock data and test workflow validations.</p>
+            
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <select class="form-control" id="scenario-selector" style="font-size:0.8rem; border-color:var(--primary);">
+                <option value="1">1. Invoice with Single PO (Hindalco)</option>
+                <option value="2">2. Invoice with GRN (Tata Steel)</option>
+                <option value="3">3. Invoice without GRN (Jindal)</option>
+                <option value="4">4. Direct Purchase Invoice (Local Agro)</option>
+                <option value="5">5. Mixed Invoice (PO + Direct)</option>
+                <option value="6">6. Multiple POs Linked</option>
+                <option value="7">7. Multiple GRNs Linked</option>
+                <option value="8">8. Partial Invoice (Reduced Value)</option>
+                <option value="9">9. Invoice #2 Against Same PO</option>
+                <option value="10">10. Debit Adjustment Linked</option>
+              </select>
+              <button class="btn btn-primary" style="width:100%; font-size:0.8rem; padding:8px;" onclick="loadSelectedScenario()">
+                <i data-lucide="loader" style="width:14px; height:14px;"></i> Load Selected Scenario
+              </button>
+            </div>
+          </div>
+
+          <!-- Invoice Summary Card -->
+          <div class="card">
+            <div class="section-title">
+              <span class="section-title-label"><i data-lucide="calculator" style="color:var(--primary);"></i> Invoice Summary</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px; font-size:0.85rem;">
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Gross Product Amount:</span><span id="sum-gross" style="font-weight:600;">₹0.00</span></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Discount Value:</span><span id="sum-discount" style="color:var(--danger); font-weight:600;">-₹0.00</span></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Calculated Tax Amount:</span><span id="sum-tax" style="color:var(--success); font-weight:600;">+₹0.00</span></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">TDS Deduction Amount:</span><span id="sum-tds" style="color:var(--warning); font-weight:600;">-₹0.00</span></div>
+              <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:10px;"><span style="font-weight:700; font-size:0.95rem;">Net Invoice Amount:</span><span id="sum-net" style="font-weight:700; font-size:1.1rem; color:var(--primary);">₹0.00</span></div>
+            </div>
+          </div>
+
+          <!-- Payment Summary Card -->
+          <div class="card">
+            <div class="section-title">
+              <span class="section-title-label"><i data-lucide="wallet" style="color:var(--primary);"></i> Payment Summary</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px; font-size:0.85rem;">
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Total Invoice Value:</span><span id="pay-sum-invoice" style="font-weight:600;">₹0.00</span></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Total Paid Amount:</span><span id="pay-sum-paid" style="color:var(--success); font-weight:600;">₹0.00</span></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Remaining Outstanding:</span><span id="pay-sum-remaining" style="color:var(--danger); font-weight:600;">₹0.00</span></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Payment Stage:</span><span id="pay-sum-status" class="badge badge-draft">PENDING</span></div>
+            </div>
+          </div>
+
+          <!-- Vendor Summary Card -->
+          <div class="card">
+            <div class="section-title">
+              <span class="section-title-label"><i data-lucide="building" style="color:var(--primary);"></i> Vendor Ledger Overview</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px; font-size:0.825rem;" id="vendor-summary-pane">
+              <div style="color:var(--text-muted); text-align:center; padding:10px;">Select a vendor to view historical balance data...</div>
+            </div>
+          </div>
+
+          <!-- Workflow Stage history / timeline -->
+          <div class="card">
+            <div class="section-title">
+              <span class="section-title-label"><i data-lucide="git-commit" style="color:var(--primary);"></i> Workflow Timeline</span>
+            </div>
+            <div class="timeline-container" id="timeline-container-pane">
+              <!-- JS renders stages -->
+            </div>
+            
+            <!-- Workflow Buttons Area -->
+            <div style="margin-top:24px; display:flex; flex-direction:column; gap:10px;" id="workflow-action-buttons">
+              <!-- JS renders buttons based on stage -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Logger Console -->
+  <div id="test-logs-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <i data-lucide="terminal" style="width:14px; height:14px; color:var(--primary);"></i> Live Action Log & Validation Console
+      </div>
+      <button class="btn btn-ghost" style="padding:2px 8px; font-size:0.65rem;" onclick="clearConsole()"><i data-lucide="trash-2" style="width:12px; height:12px;"></i> Clear Logs</button>
+    </div>
+    <div class="log-list" id="console-logs-list">
+      <!-- Javascript prints logs here -->
+    </div>
+  </div>
+
+  <!-- Add/Modify Product Modal -->
+  <div class="modal-backdrop" id="product-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 style="font-size:1.05rem; color:var(--text);" id="modal-title-action">Add Product Details</h3>
+        <button class="btn btn-ghost" onclick="closeProductModal()"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="grid-container-3" style="margin-bottom:16px;">
+          <div class="form-group">
+            <label>Receipt Source</label>
+            <select class="form-control" id="modal-source" onchange="handleModalSourceChange(this.value)">
+              <option value="PO">Purchase Order (PO)</option>
+              <option value="GRN">Goods Receipt Note (GRN)</option>
+              <option value="Direct Purchase">Direct Purchase</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Reference Number</label>
+            <input type="text" class="form-control" id="modal-ref-no" placeholder="e.g. PO-2026-001">
+          </div>
+          <div class="form-group">
+            <label>Product Name *</label>
+            <input type="text" class="form-control" id="modal-prod-name" placeholder="e.g. Hex Bolts">
+          </div>
+        </div>
+
+        <div class="grid-container-3" style="margin-bottom:16px;">
+          <div class="form-group">
+            <label>Variety</label>
+            <input type="text" class="form-control" id="modal-variety" placeholder="e.g. M12 Zinc">
+          </div>
+          <div class="form-group">
+            <label>Pack</label>
+            <input type="text" class="form-control" id="modal-pack" placeholder="e.g. Box of 100">
+          </div>
+          <div class="form-group">
+            <label>UOM *</label>
+            <input type="text" class="form-control" id="modal-uom" value="BOX">
+          </div>
+        </div>
+
+        <div class="grid-container-3" style="margin-bottom:16px;">
+          <div class="form-group">
+            <label>Quantity *</label>
+            <input type="number" class="form-control" id="modal-qty" value="1" step="any" oninput="calculateModalNet()">
+          </div>
+          <div class="form-group">
+            <label>Purchase Rate *</label>
+            <input type="number" class="form-control" id="modal-rate" value="0.00" step="any" oninput="calculateModalNet()">
+          </div>
+          <div class="form-group">
+            <label>Net Amount</label>
+            <input type="text" class="form-control" id="modal-net" value="₹0.00" disabled>
+          </div>
+        </div>
+
+        <div class="grid-container-3">
+          <div class="form-group">
+            <label>Discount Type</label>
+            <select class="form-control" id="modal-disc-type" onchange="calculateModalNet()">
+              <option value="None">No Discount</option>
+              <option value="Percent">Percent (%)</option>
+              <option value="Fixed">Fixed Value</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Discount Rate</label>
+            <input type="number" class="form-control" id="modal-disc-rate" value="0" step="any" oninput="calculateModalNet()">
+          </div>
+          <div class="form-group">
+            <label>Tax Code</label>
+            <select class="form-control" id="modal-tax" onchange="calculateModalNet()">
+              <option value="18%">GST 18%</option>
+              <option value="12%">GST 12%</option>
+              <option value="5%">GST 5%</option>
+              <option value="0%">Exempt (0%)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeProductModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProductLine()">Save Line</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Javascript Logic -->
+  <script>
+    // --- State Variables ---
+    let activeInvoice = {
+      invoiceNumber: "PINV-2026-000012",
+      invoiceDate: new Date().toISOString().split('T')[0],
+      vendorInvoiceNumber: "",
+      vendorInvoiceDate: new Date().toISOString().split('T')[0],
+      referenceType: "PO",
+      vendor: "",
+      currency: "INR",
+      exchangeRate: 1.0,
+      remarks: "",
+      allowDirectPurchase: false,
+      directPurchaseStage: "Pending",
+      stage: "Draft",
+      products: [],
+      taxes: [],
+      paymentMode: "Credit",
+      payBaseDate: "Invoice Date",
+      creditDays: 30,
+      dueDate: "",
+      tdsApplicable: false,
+      tdsCategory: "",
+      tdsPercent: 0,
+      tdsAmount: 0,
+      paymentStatus: "Pending",
+      paidAmount: 0,
+      installments: [],
+      attachments: [],
+      adjustmentNoteLinked: false,
+      adjustmentAmount: 0
+    };
+
+    let editingProductIdx = -1;
+
+    // --- Mock Database for Referencing ---
+    const MOCK_POs = {
+      "Hindalco Industries": [
+        { id: "PO-2026-001", val: 250000 },
+        { id: "PO-2026-004", val: 350000 }
+      ],
+      "Tata Steel": [
+        { id: "PO-2026-005", val: 400000 }
+      ]
+    };
+
+    const MOCK_GRNs = {
+      "Tata Steel": [
+        { id: "GRN-2026-001", val: 480000 },
+        { id: "GRN-2026-002", val: 480000 }
+      ],
+      "Jindal Stainless": [
+        { id: "GRN-2026-003", val: 100000 }
+      ]
+    };
+
+    const VENDOR_PROFILE_DB = {
+      "Hindalco Industries": { mobile: "+91 98765 43210", gstin: "27AAACH0001Z1Z0", outstanding: 1250000, lastPurchase: "2026-06-15", lifetime: 4500000 },
+      "Tata Steel": { mobile: "+91 99887 76655", gstin: "20AAACT1122D1ZP", outstanding: 960000, lastPurchase: "2026-06-24", lifetime: 8200000 },
+      "Jindal Stainless": { mobile: "+91 88776 65544", gstin: "06AAACJ3344F1ZT", outstanding: 150000, lastPurchase: "2026-06-25", lifetime: 2100000 },
+      "Reliance Industries": { mobile: "+91 77665 54433", gstin: "24AAACR5566G1ZV", outstanding: 0, lastPurchase: "2026-06-23", lifetime: 3200000 },
+      "Local Agro Farm": { mobile: "+91 91234 56789", gstin: "09AAACL9988H1ZS", outstanding: 0, lastPurchase: "2026-06-22", lifetime: 85000 }
+    };
+
+    window.addEventListener("load", () => {
+      loadTheme();
+      initFormDefaults();
+      renderFormState();
+      logAction("Invoice entry workspace loaded in DRAFT stage. Select a testing scenario on the right sidebar to begin.", "info");
+    });
+
+    function loadTheme() {
+      const theme = localStorage.getItem("theme") || "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      updateThemeButton(theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      updateThemeButton(next);
+      lucide.createIcons();
+      logAction(`Theme toggled to ${next.toUpperCase()} mode.`, "success");
+    }
+
+    function updateThemeButton(theme) {
+      const btn = document.getElementById("theme-btn");
+      if (theme === "light") {
+        btn.innerHTML = '<i data-lucide="moon"></i>';
+      } else {
+        btn.innerHTML = '<i data-lucide="sun"></i>';
+      }
+    }
+
+    function initFormDefaults() {
+      document.getElementById("inv-date").value = activeInvoice.invoiceDate;
+      document.getElementById("vendor-inv-date").value = activeInvoice.vendorInvoiceDate;
+      calculateDueDate();
+    }
+
+    // --- Scenario Tester Loader (Implements the 10 Business Scenarios) ---
+    function loadSelectedScenario() {
+      const sceneId = document.getElementById("scenario-selector").value;
+      clearConsole();
+      logAction(`[SCENARIO TESTER] Loading Business Scenario ${sceneId}...`, "info");
+
+      switch(sceneId) {
+        case "1": // Single PO Hindalco
+          activeInvoice.vendor = "Hindalco Industries";
+          activeInvoice.referenceType = "PO";
+          activeInvoice.allowDirectPurchase = false;
+          activeInvoice.stage = "Draft";
+          activeInvoice.paidAmount = 0;
+          activeInvoice.adjustmentNoteLinked = false;
+          
+          activeInvoice.products = [
+            { source: "PO", refNo: "PO-2026-001", name: "Aluminium Sheets Grade-A", variety: "2mm thickness", pack: "Pallet of 50", qty: 200, uom: "PCS", rate: 1050.85, discountType: "None", discountRate: 0, taxCode: "18%" }
+          ];
+          logAction("Loaded: Scenario 1 - Standard Purchase Invoice linked with Single approved Purchase Order.", "success");
+          break;
+
+        case "2": // Single GRN Tata Steel
+          activeInvoice.vendor = "Tata Steel";
+          activeInvoice.referenceType = "GRN";
+          activeInvoice.allowDirectPurchase = false;
+          activeInvoice.stage = "Draft";
+          activeInvoice.paidAmount = 0;
+          activeInvoice.adjustmentNoteLinked = false;
+          
+          activeInvoice.products = [
+            { source: "GRN", refNo: "GRN-2026-001", name: "Steel Rebars 12mm", variety: "Fe550D", pack: "Bundle of 20", qty: 400, uom: "BOX", rate: 1016.95, discountType: "None", discountRate: 0, taxCode: "18%" }
+          ];
+          logAction("Loaded: Scenario 2 - Purchase Invoice linked with Goods Receipt Note (GRN) following physical storage entry.", "success");
+          break;
+
+        case "3": // Invoice without GRN (Jindal)
+          activeInvoice.vendor = "Jindal Stainless";
+          activeInvoice.referenceType = "PO";
+          activeInvoice.allowDirectPurchase = false;
+          activeInvoice.stage = "Draft";
+          activeInvoice.paidAmount = 0;
+          activeInvoice.adjustmentNoteLinked = false;
+
+          activeInvoice.products = [
+            { source: "PO", refNo: "PO-2026-002", name: "Stainless Steel Pipes 2-inch", variety: "Grade 304", pack: "Bundle of 10", qty: 150, uom: "BOX", rate: 847.46, discountType: "None", discountRate: 0, taxCode: "18%" }
+          ];
+          logAction("Loaded: Scenario 3 - Purchase Invoice created directly against PO prior to receiving Goods (GRN-less Invoicing).", "success");
+          break;
+
+        case "4": // Direct Purchase (Local Agro)
+          activeInvoice.vendor = "Local Agro Farm";
+          activeInvoice.referenceType = "Direct Purchase";
+          activeInvoice.allowDirectPurchase = true;
+          activeInvoice.stage = "Draft";
+          activeInvoice.directPurchaseStage = "Pending";
+          activeInvoice.paidAmount = 0;
+          activeInvoice.adjustmentNoteLinked = false;
+
+          activeInvoice.products = [
+            { source: "Direct Purchase", refNo: "N/A", name: "Premium Basmati Rice", variety: "Super-Long Grain", pack: "Bag 50kg", qty: 100, uom: "KGS", rate: 850.00, discountType: "None", discountRate: 0, taxCode: "0%" }
+          ];
+          logAction("Loaded: Scenario 4 - Direct Purchase Invoice without preceding PO or GRN. Requires Purchase Manager authorization.", "warning");
+          break;
+
+        case "5": // Mixed Invoice (Reliance)
+          activeInvoice.vendor = "Reliance Industries";
+          activeInvoice.referenceType = "Mixed";
+          activeInvoice.allowDirectPurchase = true;
+          activeInvoice.stage = "Draft";
+          activeInvoice.directPurchaseStage = "Pending";
+          activeInvoice.paidAmount = 0;
+          activeInvoice.adjustmentNoteLinked = false;
+
+          activeInvoice.products = [
+            { source: "PO", refNo: "PO-2026-003", name: "Polypropylene Resin Granules", variety: "High-Density", pack: "Drum 25kg", qty: 200, uom: "PCS", rate: 1100.00, discountType: "Percent", discountRate: 5, taxCode: "12%" },
+            { source: "Direct Purchase", refNo: "N/A", name: "Ad-hoc Polymer Additive", variety: "Catalyst Grade", pack: "Canister 5L", qty: 20, uom: "PCS", rate: 5000.00, discountType: "None", discountRate: 0, taxCode: "18%" }
+          ];
+          logAction("Loaded: Scenario 5 - Mixed Mode Invoicing. Consolidates pre-approved PO items with ad-hoc direct purchases.", "warning");
+          break;
+
+        case "6": // Multiple POs Linked
+          activeInvoice.vendor = "Hindalco Industries";
+          activeInvoice.referenceType = "PO";
+          activeInvoice.allowDirectPurchase = false;
+          activeInvoice.stage = "Draft";
+          activeInvoice.paidAmount = 0;
+          activeInvoice.adjustmentNoteLinked = false;
+
+          activeInvoice.products = [
+            { source: "PO", refNo: "PO-2026-001", name: "Aluminium Sheets Grade-A", variety: "2mm thickness", pack: "Pallet of 50", qty: 200, uom: "PCS", rate: 1050.85, discountType: "None", discountRate: 0, taxCode: "18%" },
+            { source: "PO", refNo: "PO-2026-004", name: "Aluminium Ingots", variety: "99.7% Purity", pack: "Bundle of 25", qty: 300, uom: "PCS", rate: 988.70, discountType: "None", discountRate: 0, taxCode: "18%" }
+          ];
+          logAction("Loaded: Scenario 6 - Multiple POs linked to a single consolidated invoice, verified against matching vendor profile.", "success");
+          break;
+
+        case "7": // Multiple GRNs Linked
+          activeInvoice.vendor = "Tata Steel";
+          activeInvoice.referenceType = "GRN";
+          activeInvoice.allowDirectPurchase = false;
+          activeInvoice.stage = "Draft";
+          activeInvoice.paidAmount = 0;
+          activeInvoice.adjustmentNoteLinked = false;
+
+          activeInvoice.products = [
+            { source: "GRN", refNo: "GRN-2026-001", name: "Steel Rebars 12mm", variety: "Fe550D", pack: "Bundle of 20", qty: 400, uom: "BOX", rate: 1016.95, discountType: "None", discountRate: 0, taxCode: "18%" },
+            { source: "GRN", refNo: "GRN-2026-002", name: "Structural Steel I-Beams", variety: "IS 2062", pack: "Single Beam", qty: 400, uom: "BOX", rate: 1016.95, discountType: "None", discountRate: 0, taxCode: "18%" }
+          ];
+          logAction("Loaded: Scenario 7 - Multiple Goods Receipt Notes (GRNs) consolidated into a single invoice matching Tata Steel.", "success");
+          break;
+
+        case "8": // Partial Invoice
+          activeInvoice.vendor = "Jindal Stainless";
+          activeInvoice.referenceType = "GRN";
+          activeInvoice.allowDirectPurchase = false;
+          activeInvoice.stage = "Draft";
+          activeInvoice.paidAmount = 0;
+          activeInvoice.adjustmentNoteLinked = false;
+
+          activeInvoice.products = [
+            { source: "GRN", refNo: "GRN-2026-003", name: "Stainless Steel Wire Rods", variety: "SS316", pack: "Coil 1 Ton", qty: 60, uom: "BOX", rate: 847.46, discountType: "None", discountRate: 0, taxCode: "18%" }
+          ];
+          logAction("Loaded: Scenario 8 - Partial Invoice. Physical GRN value was ₹1,00,000, but invoice accounts for only ₹60,000.", "success");
+          break;
+
+        case "9": // Invoice #2 Against Same PO
+          activeInvoice.vendor = "Hindalco Industries";
+          activeInvoice.referenceType = "PO";
+          activeInvoice.allowDirectPurchase = false;
+          activeInvoice.stage = "Draft";
+          activeInvoice.paidAmount = 0;
+          activeInvoice.adjustmentNoteLinked = false;
+
+          activeInvoice.products = [
+            { source: "PO", refNo: "PO-2026-001", name: "Aluminium Sheets Grade-A (Batch 2)", variety: "2mm thickness", pack: "Pallet of 50", qty: 100, uom: "PCS", rate: 1050.85, discountType: "None", discountRate: 0, taxCode: "18%" }
+          ];
+          logAction("Loaded: Scenario 9 - Subsequent invoice #2 issued against the remaining balance of PO-2026-001.", "success");
+          break;
+
+        case "10": // Debit Adjustment Linked
+          activeInvoice.vendor = "Tata Steel";
+          activeInvoice.referenceType = "GRN";
+          activeInvoice.allowDirectPurchase = false;
+          activeInvoice.stage = "Draft";
+          activeInvoice.paidAmount = 0;
+          activeInvoice.adjustmentNoteLinked = true;
+          activeInvoice.adjustmentAmount = 50000;
+
+          activeInvoice.products = [
+            { source: "GRN", refNo: "GRN-2026-004", name: "Steel Billets High-Carbon", variety: "Grade C45", pack: "Stack of 5", qty: 400, uom: "BOX", rate: 1016.95, discountType: "None", discountRate: 0, taxCode: "18%" }
+          ];
+          logAction("Loaded: Scenario 10 - Debit Adjustment Note linked. Redundant transit charges of ₹50,000 deducted from net payable.", "success");
+          break;
+      }
+
+      // Sync form fields and recalculate
+      renderFormState();
+    }
+
+    // --- Core Form Rendering & Value Synchronization ---
+    function renderFormState() {
+      // Inputs
+      document.getElementById("inv-vendor").value = activeInvoice.vendor;
+      document.getElementById("inv-ref-type").value = activeInvoice.referenceType;
+      document.getElementById("toggle-allow-direct").checked = activeInvoice.allowDirectPurchase;
+      document.getElementById("inv-currency").value = activeInvoice.currency;
+      document.getElementById("inv-ex-rate").value = activeInvoice.exchangeRate;
+      document.getElementById("inv-remarks").value = activeInvoice.remarks;
+
+      // Badges
+      const stageBadge = document.getElementById("invoice-stage-badge");
+      stageBadge.textContent = activeInvoice.stage.toUpperCase();
+      stageBadge.className = `badge ${getStageBadgeClass(activeInvoice.stage)}`;
+
+      // Banners
+      document.getElementById("direct-purchase-banner").style.display = (activeInvoice.referenceType === "Direct Purchase") ? "flex" : "none";
+      document.getElementById("mixed-invoice-banner").style.display = (activeInvoice.referenceType === "Mixed") ? "flex" : "none";
+      document.getElementById("adjustment-banner").style.display = activeInvoice.adjustmentNoteLinked ? "flex" : "none";
+      if (activeInvoice.adjustmentNoteLinked) {
+        document.getElementById("adj-banner-val").textContent = "₹" + activeInvoice.adjustmentAmount.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      }
+
+      // Direct Approval Card
+      const directExists = activeInvoice.products.some(p => p.source === "Direct Purchase");
+      document.getElementById("direct-approval-card").style.display = directExists ? "flex" : "none";
+      
+      const approvalStatus = document.getElementById("direct-approval-status");
+      approvalStatus.textContent = activeInvoice.directPurchaseStage === "Approved" ? "APPROVED BY PURCHASE MANAGER" : (activeInvoice.directPurchaseStage === "Rejected" ? "REJECTED BY PURCHASE MANAGER" : "PENDING MANAGER APPROVAL");
+      approvalStatus.className = activeInvoice.directPurchaseStage === "Approved" ? "badge badge-completed" : (activeInvoice.directPurchaseStage === "Rejected" ? "badge badge-cancelled" : "badge badge-verified");
+      document.getElementById("direct-approval-buttons").style.display = activeInvoice.directPurchaseStage === "Pending" ? "flex" : "none";
+
+      // Render References
+      renderReferencesUI();
+
+      // Render Tables
+      renderProductsTable();
+      renderTaxesTable();
+      renderPaymentSchedule();
+      renderAttachmentsTable();
+
+      // Recalculate Summary Card Totals
+      calculateAllTotals();
+
+      // Render Sidebar Widgets
+      renderVendorSummary();
+      renderTimelineUI();
+      renderWorkflowButtons();
+
+      lucide.createIcons();
+    }
+
+    function getStageBadgeClass(stage) {
+      switch(stage) {
+        case "Draft": return "badge-draft";
+        case "Submitted": return "badge-submitted";
+        case "Verified": return "badge-verified";
+        case "Approved": return "badge-approved";
+        case "Partially Paid": return "badge-partially-paid";
+        case "Paid": return "badge-paid";
+        case "Cancelled": return "badge-cancelled";
+        case "Rejected": return "badge-rejected";
+        default: return "badge-draft";
+      }
+    }
+
+    // --- Linkage Checklist UI ---
+    function renderReferencesUI() {
+      const poBox = document.getElementById("po-checkboxes");
+      const grnBox = document.getElementById("grn-checkboxes");
+      poBox.innerHTML = "";
+      grnBox.innerHTML = "";
+
+      const vendor = activeInvoice.vendor;
+      if (!vendor) {
+        poBox.innerHTML = `<span style="font-size:0.8rem; color:var(--text-muted);">Select Vendor to load POs...</span>`;
+        grnBox.innerHTML = `<span style="font-size:0.8rem; color:var(--text-muted);">Select Vendor to load GRNs...</span>`;
+        return;
+      }
+
+      // Load PO checkboxes
+      const pos = MOCK_POs[vendor] || [];
+      if (pos.length > 0) {
+        pos.forEach(po => {
+          const isLinked = activeInvoice.products.some(p => p.refNo === po.id);
+          const label = document.createElement("label");
+          label.className = "po-checkbox-label";
+          label.innerHTML = `<input type="checkbox" ${isLinked ? 'checked' : ''} onchange="toggleRefDocLinkage(this.checked, 'PO', '${po.id}', ${po.val})"> ${po.id}`;
+          poBox.appendChild(label);
+        });
+      } else {
+        poBox.innerHTML = `<span style="font-size:0.8rem; color:var(--text-muted);">No POs available.</span>`;
+      }
+
+      // Load GRN checkboxes
+      const grns = MOCK_GRNs[vendor] || [];
+      if (grns.length > 0) {
+        grns.forEach(grn => {
+          const isLinked = activeInvoice.products.some(p => p.refNo === grn.id);
+          const label = document.createElement("label");
+          label.className = "po-checkbox-label";
+          label.innerHTML = `<input type="checkbox" ${isLinked ? 'checked' : ''} onchange="toggleRefDocLinkage(this.checked, 'GRN', '${grn.id}', ${grn.val})"> ${grn.id}`;
+          grnBox.appendChild(label);
+        });
+      } else {
+        grnBox.innerHTML = `<span style="font-size:0.8rem; color:var(--text-muted);">No GRNs available.</span>`;
+      }
+    }
+
+    function toggleRefDocLinkage(checked, type, refNo, val) {
+      logAction(`Linkage toggled: ${type} ${refNo} set to ${checked ? 'LINKED' : 'UNLINKED'}`, "info");
+      
+      if (checked) {
+        // Enforce same vendor check
+        // (Pre-selected by dropdown, checkbox render guarantees vendor match, so this is safe)
+        
+        // Add sample product line for that reference
+        if (type === "PO") {
+          activeInvoice.products.push({
+            source: "PO",
+            refNo: refNo,
+            name: "Aluminium Plates",
+            variety: "Mill Finish",
+            pack: "BOX",
+            qty: 100,
+            uom: "PCS",
+            rate: val / 100,
+            discountType: "None",
+            discountRate: 0,
+            taxCode: "18%"
+          });
+        } else {
+          activeInvoice.products.push({
+            source: "GRN",
+            refNo: refNo,
+            name: "Steel Coils",
+            variety: "Cold Rolled",
+            pack: "BOX",
+            qty: 200,
+            uom: "BOX",
+            rate: val / 200,
+            discountType: "None",
+            discountRate: 0,
+            taxCode: "18%"
+          });
+        }
+      } else {
+        // Remove lines linked to this reference
+        activeInvoice.products = activeInvoice.products.filter(p => p.refNo !== refNo);
+      }
+
+      renderFormState();
+    }
+
+    function handleDirectToggle(checked) {
+      activeInvoice.allowDirectPurchase = checked;
+      logAction(`Toggle Allow Direct Purchase set to: ${checked ? 'ENABLED' : 'DISABLED'}`, "info");
+      renderFormState();
+    }
+
+    function handleRefTypeChange(val) {
+      activeInvoice.referenceType = val;
+      logAction(`Reference Invoicing Source updated to: ${val}`, "info");
+      renderFormState();
+    }
+
+    function handleVendorChange(val) {
+      activeInvoice.vendor = val;
+      activeInvoice.products = []; // Clear products on vendor swap to avoid mixed vendors!
+      logAction(`Vendor selected: ${val || 'None'}. Clearing existing linked product lines.`, "warning");
+      renderFormState();
+    }
+
+    function handleCurrencyChange(val) {
+      activeInvoice.currency = val;
+      logAction(`Transaction base currency updated to: ${val}`, "info");
+      calculateAllTotals();
+    }
+
+    function validateInvoiceDate(val) {
+      const selected = new Date(val);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999); // Allow today
+
+      if (selected > today) {
+        alert("Validation Error: Invoice Date cannot be set to a future date.");
+        document.getElementById("inv-date").value = activeInvoice.invoiceDate;
+        logAction("Validation Failure: Future Invoice Date rejected.", "error");
+      } else {
+        activeInvoice.invoiceDate = val;
+        logAction(`Invoice Date successfully set to ${val}`, "info");
+        calculateDueDate();
+      }
+    }
+
+    function handleVendorDateChange(val) {
+      const selected = new Date(val);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+
+      if (selected > today) {
+        alert("Validation Error: Vendor Invoice Date cannot be in the future.");
+        document.getElementById("vendor-inv-date").value = activeInvoice.vendorInvoiceDate;
+        logAction("Validation Failure: Future Vendor Invoice Date rejected.", "error");
+      } else {
+        activeInvoice.vendorInvoiceDate = val;
+        logAction(`Vendor Invoice Date set to ${val}`, "info");
+        calculateDueDate();
+      }
+    }
+
+    // --- Tab Switcher Logic ---
+    function switchEntryTab(paneId) {
+      document.querySelectorAll(".entry-tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".tab-content-pane").forEach(pane => pane.classList.remove("active"));
+      
+      // Find matching button
+      const index = ['tab-products', 'tab-taxes', 'tab-payments', 'tab-attachments'].indexOf(paneId);
+      document.querySelectorAll(".entry-tab-btn")[index].classList.add("active");
+      document.getElementById(paneId).classList.add("active");
+      
+      logAction(`Switched form workspace view to ${paneId.replace('tab-', '').toUpperCase()} panel.`, "info");
+    }
+
+    // --- Product Lines DataTable Rendering ---
+    function renderProductsTable() {
+      const container = document.getElementById("product-rows-container");
+      container.innerHTML = "";
+      document.getElementById("tab-prod-count").textContent = activeInvoice.products.length;
+
+      if (activeInvoice.products.length === 0) {
+        container.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:30px; color:var(--text-muted);"><i data-lucide="package-open" style="width:20px; height:20px; vertical-align:middle; margin-right:6px;"></i> No products added yet. Link reference documents or click "Add Product Line".</td></tr>`;
+        lucide.createIcons();
+        return;
+      }
+
+      activeInvoice.products.forEach((p, idx) => {
+        const tr = document.createElement("tr");
+        const netAmt = calculateLineNet(p);
+        
+        tr.innerHTML = `
+          <td><span class="ref-badge ${getRefBadgeClass(p.source)}">${p.source}</span></td>
+          <td style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">${p.refNo}</td>
+          <td style="font-weight:600;">${p.name}</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);">${p.variety} / ${p.pack}</td>
+          <td style="text-align:right;"><input type="number" class="inline-edit-input" value="${p.qty}" onchange="updateLineQty(${idx}, this.value)" style="width:70px;"></td>
+          <td style="font-size:0.8rem; color:var(--text-muted); font-weight:500;">${p.uom}</td>
+          <td style="text-align:right;"><input type="number" class="inline-edit-input" value="${p.rate.toFixed(2)}" onchange="updateLineRate(${idx}, this.value)"></td>
+          <td style="text-align:right; font-weight:700; color:var(--text);">₹${netAmt.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td style="text-align:center;">
+            <div style="display:flex; gap:4px; justify-content:center;">
+              <button class="btn btn-ghost" style="padding:4px;" onclick="openProductModal('edit', ${idx})" title="Edit Line"><i data-lucide="pencil" style="width:14px; height:14px;"></i></button>
+              <button class="btn btn-ghost" style="padding:4px;" onclick="deleteProductLine(${idx})" title="Delete Line"><i data-lucide="trash" style="width:14px; height:14px; color:var(--danger);"></i></button>
+            </div>
+          </td>
+        `;
+        container.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function calculateLineNet(p) {
+      const gross = p.qty * p.rate;
+      let discount = 0;
+      if (p.discountType === "Percent") discount = gross * (p.discountRate / 100);
+      else if (p.discountType === "Fixed") discount = p.discountRate;
+      
+      const taxable = gross - discount;
+      const taxRate = parseFloat(p.taxCode) || 0;
+      const tax = taxable * (taxRate / 100);
+      return taxable + tax;
+    }
+
+    function updateLineQty(idx, val) {
+      const qty = parseFloat(val) || 0;
+      if (qty <= 0) {
+        alert("Quantity must be greater than zero.");
+        renderProductsTable();
+        return;
+      }
+      activeInvoice.products[idx].qty = qty;
+      logAction(`Inline edit: Updated line #${idx + 1} Quantity to ${qty}`, "info");
+      renderFormState();
+    }
+
+    function updateLineRate(idx, val) {
+      const rate = parseFloat(val) || 0;
+      if (rate <= 0) {
+        alert("Purchase rate must be greater than zero.");
+        renderProductsTable();
+        return;
+      }
+      activeInvoice.products[idx].rate = rate;
+      logAction(`Inline edit: Updated line #${idx + 1} Rate to ₹${rate.toFixed(2)}`, "info");
+      renderFormState();
+    }
+
+    function deleteProductLine(idx) {
+      const removed = activeInvoice.products.splice(idx, 1)[0];
+      logAction(`Removed product line: ${removed.name} (${removed.refNo})`, "error");
+      renderFormState();
+    }
+
+    // --- Tax Details DataTable Rendering ---
+    function renderTaxesTable() {
+      const container = document.getElementById("tax-rows-container");
+      container.innerHTML = "";
+
+      if (activeInvoice.products.length === 0) {
+        container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);"><i data-lucide="calculator" style="width:20px; height:20px; vertical-align:middle; margin-right:6px;"></i> Add products to calculate tax breakdown.</td></tr>`;
+        lucide.createIcons();
+        return;
+      }
+
+      activeInvoice.products.forEach((p, idx) => {
+        const gross = p.qty * p.rate;
+        let discount = 0;
+        if (p.discountType === "Percent") discount = gross * (p.discountRate / 100);
+        else if (p.discountType === "Fixed") discount = p.discountRate;
+
+        const taxable = gross - discount;
+        const taxPercent = parseFloat(p.taxCode) || 0;
+        const taxAmt = taxable * (taxPercent / 100);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="font-weight:600;">${p.name}</td>
+          <td>GST-${p.taxCode}</td>
+          <td><span class="badge badge-submitted">${taxPercent > 0 ? 'IGST / CGST+SGST' : 'EXEMPT'}</span></td>
+          <td style="text-align:right;">₹${taxable.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td style="text-align:right; font-weight:600;">${taxPercent}%</td>
+          <td style="text-align:right; font-weight:700; color:var(--success);">₹${taxAmt.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td style="text-align:center;">
+            <button class="btn btn-ghost" style="padding:4px;" onclick="alert('Tax codes are linked to Product Master settings. Overriding requires manager credentials.')" title="Override Tax"><i data-lucide="lock" style="width:14px; height:14px;"></i></button>
+          </td>
+        `;
+        container.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    // --- Payment Terms & Installment Schedules ---
+    function calculateDueDate() {
+      const dateVal = document.getElementById("vendor-inv-date").value;
+      const creditDays = parseInt(document.getElementById("pay-credit-days").value) || 0;
+
+      if (!dateVal) return;
+
+      const date = new Date(dateVal);
+      date.setDate(date.getDate() + creditDays);
+      const dueStr = date.toISOString().split('T')[0];
+      
+      activeInvoice.dueDate = dueStr;
+      document.getElementById("pay-due-date").value = dueStr;
+
+      // Auto update payment schedule base row
+      if (activeInvoice.installments.length <= 1) {
+        activeInvoice.installments = [
+          { installmentNo: 1, baseDate: activeInvoice.payBaseDate, daysWithin: creditDays, dueDate: dueStr, percentage: 100 }
+        ];
+        renderPaymentSchedule();
+      }
+    }
+
+    function renderPaymentSchedule() {
+      const container = document.getElementById("payment-schedule-rows");
+      container.innerHTML = "";
+
+      const netAmount = calculateInvoiceNetValue();
+
+      if (activeInvoice.installments.length === 0) {
+        container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">No payment schedules defined.</td></tr>`;
+        return;
+      }
+
+      activeInvoice.installments.forEach((inst, idx) => {
+        const tr = document.createElement("tr");
+        const instAmt = netAmount * (inst.percentage / 100);
+        
+        tr.innerHTML = `
+          <td style="font-weight:700; text-align:center; color:var(--primary);">#${inst.installmentNo}</td>
+          <td>
+            <select class="form-control" style="padding:4px 8px; font-size:0.8rem;" onchange="updateScheduleBase(${idx}, this.value)">
+              <option value="Invoice Date" ${inst.baseDate === 'Invoice Date' ? 'selected' : ''}>Invoice Date</option>
+              <option value="GRN Date" ${inst.baseDate === 'GRN Date' ? 'selected' : ''}>GRN Date</option>
+            </select>
+          </td>
+          <td><input type="number" class="inline-edit-input" value="${inst.daysWithin}" onchange="updateScheduleDays(${idx}, this.value)" style="width:70px;"></td>
+          <td style="font-weight:600;">${inst.dueDate}</td>
+          <td><input type="number" class="inline-edit-input" value="${inst.percentage}" onchange="updateSchedulePercent(${idx}, this.value)" style="width:70px;"></td>
+          <td style="text-align:right; font-weight:700; color:var(--text);">₹${instAmt.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td style="text-align:center;">
+            <button class="btn btn-ghost" style="padding:4px;" onclick="deleteScheduleRow(${idx})"><i data-lucide="trash" style="width:14px; height:14px; color:var(--danger);"></i></button>
+          </td>
+        `;
+        container.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function addScheduleRow() {
+      const currentCount = activeInvoice.installments.length;
+      const remPercent = 100 - activeInvoice.installments.reduce((acc, curr) => acc + curr.percentage, 0);
+      
+      const newInst = {
+        installmentNo: currentCount + 1,
+        baseDate: activeInvoice.payBaseDate,
+        daysWithin: 30,
+        dueDate: activeInvoice.dueDate,
+        percentage: remPercent > 0 ? remPercent : 0
+      };
+
+      activeInvoice.installments.push(newInst);
+      logAction(`Payment Schedule: Added Installment #${newInst.installmentNo}`, "info");
+      renderPaymentSchedule();
+    }
+
+    function updateScheduleBase(idx, val) {
+      activeInvoice.installments[idx].baseDate = val;
+      logAction(`Installment #${idx + 1} Base Date set to: ${val}`, "info");
+      recalculateInstallmentDates();
+    }
+
+    function updateScheduleDays(idx, val) {
+      const days = parseInt(val) || 0;
+      activeInvoice.installments[idx].daysWithin = days;
+      logAction(`Installment #${idx + 1} Credit Days set to: ${days}`, "info");
+      recalculateInstallmentDates();
+    }
+
+    function updateSchedulePercent(idx, val) {
+      const pct = parseFloat(val) || 0;
+      activeInvoice.installments[idx].percentage = pct;
+      logAction(`Installment #${idx + 1} percentage set to: ${pct}%`, "info");
+      renderPaymentSchedule();
+    }
+
+    function recalculateInstallmentDates() {
+      const baseInvoiceDate = new Date(activeInvoice.vendorInvoiceDate);
+      activeInvoice.installments.forEach(inst => {
+        const date = new Date(baseInvoiceDate);
+        date.setDate(date.getDate() + inst.daysWithin);
+        inst.dueDate = date.toISOString().split('T')[0];
+      });
+      renderPaymentSchedule();
+    }
+
+    function deleteScheduleRow(idx) {
+      activeInvoice.installments.splice(idx, 1);
+      // Re-index
+      activeInvoice.installments.forEach((inst, i) => inst.installmentNo = i + 1);
+      logAction(`Payment Schedule: Removed installment row`, "error");
+      renderPaymentSchedule();
+    }
+
+    // --- TDS Deductions Calculations ---
+    function toggleTdsFields(checked) {
+      activeInvoice.tdsApplicable = checked;
+      document.getElementById("pay-tds-category").disabled = !checked;
+      logAction(`TDS Calculation toggle set to: ${checked ? 'ACTIVE' : 'INACTIVE'}`, "info");
+      if (!checked) {
+        activeInvoice.tdsCategory = "";
+        activeInvoice.tdsPercent = 0;
+        activeInvoice.tdsAmount = 0;
+        document.getElementById("pay-tds-percent").value = "0.0";
+        document.getElementById("pay-tds-amount").value = "₹0.00";
+      }
+      calculateAllTotals();
+    }
+
+    function handleTdsCategoryChange(val) {
+      activeInvoice.tdsCategory = val;
+      let pct = 0;
+      if (val === "194C") pct = 1.0;
+      else if (val === "194J") pct = 10.0;
+      else if (val === "194Q") pct = 0.1;
+
+      activeInvoice.tdsPercent = pct;
+      document.getElementById("pay-tds-percent").value = pct.toFixed(1) + "%";
+      logAction(`TDS category selected: Sec ${val}. Applicable Rate: ${pct}%`, "info");
+      calculateAllTotals();
+    }
+
+    // --- Attachments List Rendering ---
+    function renderAttachmentsTable() {
+      const container = document.getElementById("attachment-rows-container");
+      container.innerHTML = "";
+
+      if (activeInvoice.attachments.length === 0) {
+        container.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:18px; color:var(--text-muted);"><i data-lucide="file" style="width:16px; height:16px; vertical-align:middle; margin-right:6px;"></i> No attachments linked. PDF bill is recommended.</td></tr>`;
+        lucide.createIcons();
+        return;
+      }
+
+      activeInvoice.attachments.forEach((file, idx) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="font-weight:600;"><i data-lucide="file-text" style="width:14px; height:14px; vertical-align:middle; margin-right:6px; color:var(--primary);"></i> ${file.name}</td>
+          <td><span class="badge badge-submitted">${file.type}</span></td>
+          <td>${file.size}</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);">${file.by}</td>
+          <td style="font-size:0.8rem; color:var(--text-muted);">${file.on}</td>
+          <td>${file.remarks}</td>
+          <td style="text-align:center;">
+            <div style="display:flex; gap:4px; justify-content:center;">
+              <button class="btn btn-ghost" style="padding:4px;" onclick="window.open('#')" title="Preview"><i data-lucide="eye" style="width:14px; height:14px;"></i></button>
+              <button class="btn btn-ghost" style="padding:4px;" onclick="deleteAttachment(${idx})" title="Delete"><i data-lucide="trash-2" style="width:14px; height:14px; color:var(--danger);"></i></button>
+            </div>
+          </td>
+        `;
+        container.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function simulateFileUpload() {
+      const fileNames = ["VendorBill_Hindalco_Inv402.pdf", "TataSteel_WeightmentSheet.jpg", "JindalInvoice_Verified.pdf", "E-WayBill_24021256.pdf"];
+      const randName = fileNames[Math.floor(Math.random() * fileNames.length)];
+      
+      const newFile = {
+        name: randName,
+        type: randName.split('.').pop().toUpperCase(),
+        size: (Math.random() * 2 + 0.5).toFixed(2) + " MB",
+        by: "Purchase Manager",
+        on: new Date().toISOString().split('T')[0],
+        remarks: "Scanned copy upload verified."
+      };
+
+      activeInvoice.attachments.push(newFile);
+      logAction(`Attachment linked successfully: ${newFile.name} (${newFile.size})`, "success");
+      renderAttachmentsTable();
+    }
+
+    function deleteAttachment(idx) {
+      const removed = activeInvoice.attachments.splice(idx, 1)[0];
+      logAction(`Attachment removed: ${removed.name}`, "error");
+      renderAttachmentsTable();
+    }
+
+    // --- Mathematical Financial Aggregations ---
+    function calculateInvoiceNetValue() {
+      let gross = 0;
+      let discount = 0;
+      let tax = 0;
+
+      activeInvoice.products.forEach(p => {
+        const lineGross = p.qty * p.rate;
+        let lineDisc = 0;
+        if (p.discountType === "Percent") lineDisc = lineGross * (p.discountRate / 100);
+        else if (p.discountType === "Fixed") lineDisc = p.discountRate;
+
+        const lineTaxable = lineGross - lineDisc;
+        const lineTaxRate = parseFloat(p.taxCode) || 0;
+        const lineTax = lineTaxable * (lineTaxRate / 100);
+
+        gross += lineGross;
+        discount += lineDisc;
+        tax += lineTax;
+      });
+
+      let net = gross - discount + tax;
+      
+      // Credit/Debit Adjustment Note Reduction
+      if (activeInvoice.adjustmentNoteLinked) {
+        net -= activeInvoice.adjustmentAmount;
+      }
+
+      return net;
+    }
+
+    function calculateAllTotals() {
+      let gross = 0;
+      let discount = 0;
+      let tax = 0;
+
+      activeInvoice.products.forEach(p => {
+        const lineGross = p.qty * p.rate;
+        let lineDisc = 0;
+        if (p.discountType === "Percent") lineDisc = lineGross * (p.discountRate / 100);
+        else if (p.discountType === "Fixed") lineDisc = p.discountRate;
+
+        const lineTaxable = lineGross - lineDisc;
+        const lineTaxRate = parseFloat(p.taxCode) || 0;
+        const lineTax = lineTaxable * (lineTaxRate / 100);
+
+        gross += lineGross;
+        discount += lineDisc;
+        tax += lineTax;
+      });
+
+      // TDS Deduction
+      let tdsAmt = 0;
+      if (activeInvoice.tdsApplicable) {
+        const taxableTotal = gross - discount;
+        tdsAmt = taxableTotal * (activeInvoice.tdsPercent / 100);
+        activeInvoice.tdsAmount = tdsAmt;
+        document.getElementById("pay-tds-amount").value = "₹" + tdsAmt.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      }
+
+      let net = gross - discount + tax;
+
+      // Adjustment Note
+      if (activeInvoice.adjustmentNoteLinked) {
+        net -= activeInvoice.adjustmentAmount;
+      }
+
+      // Net invoice payable (tds is deducted at source, so final cash payable to vendor is net - tds)
+      const finalPayable = net - tdsAmt;
+
+      // Update Summary Cards HTML
+      document.getElementById("sum-gross").textContent = "₹" + gross.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      document.getElementById("sum-discount").textContent = "-₹" + discount.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      document.getElementById("sum-tax").textContent = "+₹" + tax.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      document.getElementById("sum-tds").textContent = "-₹" + tdsAmt.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      document.getElementById("sum-net").textContent = "₹" + finalPayable.toLocaleString('en-IN', {minimumFractionDigits: 2});
+
+      // Update Reference Totals Summary section
+      let poSum = 0;
+      let grnSum = 0;
+      let directSum = 0;
+      activeInvoice.products.forEach(p => {
+        const amt = calculateLineNet(p);
+        if (p.source === "PO") poSum += amt;
+        else if (p.source === "GRN") grnSum += amt;
+        else if (p.source === "Direct Purchase") directSum += amt;
+      });
+      document.getElementById("ref-sum-po").textContent = "₹" + poSum.toLocaleString('en-IN');
+      document.getElementById("ref-sum-grn").textContent = "₹" + grnSum.toLocaleString('en-IN');
+      document.getElementById("ref-sum-direct").textContent = "₹" + directSum.toLocaleString('en-IN');
+
+      // Update Payment Card
+      document.getElementById("pay-sum-invoice").textContent = "₹" + finalPayable.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      document.getElementById("pay-sum-paid").textContent = "₹" + activeInvoice.paidAmount.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      
+      const remaining = finalPayable - activeInvoice.paidAmount;
+      document.getElementById("pay-sum-remaining").textContent = "₹" + (remaining > 0 ? remaining : 0).toLocaleString('en-IN', {minimumFractionDigits: 2});
+      
+      // Payment Status
+      const statusBadge = document.getElementById("pay-sum-status");
+      if (activeInvoice.paidAmount === 0) {
+        activeInvoice.paymentStatus = "Pending";
+        statusBadge.textContent = "UNPAID (PENDING)";
+        statusBadge.className = "badge badge-draft";
+      } else if (activeInvoice.paidAmount < finalPayable) {
+        activeInvoice.paymentStatus = "Partial";
+        statusBadge.textContent = "PARTIALLY PAID";
+        statusBadge.className = "badge badge-verified";
+      } else {
+        activeInvoice.paymentStatus = "Paid";
+        statusBadge.textContent = "FULLY PAID";
+        statusBadge.className = "badge badge-completed";
+      }
+    }
+
+    // --- Vendor Summary Sidebar Card ---
+    function renderVendorSummary() {
+      const pane = document.getElementById("vendor-summary-pane");
+      const vendor = activeInvoice.vendor;
+
+      if (!vendor) {
+        pane.innerHTML = `<div style="color:var(--text-muted); text-align:center; padding:10px;">Select a vendor to view historical balance data...</div>`;
+        return;
+      }
+
+      const info = VENDOR_PROFILE_DB[vendor] || { mobile: "N/A", gstin: "N/A", outstanding: 0, lastPurchase: "N/A", lifetime: 0 };
+      pane.innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:var(--text-muted);">Vendor Name:</span><strong style="color:var(--text);">${vendor}</strong></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:var(--text-muted);">Mobile:</span><span>${info.mobile}</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:var(--text-muted);">GSTIN Code:</span><span style="font-family:monospace; font-size:0.75rem; font-weight:600;">${info.gstin}</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px; border-top:1px dashed var(--border); padding-top:6px; margin-top:6px;"><span style="color:var(--text-muted);">Acc Outstanding:</span><strong style="color:var(--danger);">₹${info.outstanding.toLocaleString('en-IN')}</strong></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:var(--text-muted);">Last Invoice Date:</span><span>${info.lastPurchase}</span></div>
+        <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Lifetime Purchase:</span><strong style="color:var(--success);">₹${info.lifetime.toLocaleString('en-IN')}</strong></div>
+      `;
+    }
+
+    // --- Workflow Timeline Rendering ---
+    function renderTimelineUI() {
+      const pane = document.getElementById("timeline-container-pane");
+      pane.innerHTML = "";
+
+      const stages = [
+        { name: "Draft", desc: "Invoice sheet prepared.", active: false, completed: false },
+        { name: "Submitted", desc: "Sent for validation checks.", active: false, completed: false },
+        { name: "Verified", desc: "Audited against physical GRN.", active: false, completed: false },
+        { name: "Approved", desc: "Approved by Purchase Manager.", active: false, completed: false },
+        { name: "Paid", desc: "General ledger account settled.", active: false, completed: false }
+      ];
+
+      // Direct Purchase Approval Step Injected if direct exists
+      const directExists = activeInvoice.products.some(p => p.source === "Direct Purchase");
+      if (directExists) {
+        stages.splice(1, 0, { name: "Pending Purchase Approval", desc: "Awaiting manager permission.", active: false, completed: false });
+      }
+
+      // Determine active index
+      const activeIdx = stages.findIndex(s => s.name === activeInvoice.stage);
+      stages.forEach((s, idx) => {
+        if (idx < activeIdx) s.completed = true;
+        else if (idx === activeIdx) s.active = true;
+      });
+
+      stages.forEach(s => {
+        const item = document.createElement("div");
+        item.className = `timeline-item ${s.active ? 'active' : ''} ${s.completed ? 'completed' : ''}`;
+        
+        item.innerHTML = `
+          <div class="timeline-marker"></div>
+          <div style="font-weight:700; color:${s.active ? 'var(--primary)' : (s.completed ? 'var(--success)' : 'var(--text-muted)')};">${s.name}</div>
+          <div class="timeline-details">${s.desc}</div>
+        `;
+        pane.appendChild(item);
+      });
+    }
+
+    // --- Stage Transitions (The Workflow Buttons) ---
+    function renderWorkflowButtons() {
+      const box = document.getElementById("workflow-action-buttons");
+      box.innerHTML = "";
+
+      const stage = activeInvoice.stage;
+      const directExists = activeInvoice.products.some(p => p.source === "Direct Purchase");
+
+      if (stage === "Draft") {
+        box.innerHTML = `<button class="btn btn-primary" onclick="submitInvoice()"><i data-lucide="check" style="width:16px; height:16px;"></i> Submit Invoice</button>`;
+      } else if (stage === "Pending Purchase Approval") {
+        box.innerHTML = `
+          <div style="font-size:0.75rem; font-weight:700; color:var(--warning); text-align:center; margin-bottom:4px;"><i data-lucide="shield-alert" style="width:14px; height:14px; vertical-align:middle; margin-right:4px;"></i> Awaiting Manager Approval</div>
+        `;
+      } else if (stage === "Submitted") {
+        box.innerHTML = `
+          <button class="btn btn-primary" onclick="verifyInvoice()"><i data-lucide="shield-check" style="width:16px; height:16px;"></i> Verify Invoice & Audit</button>
+          <button class="btn btn-secondary" onclick="revertToStage('Draft')">Reject Back to Draft</button>
+        `;
+      } else if (stage === "Verified") {
+        box.innerHTML = `
+          <button class="btn btn-success" onclick="approveInvoice()"><i data-lucide="thumbs-up" style="width:16px; height:16px;"></i> Approve Invoice for Posting</button>
+          <button class="btn btn-secondary" onclick="revertToStage('Submitted')">Send Back for Re-Audit</button>
+        `;
+      } else if (stage === "Approved" || stage === "Partially Paid") {
+        box.innerHTML = `
+          <button class="btn btn-primary" onclick="triggerVendorPayment()"><i data-lucide="credit-card" style="width:16px; height:16px;"></i> Post Vendor Payment</button>
+          <button class="btn btn-secondary" onclick="revertToStage('Verified')"><i data-lucide="undo-2" style="width:14px; height:14px;"></i> Revert Approval</button>
+        `;
+      } else if (stage === "Paid") {
+        box.innerHTML = `
+          <button class="btn btn-success" onclick="window.print()"><i data-lucide="printer" style="width:16px; height:16px;"></i> Print Voucher Receipt</button>
+          <button class="btn btn-secondary" onclick="alert('Debit Note voucher initialized in drafts.')"><i data-lucide="rotate-ccw" style="width:14px; height:14px;"></i> Create Purchase Return</button>
+        `;
+      }
+
+      lucide.createIcons();
+    }
+
+    // --- Action Button Triggers ---
+    function submitInvoice() {
+      // Validations
+      if (!activeInvoice.vendor) {
+        alert("Validation Error: Please select a Vendor.");
+        return;
+      }
+      if (activeInvoice.products.length === 0) {
+        alert("Validation Error: Invoice must contain at least one product line.");
+        return;
+      }
+
+      const directExists = activeInvoice.products.some(p => p.source === "Direct Purchase");
+      if (directExists) {
+        activeInvoice.stage = "Pending Purchase Approval";
+        activeInvoice.directPurchaseStage = "Pending";
+        logAction("Invoice submitted. Redirected to PENDING PURCHASE APPROVAL due to direct purchase products.", "warning");
+      } else {
+        activeInvoice.stage = "Submitted";
+        logAction("Invoice submitted successfully. Stage moved to SUBMITTED.", "success");
+      }
+
+      // Check sum of payment schedule percentages
+      const pctSum = activeInvoice.installments.reduce((acc, c) => acc + c.percentage, 0);
+      if (pctSum !== 100) {
+        logAction(`Payment Schedule Warning: Total installments sum is ${pctSum}%. Should be exactly 100%. Please adjust before auditing.`, "warning");
+      }
+
+      renderFormState();
+    }
+
+    function approveDirectPurchase() {
+      activeInvoice.directPurchaseStage = "Approved";
+      activeInvoice.stage = "Submitted";
+      logAction("Purchase Manager approved the direct purchase items. Invoice stage promoted to SUBMITTED.", "success");
+      renderFormState();
+    }
+
+    function rejectDirectPurchase() {
+      activeInvoice.directPurchaseStage = "Rejected";
+      activeInvoice.stage = "Draft";
+      logAction("Purchase Manager rejected direct purchase. Invoice reverted to DRAFT. Remove direct items to proceed.", "error");
+      renderFormState();
+    }
+
+    function verifyInvoice() {
+      // Verify that all payment schedule percentages sum up to 100%
+      const pctSum = activeInvoice.installments.reduce((acc, c) => acc + c.percentage, 0);
+      if (pctSum !== 100) {
+        alert(`Validation Error: Total Payment Schedule Percentage is ${pctSum}%. It must be exactly 100% before verification.`);
+        logAction(`Verification Blocked: Installments sum is ${pctSum}% (expected 100%)`, "error");
+        return;
+      }
+
+      activeInvoice.stage = "Verified";
+      logAction("Invoice audited and verified against source links. Stage moved to VERIFIED.", "success");
+      renderFormState();
+    }
+
+    function approveInvoice() {
+      activeInvoice.stage = "Approved";
+      logAction("CFO authorized the Purchase Invoice. Posted to Purchase Ledger accounts. Stage: APPROVED.", "success");
+      
+      // Log account booking impact
+      const netVal = calculateInvoiceNetValue() - activeInvoice.tdsAmount;
+      logAction(`[Account Ledger Impact] DEBIT -> Purchases Account: ₹${calculateInvoiceNetValue().toFixed(2)}`, "success");
+      if (activeInvoice.tdsApplicable) {
+        logAction(`[Account Ledger Impact] CREDIT -> TDS Payable A/c: ₹${activeInvoice.tdsAmount.toFixed(2)}`, "success");
+      }
+      logAction(`[Account Ledger Impact] CREDIT -> Vendor Accounts Payable (${activeInvoice.vendor}): ₹${netVal.toFixed(2)}`, "success");
+      
+      renderFormState();
+    }
+
+    function triggerVendorPayment() {
+      const netVal = calculateInvoiceNetValue() - activeInvoice.tdsAmount;
+      const outstanding = netVal - activeInvoice.paidAmount;
+      
+      if (outstanding <= 0) {
+        alert("Invoice is already fully paid.");
+        return;
+      }
+
+      const pay = parseFloat(prompt(`Enter payment amount (Max outstanding ₹${outstanding.toFixed(2)}):`, outstanding));
+      if (isNaN(pay) || pay <= 0) return;
+
+      if (pay > outstanding) {
+        alert("Payment exceeds outstanding value.");
+        return;
+      }
+
+      activeInvoice.paidAmount += pay;
+      logAction(`Vendor payment of ₹${pay.toLocaleString('en-IN')} posted against invoice.`, "success");
+      logAction(`[Account Ledger Impact] DEBIT -> Vendor Accounts Payable: ₹${pay.toFixed(2)}`, "success");
+      logAction(`[Account Ledger Impact] CREDIT -> Bank Cash Account: ₹${pay.toFixed(2)}`, "success");
+
+      if (activeInvoice.paidAmount === netVal) {
+        activeInvoice.stage = "Paid";
+        logAction("Invoice fully settled. Stage promoted to PAID.", "success");
+      } else {
+        activeInvoice.stage = "Partially Paid";
+        logAction("Invoice partially settled. Stage remains PARTIALLY PAID.", "warning");
+      }
+
+      renderFormState();
+    }
+
+    function revertToStage(target) {
+      const prev = activeInvoice.stage;
+      activeInvoice.stage = target;
+      logAction(`Rollback: Invoice reverted from ${prev} back to ${target} stage.`, "warning");
+      renderFormState();
+    }
+
+    // --- Product Modal Operations ---
+    function openProductModal(action, idx = -1) {
+      const modal = document.getElementById("product-modal");
+      modal.classList.add("open");
+
+      if (action === "edit" && idx >= 0) {
+        editingProductIdx = idx;
+        const p = activeInvoice.products[idx];
+        document.getElementById("modal-title-action").textContent = "Modify Product Details";
+        document.getElementById("modal-source").value = p.source;
+        document.getElementById("modal-ref-no").value = p.refNo;
+        document.getElementById("modal-prod-name").value = p.name;
+        document.getElementById("modal-variety").value = p.variety;
+        document.getElementById("modal-pack").value = p.pack;
+        document.getElementById("modal-qty").value = p.qty;
+        document.getElementById("modal-uom").value = p.uom;
+        document.getElementById("modal-rate").value = p.rate;
+        document.getElementById("modal-disc-type").value = p.discountType;
+        document.getElementById("modal-disc-rate").value = p.discountRate;
+        document.getElementById("modal-tax").value = p.taxCode;
+      } else {
+        editingProductIdx = -1;
+        document.getElementById("modal-title-action").textContent = "Add Product Details";
+        // Reset defaults
+        document.getElementById("modal-source").value = "Direct Purchase";
+        document.getElementById("modal-ref-no").value = "N/A";
+        document.getElementById("modal-prod-name").value = "";
+        document.getElementById("modal-variety").value = "";
+        document.getElementById("modal-pack").value = "";
+        document.getElementById("modal-qty").value = "1";
+        document.getElementById("modal-uom").value = "BOX";
+        document.getElementById("modal-rate").value = "0.00";
+        document.getElementById("modal-disc-type").value = "None";
+        document.getElementById("modal-disc-rate").value = "0";
+        document.getElementById("modal-tax").value = "18%";
+      }
+
+      calculateModalNet();
+    }
+
+    function closeProductModal() {
+      document.getElementById("product-modal").classList.remove("open");
+    }
+
+    function handleModalSourceChange(val) {
+      if (val === "Direct Purchase") {
+        document.getElementById("modal-ref-no").value = "N/A";
+      } else {
+        document.getElementById("modal-ref-no").value = val === "PO" ? "PO-2026-001" : "GRN-2026-001";
+      }
+    }
+
+    function calculateModalNet() {
+      const qty = parseFloat(document.getElementById("modal-qty").value) || 0;
+      const rate = parseFloat(document.getElementById("modal-rate").value) || 0;
+      const gross = qty * rate;
+
+      const discType = document.getElementById("modal-disc-type").value;
+      const discRate = parseFloat(document.getElementById("modal-disc-rate").value) || 0;
+
+      let discount = 0;
+      if (discType === "Percent") discount = gross * (discRate / 100);
+      else if (discType === "Fixed") discount = discRate;
+
+      const taxable = gross - discount;
+      const taxCode = document.getElementById("modal-tax").value;
+      const taxRate = parseFloat(taxCode) || 0;
+      const tax = taxable * (taxRate / 100);
+
+      const net = taxable + tax;
+      document.getElementById("modal-net").value = "₹" + net.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    }
+
+    function saveProductLine() {
+      const name = document.getElementById("modal-prod-name").value.trim();
+      if (!name) {
+        alert("Product name is required.");
+        return;
+      }
+
+      const line = {
+        source: document.getElementById("modal-source").value,
+        refNo: document.getElementById("modal-ref-no").value,
+        name: name,
+        variety: document.getElementById("modal-variety").value || "Standard",
+        pack: document.getElementById("modal-pack").value || "BOX",
+        qty: parseFloat(document.getElementById("modal-qty").value) || 1,
+        uom: document.getElementById("modal-uom").value || "PCS",
+        rate: parseFloat(document.getElementById("modal-rate").value) || 0,
+        discountType: document.getElementById("modal-disc-type").value,
+        discountRate: parseFloat(document.getElementById("modal-disc-rate").value) || 0,
+        taxCode: document.getElementById("modal-tax").value
+      };
+
+      if (editingProductIdx >= 0) {
+        activeInvoice.products[editingProductIdx] = line;
+        logAction(`Modified product line #${editingProductIdx + 1}: ${line.name}`, "info");
+      } else {
+        activeInvoice.products.push(line);
+        logAction(`Added new product line: ${line.name}`, "success");
+      }
+
+      closeProductModal();
+      renderFormState();
+    }
+
+    // --- Logger Console ---
+    function logAction(message, type = "info") {
+      const list = document.getElementById("console-logs-list");
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+      
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+      entry.innerHTML = `<span class="log-time">[${timeStr}]</span><span class="log-text ${type}">${message}</span>`;
+      
+      list.appendChild(entry);
+      list.scrollTop = list.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById("console-logs-list").innerHTML = "";
+    }
+  </script>
+</body>
+</html>

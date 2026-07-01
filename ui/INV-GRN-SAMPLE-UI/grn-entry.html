@@ -1,0 +1,3391 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HappyERP - Goods Receipt Note (GRN) Details</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Shared Style -->
+  <link rel="stylesheet" href="grn-style.css">
+  <style>
+    /* Details Entry Page Specific Custom Styles */
+    #test-logs-drawer {
+      height: 180px;
+      background-color: var(--console-bg);
+      border-top: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      position: sticky;
+      bottom: 0;
+    }
+
+    .drawer-header {
+      height: 36px;
+      padding: 0 16px;
+      background-color: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--console-text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .log-list {
+      flex: 1;
+      padding: 10px 16px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.8125rem;
+      color: var(--console-text);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-entry {
+      line-height: 1.4;
+      display: flex;
+      gap: 8px;
+    }
+
+    .log-time {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      user-select: none;
+    }
+
+    .log-text.info { color: #38bdf8; }
+    .log-text.success { color: #34d399; font-weight: 600; }
+    .log-text.warning { color: #fbbf24; }
+    .log-text.error { color: #f87171; font-weight: 600; }
+
+    .split-badge {
+      font-size: 0.65rem;
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+
+    .card.fullscreen-card {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 2000;
+      border-radius: 0;
+      margin: 0 !important;
+      overflow-y: auto;
+      background: var(--bg) !important;
+      box-shadow: none;
+    }
+
+    .group-header-row td {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="grn-list.html" class="logo-container">
+      <i data-lucide="package-check" style="color:var(--primary); width:28px; height:28px;"></i>
+      <span class="logo-text">Happy<span>ERP</span></span>
+    </a>
+    <div class="header-title-module" id="header-page-title">Goods Receipt Note (GRN) Details</div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="toggleTheme()" id="theme-btn">
+        <i data-lucide="sun"></i><span>Light Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Layout -->
+  <div id="app-container" style="flex-direction: column; overflow-y: auto;">
+    
+    <!-- Entry Form Content -->
+    <div class="grid-container-entry" id="entry-form-root">
+      
+      <!-- Left Column: Primary Sections -->
+      <div style="display:flex; flex-direction:column; gap:24px;">
+        
+        <!-- Header Actions panel -->
+        <div class="entry-header-row" style="border-bottom:none; padding-bottom:0;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <a href="grn-list.html" class="btn btn-secondary" style="padding: 8px 12px;" title="Back to list">
+              <i data-lucide="arrow-left"></i>
+            </a>
+            <h2 id="entry-title" style="font-size: 1.5rem;">GRN Details</h2>
+            <span class="badge badge-draft" id="stage-badge">Draft</span>
+          </div>
+          <div style="display:flex; gap:8px;" id="workflow-buttons-bar">
+            <!-- Dynamic Actions populated by JS -->
+          </div>
+        </div>
+
+        <!-- Section 1: General Info -->
+        <div class="card">
+          <div class="section-title">
+            <span class="section-title-label"><i data-lucide="info"></i> General Information</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">* fields are mandatory</span>
+          </div>
+          <div class="grid-container-3">
+            <div class="form-group">
+              <label>GRN Number</label>
+              <input type="text" class="form-control" id="form-grn-number" disabled>
+            </div>
+            <div class="form-group">
+              <label>GRN Date <span style="color:var(--danger)">*</span></label>
+              <input type="date" class="form-control" id="form-grn-date" onchange="validateGRNDate()">
+            </div>
+            <div class="form-group">
+              <label>Receipt Source <span style="color:var(--danger)">*</span></label>
+              <select class="form-control" id="form-receipt-source" onchange="onReceiptSourceChange()">
+                <option value="PO Based">PO Based</option>
+                <option value="Direct Receipt">Direct Receipt</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid-container-3">
+            <div class="form-group">
+              <label>Vendor <span style="color:var(--danger)">*</span></label>
+              <select class="form-control" id="form-vendor" onchange="onVendorSelected(this.value)">
+                <option value="">Select Vendor</option>
+                <option value="Acme Industrial Solutions">Acme Industrial Solutions</option>
+                <option value="Global Bio-Chemicals Ltd">Global Bio-Chemicals Ltd</option>
+                <option value="ABC Rice Traders">ABC Rice Traders</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Receipt Type <span style="color:var(--danger)">*</span></label>
+              <select class="form-control" id="form-receipt-type" onchange="onReceiptTypeChange()">
+                <option value="Regular Receipt">Regular Receipt</option>
+                <option value="Returnable Receipt">Returnable Receipt</option>
+                <option value="Sample Receipt">Sample Receipt</option>
+                <option value="Transfer Receipt">Transfer Receipt</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Warehouse <span style="color:var(--danger)">*</span></label>
+              <select class="form-control" id="form-warehouse" onchange="validateWarehouse()">
+                <option value="">Select Warehouse</option>
+                <option value="WH-01">Main Warehouse (Raw Materials)</option>
+                <option value="WH-02">Cold Storage A</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid-container-3">
+            <div class="form-group">
+              <label>Vehicle Number</label>
+              <input type="text" class="form-control" id="form-vehicle-number" placeholder="e.g. DL-1C-9876">
+            </div>
+            <div class="form-group">
+              <label>LR Number</label>
+              <input type="text" class="form-control" id="form-lr-number" placeholder="Lorry Receipt No">
+            </div>
+            <div class="form-group">
+              <label>Transporter Name</label>
+              <input type="text" class="form-control" id="form-transporter" placeholder="e.g. Safe Cargo Movers">
+            </div>
+          </div>
+          <div class="grid-container-3">
+            <div class="form-group">
+              <label>Vendor Invoice Number</label>
+              <input type="text" class="form-control" id="form-invoice-number" placeholder="Invoice Reference">
+            </div>
+            <div class="form-group">
+              <label>Vendor Invoice Date</label>
+              <input type="date" class="form-control" id="form-invoice-date" onchange="validateInvoiceDate()">
+            </div>
+            <div class="form-group" id="expected-return-group" style="display:none;">
+              <label>Expected Return Date <span style="color:var(--danger)">*</span></label>
+              <input type="date" class="form-control" id="form-expected-return" onchange="validateReturnDate()">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Remarks</label>
+            <textarea class="form-control" id="form-remarks" rows="2" placeholder="Write any notes here..."></textarea>
+          </div>
+        </div>
+
+        <!-- Section 2: Purchase Order References -->
+        <div id="po-reference-card-wrapper">
+          <div class="card">
+            <div class="section-title">
+              <span class="section-title-label"><i data-lucide="file-text"></i> Purchase Order References</span>
+            </div>
+            <div class="grid-container-3" style="align-items:flex-end; margin-bottom:16px;">
+              <div class="form-group" style="grid-column: 1 / span 3; margin-bottom:0;">
+                <label>Select Purchase Order(s) <span style="color:var(--danger)">*</span></label>
+                <div class="po-selector-container" id="po-checkbox-list">
+                  <span style="color:var(--text-muted); font-size:0.875rem;">Select vendor to load purchase orders</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- PO list table -->
+            <div class="table-container" id="po-refs-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>PO Number</th>
+                    <th>PO Date</th>
+                    <th style="text-align:right;">Ordered Qty</th>
+                    <th style="text-align:right;">Prev Received Qty</th>
+                    <th style="text-align:right;">Pending Qty</th>
+                    <th>Stage</th>
+                  </tr>
+                </thead>
+                <tbody id="po-refs-body">
+                  <tr>
+                    <td colspan="6" style="text-align:center; color:var(--text-muted);">No POs linked yet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Direct Receipt Info Banner -->
+        <div id="direct-receipt-banner" class="card" style="display:none; background: rgba(99,102,241,0.08); border: 1px solid var(--primary); padding: 16px; margin-bottom: 24px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <i data-lucide="info" style="color:var(--primary); width:24px; height:24px;"></i>
+            <div>
+              <strong style="color:var(--primary);">This Goods Receipt Note is being processed without a pre-existing Purchase Order.</strong>
+              <div style="font-size:0.875rem; color:var(--text-muted); margin-top:2px;">Stock posting will be restricted until the Purchase Approval is granted.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sample Receipt Info Banner -->
+        <div id="sample-receipt-banner" class="card" style="display:none; background: rgba(16,185,129,0.08); border: 1px solid var(--success); padding: 16px; margin-bottom: 24px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <i data-lucide="gift" style="color:var(--success); width:24px; height:24px;"></i>
+            <div>
+              <strong style="color:var(--success);">This is a Sample Receipt.</strong>
+              <div style="font-size:0.875rem; color:var(--text-muted); margin-top:2px;">All items are received as free samples. Purchase rates are set to ₹0.00 to prevent financial liability, though quality inspection remains mandatory.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Purchase Approval (Only for Direct Receipt GRN) -->
+        <div class="card" id="approval-section" style="display:none;">
+          <div class="section-title">
+            <span class="section-title-label"><i data-lucide="check-square"></i> Purchase Approval Details</span>
+          </div>
+          <div class="grid-container-3">
+            <div class="form-group">
+              <label>Approval Status</label>
+              <input type="text" class="form-control" id="approval-status" disabled style="font-weight:700;">
+            </div>
+            <div class="form-group">
+              <label>Approved By</label>
+              <input type="text" class="form-control" id="approval-user" disabled>
+            </div>
+            <div class="form-group">
+              <label>Approval Date</label>
+              <input type="text" class="form-control" id="approval-date" disabled>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Approval Remarks</label>
+            <textarea class="form-control" id="approval-remarks" rows="2" placeholder="Approval comments will appear here..." disabled></textarea>
+          </div>
+        </div>
+
+        <!-- Section 3: Product Receipt Details -->
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px;">
+            <span class="section-title-label"><i data-lucide="package"></i> Product Receipt Details</span>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="btn btn-primary" style="padding:6px 12px; font-size:0.8rem; display:none;" id="btn-add-product" onclick="addProductRowDirect()" type="button">
+                <i data-lucide="plus"></i> Add Product
+              </button>
+              <div style="position:relative; width: 260px;">
+                <i data-lucide="barcode" style="position:absolute; left:12px; top:9px; width:16px; height:16px; color:var(--text-muted);"></i>
+                <input type="text" class="form-control" style="padding-left:36px; padding-top:6px; padding-bottom:6px; font-size:0.8rem;" placeholder="Scan Barcode or Search (Enter)..." id="barcode-input" onkeypress="handleBarcodeScan(event)">
+              </div>
+            </div>
+          </div>
+
+          <div class="table-container" id="product-receipt-table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product Details</th>
+                  <th>PO Ref</th>
+                  <th style="text-align:right;">Ordered Qty</th>
+                  <th style="text-align:right;">Prev Received</th>
+                  <th style="text-align:right;">Pending</th>
+                  <th style="text-align:right; width:110px;">Current Received</th>
+                  <th style="text-align:right; width:90px;">Excess Qty</th>
+                  <th>UOM</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="product-receipt-body">
+                <tr>
+                  <td colspan="9" style="text-align:center; color:var(--text-muted);">No products loaded. Link Purchase Orders above.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 4: Batch / Lot Details -->
+        <div class="card" id="batch-section" style="display:none;">
+          <div class="section-title">
+            <span class="section-title-label"><i data-lucide="qr-code"></i> Batch / Lot Details</span>
+            <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="addBatchRow()" id="btn-add-batch"><i data-lucide="plus"></i> Add Batch</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Batch Number <span style="color:var(--danger)">*</span></th>
+                  <th>Mfg Date</th>
+                  <th>Expiry Date <span style="color:var(--danger)" id="batch-expiry-asterisk">*</span></th>
+                  <th style="text-align:right; width:110px;">Received Qty</th>
+                  <th>Remarks</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="batch-details-body">
+                <!-- Javascript updates -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 5: Quality Inspection DataTable -->
+        <div class="card" id="quality-inspection-card">
+          <div class="section-title" style="margin-bottom:12px;">
+            <span class="section-title-label"><i data-lucide="shield-check"></i> Quality Inspection</span>
+          </div>
+          
+          <!-- Toolbar (Section 2.1.5b) -->
+          <div class="toolbar-config" style="margin-bottom:16px; padding:10px 16px;">
+            <div class="search-filter-inputs">
+              <!-- Search -->
+              <div class="search-container" style="max-width: 200px; min-width: 150px;">
+                <i data-lucide="search" style="position:absolute; left:10px; top:8px; width:14px; height:14px; color:var(--text-muted);"></i>
+                <input type="text" class="form-control" style="padding-left:30px; padding-top:4px; padding-bottom:4px; font-size:0.75rem;" placeholder="Search..." id="insp-search-input" oninput="filterQualityTable()">
+              </div>
+              <!-- Group By -->
+              <div class="form-group" style="margin-bottom:0; flex-direction:row; align-items:center; gap:8px;">
+                <label style="white-space:nowrap; margin-bottom:0; font-size:0.7rem;">Group By:</label>
+                <select class="form-control" style="padding:4px 8px; font-size:0.75rem; width:120px;" id="insp-group-by" onchange="groupQualityTable()">
+                  <option value="none">None</option>
+                  <option value="po">PO Number</option>
+                  <option value="product">Product</option>
+                  <option value="status">Status</option>
+                </select>
+              </div>
+            </div>
+            
+            <div style="display:flex; align-items:center; gap:8px;">
+              <!-- Filter toggle -->
+              <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="toggleQualityFilterPanel()">
+                <i data-lucide="filter" style="width:12px; height:12px;"></i> Filters
+              </button>
+              <!-- Column Selection -->
+              <div style="position:relative;">
+                <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="toggleColumnSelectDropdown()">
+                  <i data-lucide="columns" style="width:12px; height:12px;"></i> Columns
+                </button>
+                <div class="action-menu-dropdown" id="insp-column-dropdown" style="top:28px; right:0; width:160px; padding:8px;">
+                  <!-- Checkboxes for column visibility -->
+                  <div style="display:flex; flex-direction:column; gap:6px; font-size:0.75rem;">
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" checked onchange="toggleInspColumn('col-po', this.checked)"> PO Number</label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" checked onchange="toggleInspColumn('col-variety', this.checked)"> Variety</label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" checked onchange="toggleInspColumn('col-batch', this.checked)"> Batch</label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" checked onchange="toggleInspColumn('col-inspector', this.checked)"> Inspector</label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" checked onchange="toggleInspColumn('col-date', this.checked)"> Date</label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" checked onchange="toggleInspColumn('col-remarks', this.checked)"> Remarks</label>
+                  </div>
+                </div>
+              </div>
+              <!-- Export -->
+              <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="exportQualityCSV()">
+                <i data-lucide="download" style="width:12px; height:12px;"></i> Export
+              </button>
+              <!-- Full Screen -->
+              <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="toggleQualityFullScreen()" id="btn-quality-fullscreen">
+                <i data-lucide="maximize" style="width:12px; height:12px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Inline Filters Panel (Section 2.1.5e) -->
+          <div id="quality-filter-panel" style="display:none; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 16px; background:rgba(0,0,0,0.05);">
+            <div class="grid-container-3" style="gap:12px; font-size:0.75rem;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Filter PO Number</label>
+                <select class="form-control" style="padding:4px 8px; font-size:0.75rem;" id="filter-insp-po" onchange="filterQualityTable()">
+                  <option value="All">All POs</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Filter Product</label>
+                <select class="form-control" style="padding:4px 8px; font-size:0.75rem;" id="filter-insp-product" onchange="filterQualityTable()">
+                  <option value="All">All Products</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Inspection Status</label>
+                <select class="form-control" style="padding:4px 8px; font-size:0.75rem;" id="filter-insp-status" onchange="filterQualityTable()">
+                  <option value="All">All Statuses</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Rejected">Rejected</option>
+                  <option value="Partial">Partial</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid-container-3" style="gap:12px; margin-top:8px; font-size:0.75rem;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Inspector</label>
+                <select class="form-control" style="padding:4px 8px; font-size:0.75rem;" id="filter-insp-user" onchange="filterQualityTable()">
+                  <option value="All">All Inspectors</option>
+                  <option value="James Smith (QC Manager)">James Smith (QC Manager)</option>
+                  <option value="Sarah Connor (QC Executive)">Sarah Connor (QC Executive)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Inspection Date Range</label>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <input type="date" class="form-control" style="padding:4px; font-size:0.75rem;" id="filter-insp-from" onchange="filterQualityTable()">
+                  <span>to</span>
+                  <input type="date" class="form-control" style="padding:4px; font-size:0.75rem;" id="filter-insp-to" onchange="filterQualityTable()">
+                </div>
+              </div>
+              <div style="display:flex; align-items:flex-end; justify-content:flex-end;">
+                <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem;" onclick="resetQualityFilters()">Clear Filters</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quality DataTable -->
+          <div class="table-container" style="overflow-x:auto;">
+            <table id="quality-inspection-table">
+              <thead>
+                <tr>
+                  <th class="col-po" style="cursor:pointer;" onclick="sortQualityTable('poNumber')">PO Number <i data-lucide="arrow-up-down" style="width:10px; height:10px; display:inline-block;"></i></th>
+                  <th style="cursor:pointer;" onclick="sortQualityTable('productName')">Product <i data-lucide="arrow-up-down" style="width:10px; height:10px; display:inline-block;"></i></th>
+                  <th class="col-variety">Variety</th>
+                  <th class="col-batch">Batch Number</th>
+                  <th style="text-align:right;">Rec Qty</th>
+                  <th style="text-align:center;">Insp Required</th>
+                  <th>Insp Status</th>
+                  <th class="col-inspector">Inspected By</th>
+                  <th class="col-date">Insp Date</th>
+                  <th style="text-align:right; width:80px;">Approved Qty</th>
+                  <th style="text-align:right; width:80px;">Rejected Qty</th>
+                  <th class="col-remarks">Remarks</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="quality-inspection-body">
+                <tr>
+                  <td colspan="13" style="text-align:center; color:var(--text-muted); padding:20px;">No quality inspection records generated. Link POs and products first.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 6: Attachments -->
+        <div class="card">
+          <div class="section-title">
+            <span class="section-title-label"><i data-lucide="paperclip"></i> Attachments</span>
+          </div>
+          <div class="file-dropzone" onclick="simulateFileUpload()" id="file-drop-zone">
+            <i data-lucide="upload-cloud" style="width:36px; height:36px; color:var(--text-muted); margin-bottom:8px;"></i>
+            <p style="font-size:0.875rem; font-weight:500;">Drag and drop files here, or click to upload</p>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Supported formats: PDF, JPG, PNG, XLSX, DOCX (Max 10MB)</p>
+          </div>
+          <div class="table-container" id="attachments-table-container" style="display:none; margin-top:16px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>File Name</th>
+                  <th>File Type</th>
+                  <th>Uploaded By</th>
+                  <th>Uploaded At</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="attachments-body">
+                <!-- Javascript populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Sidebar Panels -->
+      <div class="right-sidebar">
+        
+        <!-- Scenario Tester / Sandbox Controller -->
+        <div class="card" style="border:1px dashed var(--primary); background:rgba(99, 102, 241, 0.04);">
+          <div class="section-title" style="border-bottom:none; margin-bottom:12px;">
+            <span class="section-title-label" style="color:var(--primary); font-size:0.9rem;"><i data-lucide="play-circle"></i> Scenario Tester</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px; font-size:0.875rem;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="color:var(--primary); font-size:0.7rem; font-weight:700;">Select GRN Scenario</label>
+              <select class="form-control" id="scenario-selector" style="font-size:0.8rem; border-color:var(--primary); padding:6px 10px;">
+                <option value="1">1. GRN with Single PO (Steel Pipes)</option>
+                <option value="2">2. GRN with Multiple POs (Steel & Bolts)</option>
+                <option value="3">3. GRN without PO (Direct Rice Receipt)</option>
+                <option value="4">4. Mixed GRN (PO Bolts + Direct Rice)</option>
+                <option value="5">5. Partial Receipt (Bolt Delivery)</option>
+                <option value="6">6. Excess Receipt (Bolts + Excess)</option>
+                <option value="7">7. Multiple Deliveries (Prior Steel + Current)</option>
+                <option value="8a">8a. Returnable Receipt (Packaging Drums)</option>
+                <option value="8b">8b. Sample Receipt (Free Rice Sample)</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" style="width:100%; padding:8px;" onclick="loadSelectedScenario()">
+              <i data-lucide="play" style="width:14px; height:14px;"></i> Load Scenario
+            </button>
+            <hr style="border:0; border-top:1px solid var(--border); margin:4px 0;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" id="sim-permission-excess" onchange="toggleExcessPermission(this.checked)" style="cursor:pointer; width:16px; height:16px;">
+              <label for="sim-permission-excess" style="font-size:0.75rem; font-weight:700; cursor:pointer; text-transform:none; letter-spacing:0; color:var(--text); margin-bottom:0;">Permit Excess Receipt</label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Summary metrics -->
+        <div class="card">
+          <div class="section-title" style="border-bottom:none; margin-bottom:12px;">
+            <span class="section-title-label"><i data-lucide="bar-chart-2"></i> GRN Summary</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px; font-size:0.875rem;">
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">Total PO Count:</span>
+              <span id="summary-po-count" style="font-weight:600;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">Total Products:</span>
+              <span id="summary-product-count" style="font-weight:600;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
+              <span style="color:var(--text-muted);">Total Received Qty:</span>
+              <span id="summary-received-qty" style="font-weight:600;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">Rejected Quantity:</span>
+              <span id="summary-rejected-qty" style="font-weight:600; color:var(--danger)">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
+              <span style="color:var(--text-muted);">Approved Quantity:</span>
+              <span id="summary-approved-qty" style="font-weight:600; color:var(--success)">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:1.05rem; font-weight:700;">
+              <span>Total Receipt Value:</span>
+              <span id="summary-total-value" style="color:var(--success)">₹0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PO Receipt Summary -->
+        <div class="card">
+          <div class="section-title" style="border-bottom:none; margin-bottom:12px;">
+            <span class="section-title-label"><i data-lucide="line-chart"></i> PO Receipt Summary</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px; font-size:0.875rem;">
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">Total Ordered Qty:</span>
+              <span id="widget-ordered-qty" style="font-weight:600;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">Prev Received Qty:</span>
+              <span id="widget-prev-qty" style="font-weight:600;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">Current Receipt Qty:</span>
+              <span id="widget-curr-qty" style="font-weight:600; color:var(--primary);">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:8px; font-weight:700;">
+              <span>Remaining Pending Qty:</span>
+              <span id="widget-pending-qty">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workflow Timeline -->
+        <div class="card">
+          <div class="section-title" style="border-bottom:none; margin-bottom:12px;">
+            <span class="section-title-label"><i data-lucide="git-pull-request"></i> Workflow Timeline</span>
+          </div>
+          <div class="timeline-container" id="timeline-flow">
+            <!-- Timeline elements updated dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Live Console Drawer (at the bottom) -->
+    <div id="test-logs-drawer">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <i data-lucide="terminal" style="width:14px; height:14px;"></i> Live Action Log & Validation Console
+        </div>
+        <button class="btn btn-ghost" style="padding:2px 8px; font-size:0.65rem;" onclick="clearConsole()"><i data-lucide="trash-2"></i> Clear Console</button>
+      </div>
+      <div class="log-list" id="console-logs-list">
+        <!-- Logs printed dynamically -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PAGE 3: ADD/MODIFY GRN PRODUCT POPUP MODAL -->
+  <div id="product-modal" class="modal-backdrop">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="modal-title" style="font-family:'Outfit'">Modify GRN Product Detail</h3>
+        <button class="btn btn-ghost" style="padding:4px;" onclick="closeProductModal()">
+          <i data-lucide="x" style="width:20px; height:20px;"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modal-product-index">
+        
+        <div class="form-group">
+          <label>Product Name</label>
+          <input type="text" class="form-control" id="modal-product-name" disabled>
+        </div>
+
+        <div class="grid-container-3">
+          <div class="form-group">
+            <label>Variety</label>
+            <input type="text" class="form-control" id="modal-variety" disabled>
+          </div>
+          <div class="form-group">
+            <label>Pack</label>
+            <input type="text" class="form-control" id="modal-pack" disabled>
+          </div>
+          <div class="form-group">
+            <label>UOM</label>
+            <input type="text" class="form-control" id="modal-uom" disabled>
+          </div>
+        </div>
+
+        <div class="grid-container-3">
+          <div class="form-group">
+            <label>Ordered Qty</label>
+            <input type="text" class="form-control" id="modal-ordered-qty" disabled>
+          </div>
+          <div class="form-group">
+            <label>Prev Rec Qty</label>
+            <input type="text" class="form-control" id="modal-prev-qty" disabled>
+          </div>
+          <div class="form-group">
+            <label>Pending Qty</label>
+            <input type="text" class="form-control" id="modal-pending-qty" disabled>
+          </div>
+        </div>
+
+        <div class="grid-container-3">
+          <div class="form-group">
+            <label>Current Received Qty <span style="color:var(--danger)">*</span></label>
+            <input type="number" class="form-control" id="modal-rec-qty" min="0" oninput="validateModalQty()">
+          </div>
+          <div class="form-group">
+            <label>Excess Qty</label>
+            <input type="number" class="form-control" id="modal-excess-qty" min="0">
+          </div>
+        </div>
+        
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Product Remarks</label>
+          <textarea class="form-control" id="modal-remarks" rows="2" placeholder="Product comments..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeProductModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProductModal()">Save Changes</button>
+      </div>
+    </div>
+  <!-- QUALITY INSPECTION DETAIL MODAL -->
+  <div id="inspection-modal" class="modal-backdrop">
+    <div class="modal-container" style="width: 700px;">
+      <div class="modal-header">
+        <h3 style="font-family:'Outfit'">Modify Quality Inspection Record</h3>
+        <button class="btn btn-ghost" style="padding:4px;" onclick="closeInspectionModal()">
+          <i data-lucide="x" style="width:20px; height:20px;"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modal-insp-index">
+        
+        <div class="grid-container-3">
+          <div class="form-group">
+            <label>PO Number</label>
+            <input type="text" class="form-control" id="modal-insp-po" disabled>
+          </div>
+          <div class="form-group" style="grid-column: 2 / span 2;">
+            <label>Product Name</label>
+            <input type="text" class="form-control" id="modal-insp-product" disabled>
+          </div>
+        </div>
+
+        <div class="grid-container-3">
+          <div class="form-group">
+            <label>Variety</label>
+            <input type="text" class="form-control" id="modal-insp-variety" disabled>
+          </div>
+          <div class="form-group">
+            <label>Batch Number</label>
+            <input type="text" class="form-control" id="modal-insp-batch" disabled>
+          </div>
+          <div class="form-group">
+            <label>Received Qty</label>
+            <input type="text" class="form-control" id="modal-insp-received" disabled>
+          </div>
+        </div>
+
+        <div class="grid-container-3">
+          <div class="form-group" style="justify-content: center;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-top:20px; font-weight:700;">
+              <input type="checkbox" id="modal-insp-required" onchange="onModalInspRequiredChange(this.checked)" style="width:16px; height:16px; cursor:pointer;">
+              QC Required
+            </label>
+          </div>
+          <div class="form-group">
+            <label>Inspection Status</label>
+            <select class="form-control" id="modal-insp-status" onchange="onModalInspStatusChange(this.value)">
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Partial">Partial</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Inspected By</label>
+            <select class="form-control" id="modal-insp-user">
+              <option value="James Smith (QC Manager)">James Smith (QC Manager)</option>
+              <option value="Sarah Connor (QC Executive)">Sarah Connor (QC Executive)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-container-3">
+          <div class="form-group">
+            <label>Inspection Date</label>
+            <input type="date" class="form-control" id="modal-insp-date">
+          </div>
+          <div class="form-group">
+            <label>Approved Qty</label>
+            <input type="number" class="form-control" id="modal-insp-approved" min="0" oninput="onModalInspApprovedChange(this.value)">
+          </div>
+          <div class="form-group">
+            <label>Rejected Qty</label>
+            <input type="number" class="form-control" id="modal-insp-rejected" min="0" oninput="onModalInspRejectedChange(this.value)">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Inspection Remarks</label>
+          <textarea class="form-control" id="modal-insp-remarks" rows="2" placeholder="Quality inspection comments..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeInspectionModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveInspectionModal()">Save Inspection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Logic -->
+  <script>
+    // --- Mock Database (Linked to localStorage) ---
+    let MOCK_VENDORS = {
+      "Acme Industrial Solutions": {
+        currency: "INR",
+        pos: [
+          { poNumber: "PO-2026-001", poDate: "2026-05-10", orderedQty: 100, receivedQty: 0, pendingQty: 100, stage: "Ordered", value: 120000 },
+          { poNumber: "PO-2026-002", poDate: "2026-05-15", orderedQty: 50, receivedQty: 30, pendingQty: 20, stage: "Partial Received", value: 45000 },
+          { poNumber: "PO-2026-004", poDate: "2026-06-01", orderedQty: 150, receivedQty: 50, pendingQty: 100, stage: "Partial Received", value: 180000 }
+        ],
+        products: [
+          { poNumber: "PO-2026-001", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 100, prevReceived: 0, pending: 100, rate: 1200, uom: "PCS", batchManaged: true, expiryManaged: false },
+          { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, rate: 900, uom: "BOX", batchManaged: false, expiryManaged: false },
+          { poNumber: "PO-2026-004", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 150, prevReceived: 50, pending: 100, rate: 1200, uom: "PCS", batchManaged: true, expiryManaged: false }
+        ]
+      },
+      "Global Bio-Chemicals Ltd": {
+        currency: "USD",
+        pos: [
+          { poNumber: "PO-2026-003", poDate: "2026-06-01", orderedQty: 500, receivedQty: 0, pendingQty: 500, stage: "Approved", value: 25000 },
+          { poNumber: "PO-2026-005", poDate: "2026-06-05", orderedQty: 200, receivedQty: 200, pendingQty: 0, stage: "Completed", value: 10000 }
+        ],
+        products: [
+          { poNumber: "PO-2026-003", productId: "P-003", name: "Aspirin Active Ingredient", variety: "Pharma Grade", pack: "Drum 25kg", ordered: 500, prevReceived: 0, pending: 500, rate: 50, uom: "KGS", batchManaged: true, expiryManaged: true },
+          { poNumber: "PO-2026-005", productId: "P-003", name: "Aspirin Active Ingredient", variety: "Pharma Grade", pack: "Drum 25kg", ordered: 200, prevReceived: 200, pending: 0, rate: 50, uom: "KGS", batchManaged: true, expiryManaged: true }
+        ]
+      },
+      "ABC Rice Traders": {
+        currency: "INR",
+        pos: [],
+        products: [
+          { poNumber: "N/A", productId: "P-004", name: "Rice Premium Quality", variety: "Basmati", pack: "Bag 50kg", ordered: 0, prevReceived: 0, pending: 0, rate: 50, uom: "KGS", batchManaged: true, expiryManaged: true }
+        ]
+      }
+    };
+
+    // --- Simulator & Excess Permission ---
+    let userHasExcessPermission = false;
+    function toggleExcessPermission(checked) {
+      userHasExcessPermission = checked;
+      logAction(`Simulator: Excess Receipt Permission set to ${checked ? "GRANTED" : "REVOKED"}`, checked ? "success" : "warning");
+    }
+
+    function validateReturnDate() {
+      const grnVal = document.getElementById("form-grn-date").value;
+      const returnVal = document.getElementById("form-expected-return").value;
+      
+      if (!grnVal || !returnVal) return true;
+
+      const grnDate = new Date(grnVal);
+      const returnDate = new Date(returnVal);
+
+      if (returnDate < grnDate) {
+        logAction("Validation Failure: Expected Return Date cannot be before GRN Date.", "error");
+        alert("Error: Expected Return Date must be greater than or equal to GRN Date.");
+        document.getElementById("form-expected-return").value = activeGrn.expectedReturnDate || "";
+        return false;
+      }
+      activeGrn.expectedReturnDate = returnVal;
+      logAction(`Updated Expected Return Date to ${activeGrn.expectedReturnDate}`, "info");
+      return true;
+    }
+
+    function loadSelectedScenario() {
+      const scenario = document.getElementById("scenario-selector").value;
+      clearConsole();
+      logAction(`Loading Scenario ${scenario}...`, "info");
+      
+      // Initialize a standard template
+      initializeNewGRN();
+      
+      // Override based on scenario
+      if (scenario === "1") {
+        // 1. GRN with Single PO
+        activeGrn.vendorName = "Acme Industrial Solutions";
+        activeGrn.receiptSource = "PO Based";
+        activeGrn.receiptType = "Regular Receipt";
+        activeGrn.warehouse = "WH-01";
+        activeGrn.poList = ["PO-2026-001"];
+        activeGrn.poCount = 1;
+        activeGrn.invoiceNumber = "INV-ACME-991";
+        activeGrn.invoiceDate = new Date().toISOString().split('T')[0];
+        
+        activeGrn.products = [
+          { poNumber: "PO-2026-001", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 100, prevReceived: 0, pending: 100, currentReceived: 100, excess: 0, rate: 1200, uom: "PCS", batchManaged: true, expiryManaged: false, remarks: "", isSplit: false }
+        ];
+        
+        activeGrn.batches = [
+          { productId: "P-001", name: "Steel Pipes 2-inch", batchNumber: "B-ST-001", mfgDate: new Date().toISOString().split('T')[0], expiryDate: "", quantity: 100, remarks: "" }
+        ];
+        
+        logAction("Scenario 1 Loaded: GRN with Single PO (PO-2026-001).", "success");
+        logAction("Vendor: Acme Industrial Solutions | Product: 100x Steel Pipes (Batch: B-ST-001).", "info");
+        logAction("Business Rule: All items belong to a single approved PO. Ready for verification and completion.", "info");
+      } 
+      else if (scenario === "2") {
+        // 2. GRN with Multiple POs
+        activeGrn.vendorName = "Acme Industrial Solutions";
+        activeGrn.receiptSource = "PO Based";
+        activeGrn.receiptType = "Regular Receipt";
+        activeGrn.warehouse = "WH-01";
+        activeGrn.poList = ["PO-2026-001", "PO-2026-002"];
+        activeGrn.poCount = 2;
+        activeGrn.invoiceNumber = "INV-ACME-992";
+        activeGrn.invoiceDate = new Date().toISOString().split('T')[0];
+        
+        activeGrn.products = [
+          { poNumber: "PO-2026-001", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 100, prevReceived: 0, pending: 100, currentReceived: 100, excess: 0, rate: 1200, uom: "PCS", batchManaged: true, expiryManaged: false, remarks: "", isSplit: false },
+          { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, currentReceived: 20, excess: 0, rate: 900, uom: "BOX", batchManaged: false, expiryManaged: false, remarks: "", isSplit: false }
+        ];
+        
+        activeGrn.batches = [
+          { productId: "P-001", name: "Steel Pipes 2-inch", batchNumber: "B-ST-002", mfgDate: new Date().toISOString().split('T')[0], expiryDate: "", quantity: 100, remarks: "" }
+        ];
+        
+        logAction("Scenario 2 Loaded: GRN with Multiple POs (PO-2026-001 and PO-2026-002).", "success");
+        logAction("Vendor: Acme | Products consolidated from both POs into one receipt form.", "info");
+        logAction("Business Rule: All linked POs must belong to the same vendor. The system enforces this constraint.", "info");
+      } 
+      else if (scenario === "3") {
+        // 3. GRN without PO (Direct Receipt)
+        activeGrn.vendorName = "ABC Rice Traders";
+        activeGrn.receiptSource = "Direct Receipt";
+        activeGrn.receiptType = "Regular Receipt";
+        activeGrn.warehouse = "WH-01";
+        activeGrn.poList = [];
+        activeGrn.poCount = 0;
+        activeGrn.invoiceNumber = "INV-ABC-301";
+        activeGrn.invoiceDate = new Date().toISOString().split('T')[0];
+        
+        activeGrn.products = [
+          { poNumber: "N/A", productId: "P-004", name: "Rice Premium Quality", variety: "Basmati", pack: "Bag 50kg", ordered: 0, prevReceived: 0, pending: 200, currentReceived: 200, excess: 0, rate: 50, uom: "KGS", batchManaged: true, expiryManaged: true, remarks: "Direct Market Purchase", isSplit: false }
+        ];
+        
+        activeGrn.batches = [
+          { productId: "P-004", name: "Rice Premium Quality", batchNumber: "B-RICE-301", mfgDate: new Date().toISOString().split('T')[0], expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0], quantity: 200, remarks: "" }
+        ];
+        
+        logAction("Scenario 3 Loaded: GRN without PO (Direct Receipt).", "success");
+        logAction("Vendor: ABC Rice Traders | Product: 200kg Premium Rice (Expiry-tracked).", "info");
+        logAction("Business Rule: Stock posting is restricted until the Purchase Approval is granted. Status is set to 'Pending Purchase Approval'. Click 'Approve Purchase' to authorize.", "warning");
+      } 
+      else if (scenario === "4") {
+        // 4. Mixed GRN (PO + Direct Receipt)
+        activeGrn.vendorName = "Acme Industrial Solutions";
+        activeGrn.receiptSource = "PO Based";
+        activeGrn.receiptType = "Regular Receipt";
+        activeGrn.warehouse = "WH-01";
+        activeGrn.poList = ["PO-2026-002"];
+        activeGrn.poCount = 1;
+        activeGrn.invoiceNumber = "INV-ACME-MIX";
+        activeGrn.invoiceDate = new Date().toISOString().split('T')[0];
+        
+        activeGrn.products = [
+          { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, currentReceived: 20, excess: 0, rate: 900, uom: "BOX", batchManaged: false, expiryManaged: false, remarks: "", isSplit: false },
+          { poNumber: "N/A", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 0, prevReceived: 0, pending: 15, currentReceived: 15, excess: 0, rate: 1200, uom: "PCS", batchManaged: true, expiryManaged: false, remarks: "Ad-hoc direct addition", isSplit: false }
+        ];
+        
+        activeGrn.batches = [
+          { productId: "P-001", name: "Steel Pipes 2-inch", batchNumber: "B-ST-MIX", mfgDate: new Date().toISOString().split('T')[0], expiryDate: "", quantity: 15, remarks: "" }
+        ];
+        
+        logAction("Scenario 4 Loaded: Mixed GRN (PO + Direct Receipt).", "success");
+        logAction("Vendor: Acme | Bolts loaded from PO-2026-002; Steel Pipes added directly (PO: N/A).", "info");
+        logAction("Business Rule: The presence of a Direct Receipt product (PO: N/A) triggers the Purchase Approval cycle before the GRN can be completed.", "warning");
+      } 
+      else if (scenario === "5") {
+        // 5. Partial Receipt
+        activeGrn.vendorName = "Acme Industrial Solutions";
+        activeGrn.receiptSource = "PO Based";
+        activeGrn.receiptType = "Regular Receipt";
+        activeGrn.warehouse = "WH-01";
+        activeGrn.poList = ["PO-2026-001"];
+        activeGrn.poCount = 1;
+        activeGrn.invoiceNumber = "INV-ACME-PART";
+        activeGrn.invoiceDate = new Date().toISOString().split('T')[0];
+        
+        activeGrn.products = [
+          { poNumber: "PO-2026-001", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 100, prevReceived: 0, pending: 100, currentReceived: 40, excess: 0, rate: 1200, uom: "PCS", batchManaged: true, expiryManaged: false, remarks: "", isSplit: false }
+        ];
+        
+        activeGrn.batches = [
+          { productId: "P-001", name: "Steel Pipes 2-inch", batchNumber: "B-ST-PART", mfgDate: new Date().toISOString().split('T')[0], expiryDate: "", quantity: 40, remarks: "" }
+        ];
+        
+        logAction("Scenario 5 Loaded: Partial Receipt.", "success");
+        logAction("Vendor: Acme | Ordered: 100, Received: 40. Pending remaining: 60.", "info");
+        logAction("Business Rule: Upon completion, the PO status is updated to 'PARTIAL RECEIVED', allowing subsequent deliveries against the same PO.", "info");
+      } 
+      else if (scenario === "6") {
+        // 6. Excess Receipt (Permission Based)
+        activeGrn.vendorName = "Acme Industrial Solutions";
+        activeGrn.receiptSource = "PO Based";
+        activeGrn.receiptType = "Regular Receipt";
+        activeGrn.warehouse = "WH-01";
+        activeGrn.poList = ["PO-2026-002"];
+        activeGrn.poCount = 1;
+        activeGrn.invoiceNumber = "INV-ACME-EXCESS";
+        activeGrn.invoiceDate = new Date().toISOString().split('T')[0];
+        
+        activeGrn.products = [
+          { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, currentReceived: 20, excess: 10, rate: 900, uom: "BOX", batchManaged: false, expiryManaged: false, remarks: "", isSplit: false }
+        ];
+        
+        logAction("Scenario 6 Loaded: Excess Receipt (Permission Based).", "success");
+        logAction("Vendor: Acme | Pending: 20, Current Received: 20, Excess: 10.", "info");
+        logAction("Business Rule: Excess receipt requires explicit permission. Use the 'Permit Excess Receipt' checkbox in the sidebar to enable/disable excess input.", "warning");
+      } 
+      else if (scenario === "7") {
+        // 7. Multiple Deliveries Against Same PO
+        activeGrn.vendorName = "Acme Industrial Solutions";
+        activeGrn.receiptSource = "PO Based";
+        activeGrn.receiptType = "Regular Receipt";
+        activeGrn.warehouse = "WH-01";
+        activeGrn.poList = ["PO-2026-002"];
+        activeGrn.poCount = 1;
+        activeGrn.invoiceNumber = "INV-ACME-DEL3";
+        activeGrn.invoiceDate = new Date().toISOString().split('T')[0];
+        
+        activeGrn.products = [
+          { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, currentReceived: 15, excess: 0, rate: 900, uom: "BOX", batchManaged: false, expiryManaged: false, remarks: "", isSplit: false }
+        ];
+        
+        logAction("Scenario 7 Loaded: Multiple Deliveries Against Same PO.", "success");
+        logAction("Vendor: Acme | Ordered: 50, Previously Received: 30, Current Received: 15, Leaving: 5.", "info");
+        logAction("Business Rule: Previous receipts (30) are dynamically tracked. The system allows multiple GRNs against the same PO until pending quantity is fully exhausted.", "info");
+      } 
+      else if (scenario === "8a") {
+        // 8a. Returnable Receipt
+        activeGrn.vendorName = "ABC Rice Traders";
+        activeGrn.receiptSource = "Direct Receipt";
+        activeGrn.receiptType = "Returnable Receipt";
+        activeGrn.warehouse = "WH-02";
+        activeGrn.poList = [];
+        activeGrn.poCount = 0;
+        activeGrn.invoiceNumber = "CHALLAN-RET-101";
+        activeGrn.invoiceDate = new Date().toISOString().split('T')[0];
+        activeGrn.expectedReturnDate = new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0]; // 30 days later
+        
+        activeGrn.products = [
+          { poNumber: "N/A", productId: "P-004", name: "Rice Premium Quality", variety: "Basmati", pack: "Bag 50kg", ordered: 0, prevReceived: 0, pending: 50, currentReceived: 50, excess: 0, rate: 50, uom: "KGS", batchManaged: true, expiryManaged: true, remarks: "Returnable Pallets & Packaging", isSplit: false }
+        ];
+        
+        activeGrn.batches = [
+          { productId: "P-004", name: "Rice Premium Quality", batchNumber: "B-RET-801", mfgDate: new Date().toISOString().split('T')[0], expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0], quantity: 50, remarks: "" }
+        ];
+        
+        logAction("Scenario 8a Loaded: Returnable Receipt.", "success");
+        logAction("Vendor: ABC Rice Traders | Receipt Type: Returnable Receipt.", "info");
+        logAction("Business Rule: The Expected Return Date field is now active. No financial posting (invoice) will be allowed for returnable items.", "warning");
+      } 
+      else if (scenario === "8b") {
+        // 8b. Sample Receipt
+        activeGrn.vendorName = "ABC Rice Traders";
+        activeGrn.receiptSource = "Direct Receipt";
+        activeGrn.receiptType = "Sample Receipt";
+        activeGrn.warehouse = "WH-02";
+        activeGrn.poList = [];
+        activeGrn.poCount = 0;
+        activeGrn.invoiceNumber = "CHALLAN-SMP-202";
+        activeGrn.invoiceDate = new Date().toISOString().split('T')[0];
+        
+        activeGrn.products = [
+          { poNumber: "N/A", productId: "P-004", name: "Rice Premium Quality", variety: "Basmati", pack: "Bag 50kg", ordered: 0, prevReceived: 0, pending: 10, currentReceived: 10, excess: 0, rate: 50, uom: "KGS", batchManaged: true, expiryManaged: true, remarks: "Free Sample for Lab Testing", isSplit: false }
+        ];
+        
+        activeGrn.batches = [
+          { productId: "P-004", name: "Rice Premium Quality", batchNumber: "B-SMP-802", mfgDate: new Date().toISOString().split('T')[0], expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0], quantity: 10, remarks: "" }
+        ];
+        
+        logAction("Scenario 8b Loaded: Sample Receipt.", "success");
+        logAction("Vendor: ABC Rice Traders | Receipt Type: Sample Receipt.", "info");
+        logAction("Business Rule: Material is received at ₹0.00 rate (Free Sample). QC inspection is required. No financial liability created.", "success");
+      }
+      
+      // Update form field bindings
+      populateFormFields();
+      
+      // Pre-check linked POs
+      activeGrn.poList.forEach(poNo => {
+        const chk = document.getElementById(`po-check-${poNo}`);
+        if (chk) chk.checked = true;
+      });
+    }
+
+    // --- State Variables ---
+    let grns = [];
+    let activeGrn = null;
+    let mode = "edit"; // "new", "edit", "view"
+
+    // --- App Init ---
+    window.addEventListener("load", () => {
+      initDatabase();
+      loadTheme();
+      parseQueryParams();
+      logAction(`GRN Details view initialized in mode: ${mode.toUpperCase()}`, "info");
+      lucide.createIcons();
+    });
+
+    function initDatabase() {
+      const stored = localStorage.getItem("happy_erp_grns");
+      if (stored) grns = JSON.parse(stored);
+    }
+
+    function loadTheme() {
+      const savedTheme = localStorage.getItem("theme") || "dark";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      updateThemeButton(savedTheme);
+    }
+
+    function updateThemeButton(theme) {
+      const btn = document.getElementById("theme-btn");
+      if (btn) {
+        if (theme === "light") {
+          btn.innerHTML = '<i data-lucide="moon"></i><span>Dark Mode</span>';
+        } else {
+          btn.innerHTML = '<i data-lucide="sun"></i><span>Light Mode</span>';
+        }
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      updateThemeButton(next);
+      lucide.createIcons();
+    }
+
+    // --- Console Logger ---
+    function logAction(message, type = "info") {
+      const consoleLogsList = document.getElementById("console-logs-list");
+      if (!consoleLogsList) return;
+
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+      
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+      
+      const timeSpan = document.createElement("span");
+      timeSpan.className = "log-time";
+      timeSpan.textContent = `[${timeStr}]`;
+      
+      const textSpan = document.createElement("span");
+      textSpan.className = `log-text ${type}`;
+      textSpan.textContent = message;
+      
+      entry.appendChild(timeSpan);
+      entry.appendChild(textSpan);
+      consoleLogsList.appendChild(entry);
+      consoleLogsList.scrollTop = consoleLogsList.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById("console-logs-list").innerHTML = "";
+    }
+
+    // --- Parse query parameters & Load GRN ---
+    function parseQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+      mode = params.get("mode") || "edit";
+
+      if (id && id !== "new") {
+        // Load existing
+        const found = grns.find(g => g.grnNumber === id);
+        if (found) {
+          activeGrn = JSON.parse(JSON.stringify(found)); // deep copy
+          document.getElementById("entry-title").textContent = `GRN: ${activeGrn.grnNumber}`;
+          document.getElementById("header-page-title").textContent = `HappyERP - GRN ${activeGrn.grnNumber}`;
+        } else {
+          alert(`GRN ${id} not found. Loading new GRN.`);
+          initializeNewGRN();
+        }
+      } else {
+        initializeNewGRN();
+      }
+
+      populateFormFields();
+    }
+
+    function initializeNewGRN() {
+      mode = "edit";
+      const year = new Date().getFullYear();
+      const nextNo = `GRN-${year}-${String(grns.length + 1).padStart(6, '0')}`;
+      
+      activeGrn = {
+        grnNumber: nextNo,
+        grnDate: new Date().toISOString().split('T')[0],
+        vendorName: "",
+        poCount: 0,
+        poList: [],
+        totalQuantity: 0,
+        totalAmount: 0,
+        stage: "Draft",
+        createdBy: "James Executive",
+        createdOn: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        updatedAt: "",
+        modifiedBy: "",
+        modifiedOn: "",
+        warehouse: "",
+        receiptSource: "PO Based",
+        receiptType: "Regular Receipt",
+        organisation: "Org-01",
+        branch: "BR-01",
+        vehicleNumber: "",
+        lrNumber: "",
+        transporter: "",
+        invoiceNumber: "",
+        invoiceDate: "",
+        remarks: "",
+        inspectionRequired: false,
+        inspectionStatus: "Pending",
+        inspectedBy: "James Smith (QC Manager)",
+        inspectionDate: "",
+        rejectedQuantity: 0,
+        approvedQuantity: 0,
+        inspectionRemarks: "",
+        approvalStatus: "Pending",
+        approvedBy: "",
+        approvedOn: "",
+        approvalRemarks: "",
+        products: [],
+        batches: [],
+        timeline: [
+          { stage: "Draft", setAt: new Date().toISOString().slice(0, 16).replace('T', ' '), setBy: "James Executive", remarks: "Draft initialized" }
+        ],
+        attachments: []
+      };
+
+      document.getElementById("entry-title").textContent = `Create Goods Receipt Note`;
+      document.getElementById("header-page-title").textContent = `HappyERP - Create GRN`;
+    }
+
+    // --- Populate Form Fields ---
+    function populateFormFields() {
+      document.getElementById("form-grn-number").value = activeGrn.grnNumber;
+      document.getElementById("form-grn-date").value = activeGrn.grnDate;
+      document.getElementById("form-receipt-source").value = activeGrn.receiptSource || "PO Based";
+      document.getElementById("form-receipt-type").value = activeGrn.receiptType;
+      document.getElementById("form-warehouse").value = activeGrn.warehouse || "";
+      document.getElementById("form-vehicle-number").value = activeGrn.vehicleNumber || "";
+      document.getElementById("form-lr-number").value = activeGrn.lrNumber || "";
+      document.getElementById("form-transporter").value = activeGrn.transporter || "";
+      document.getElementById("form-invoice-number").value = activeGrn.invoiceNumber || "";
+      document.getElementById("form-invoice-date").value = activeGrn.invoiceDate || "";
+      document.getElementById("form-remarks").value = activeGrn.remarks || "";
+      document.getElementById("form-vendor").value = activeGrn.vendorName || "";
+
+      // Expected Return Date visibility
+      const isReturnable = activeGrn.receiptType === "Returnable Receipt";
+      const returnGroup = document.getElementById("expected-return-group");
+      if (returnGroup) {
+        returnGroup.style.display = isReturnable ? "block" : "none";
+        const returnInput = document.getElementById("form-expected-return");
+        if (returnInput) {
+          returnInput.value = activeGrn.expectedReturnDate || "";
+        }
+      }
+
+      // Sample Receipt Banner visibility
+      const isSample = activeGrn.receiptType === "Sample Receipt";
+      const sampleBanner = document.getElementById("sample-receipt-banner");
+      if (sampleBanner) {
+        sampleBanner.style.display = isSample ? "block" : "none";
+      }
+
+      const isDirect = activeGrn.receiptSource === "Direct Receipt";
+      const poWrapper = document.getElementById("po-reference-card-wrapper");
+      const directBanner = document.getElementById("direct-receipt-banner");
+      const btnAddProduct = document.getElementById("btn-add-product");
+      const approvalSection = document.getElementById("approval-section");
+
+      if (poWrapper) poWrapper.style.display = isDirect ? "none" : "block";
+      if (directBanner) {
+        if (isDirect) {
+          directBanner.style.display = "block";
+          const pEl = directBanner.querySelector("p");
+          if (pEl) {
+            if (activeGrn.poList && activeGrn.poList.length > 0) {
+              pEl.innerHTML = `This Goods Receipt Note was processed without a pre-existing Purchase Order.<br><strong>Status: Retroactively linked to Purchase Order: <span class="badge badge-submitted" style="font-size: 0.75rem; padding: 2px 6px;">${activeGrn.poList.join(', ')}</span></strong>`;
+            } else {
+              pEl.innerHTML = `This Goods Receipt Note is being processed without a pre-existing Purchase Order. Stock posting will be restricted until the Purchase Approval is granted.`;
+            }
+          }
+        } else {
+          directBanner.style.display = "none";
+        }
+      }
+
+      const isLocked = mode === "view" || activeGrn.stage !== "Draft";
+      if (btnAddProduct) btnAddProduct.style.display = (!isLocked && activeGrn.vendorName) ? "inline-flex" : "none";
+
+      if (approvalSection) {
+        if (isDirect) {
+          approvalSection.style.display = "block";
+          document.getElementById("approval-status").value = activeGrn.approvalStatus || "Pending";
+          document.getElementById("approval-user").value = activeGrn.approvedBy || "Pending Approval";
+          document.getElementById("approval-date").value = activeGrn.approvedOn || "N/A";
+          document.getElementById("approval-remarks").value = activeGrn.approvalRemarks || "No comments yet.";
+          
+          const appStatusInput = document.getElementById("approval-status");
+          if (activeGrn.approvalStatus === "Approved" || activeGrn.approvalStatus === "Purchase Approved") {
+            appStatusInput.style.color = "var(--success)";
+          } else if (activeGrn.approvalStatus === "Rejected") {
+            appStatusInput.style.color = "var(--danger)";
+          } else {
+            appStatusInput.style.color = "var(--warning)";
+          }
+        } else {
+          approvalSection.style.display = "none";
+        }
+      }
+
+      // Quality Inspection
+      if (!activeGrn.inspections || activeGrn.inspections.length === 0) {
+        syncQualityInspections();
+      } else {
+        populateQualityFilterOptions();
+      }
+      renderQualityTable();
+
+      // Load vendor PO list options if PO Based
+      if (!isDirect) {
+        onVendorSelected(activeGrn.vendorName, false);
+
+        // Pre-check linked POs
+        activeGrn.poList.forEach(poNo => {
+          const chk = document.getElementById(`po-check-${poNo}`);
+          if (chk) chk.checked = true;
+        });
+      }
+
+      // Update badge
+      updateStageBadge();
+
+      // Refresh Tables/Subsections
+      renderPORefsTable();
+      renderProductsTable();
+      renderBatchesTable();
+      renderAttachments();
+      updateTimelineWidget();
+      updateSummaries();
+
+      // Check locks based on stage & mode
+      let shouldLock = mode === "view" || activeGrn.stage !== "Draft";
+      toggleFormControlsLock(shouldLock);
+      renderWorkflowButtons();
+    }
+
+    function updateStageBadge() {
+      const badge = document.getElementById("stage-badge");
+      badge.textContent = activeGrn.stage;
+      badge.className = `badge badge-${activeGrn.stage.toLowerCase().replace(/\s+/g, '-')}`;
+    }
+
+    function toggleFormControlsLock(lock) {
+      const ids = [
+        "form-grn-date", "form-receipt-source", "form-receipt-type", "form-warehouse", "form-vehicle-number", 
+        "form-lr-number", "form-transporter", "form-invoice-number", "form-invoice-date", 
+        "form-remarks", "form-vendor"
+      ];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = lock;
+      });
+
+      // PO Checkboxes
+      document.querySelectorAll("[id^='po-check-']").forEach(chk => chk.disabled = lock);
+
+      // Inline edits inside tables
+      document.querySelectorAll(".inline-edit-input").forEach(inp => inp.disabled = lock);
+
+      // Buttons
+      const btnAddBatch = document.getElementById("btn-add-batch");
+      if (btnAddBatch) btnAddBatch.style.display = lock ? "none" : "inline-flex";
+
+      const barcodeInput = document.getElementById("barcode-input");
+      if (barcodeInput) barcodeInput.disabled = lock;
+    }
+
+    // --- Dynamic Workflow Buttons ---
+    function renderWorkflowButtons() {
+      const container = document.getElementById("workflow-buttons-bar");
+      container.innerHTML = "";
+
+      const hasDirectItems = activeGrn.receiptSource === "Direct Receipt" || activeGrn.products.some(p => p.poNumber === "N/A");
+
+      // Save Draft button
+      if (mode !== "view" && activeGrn.stage === "Draft") {
+        const saveBtn = document.createElement("button");
+        saveBtn.className = "btn btn-secondary";
+        saveBtn.innerHTML = '<i data-lucide="save"></i> Save Draft';
+        saveBtn.onclick = () => saveGRNData("Draft");
+        container.appendChild(saveBtn);
+      }
+
+      // Submit button
+      if (mode !== "view" && activeGrn.stage === "Draft") {
+        const submitBtn = document.createElement("button");
+        submitBtn.className = "btn btn-primary";
+        
+        const nextStage = hasDirectItems ? "Pending Purchase Approval" : "Submitted";
+        submitBtn.innerHTML = hasDirectItems 
+          ? '<i data-lucide="send"></i> Submit for Approval' 
+          : '<i data-lucide="send"></i> Submit GRN';
+          
+        submitBtn.onclick = () => saveGRNData(nextStage);
+        container.appendChild(submitBtn);
+      }
+
+      // Rollback to Draft
+      if (mode !== "view" && (activeGrn.stage === "Submitted" || activeGrn.stage === "Pending Purchase Approval")) {
+        const rollbackBtn = document.createElement("button");
+        rollbackBtn.className = "btn btn-secondary";
+        rollbackBtn.innerHTML = '<i data-lucide="undo-2"></i> Rollback to Draft';
+        rollbackBtn.onclick = () => {
+          if (hasDirectItems) {
+            activeGrn.approvalStatus = "Pending";
+          }
+          transitionWorkflowStage("Draft", "Reverting stage to draft edit.");
+        };
+        container.appendChild(rollbackBtn);
+      }
+
+      // Purchase Manager Approval / Rejection Actions
+      if (mode !== "view" && activeGrn.stage === "Pending Purchase Approval") {
+        const approveBtn = document.createElement("button");
+        approveBtn.className = "btn btn-success";
+        approveBtn.innerHTML = '<i data-lucide="check-circle2"></i> Approve Purchase';
+        approveBtn.onclick = () => approvePurchaseGRN();
+        container.appendChild(approveBtn);
+
+        const rejectBtn = document.createElement("button");
+        rejectBtn.className = "btn btn-danger";
+        rejectBtn.innerHTML = '<i data-lucide="x-circle"></i> Reject Purchase';
+        rejectBtn.onclick = () => rejectPurchaseGRN();
+        container.appendChild(rejectBtn);
+      }
+
+      // Rollback to Pending Purchase Approval
+      if (mode !== "view" && activeGrn.stage === "Purchase Approved") {
+        const rollbackBtn = document.createElement("button");
+        rollbackBtn.className = "btn btn-secondary";
+        rollbackBtn.innerHTML = '<i data-lucide="undo-2"></i> Rollback to Pending Approval';
+        rollbackBtn.onclick = () => {
+          activeGrn.approvalStatus = "Pending";
+          transitionWorkflowStage("Pending Purchase Approval", "Reverted purchase approval.");
+        };
+        container.appendChild(rollbackBtn);
+      }
+
+      // Verify GRN
+      if (mode !== "view" && (activeGrn.stage === "Submitted" || activeGrn.stage === "Purchase Approved")) {
+        const verifyBtn = document.createElement("button");
+        verifyBtn.className = "btn btn-primary";
+        verifyBtn.innerHTML = '<i data-lucide="check-square"></i> Verify GRN';
+        verifyBtn.onclick = () => verifyAndSetStage();
+        container.appendChild(verifyBtn);
+      }
+
+      // Rollback to Verified
+      if (mode !== "view" && activeGrn.stage === "Verified") {
+        const rollbackBtn = document.createElement("button");
+        rollbackBtn.className = "btn btn-secondary";
+        
+        const prevStage = hasDirectItems ? "Purchase Approved" : "Submitted";
+        rollbackBtn.innerHTML = hasDirectItems 
+          ? '<i data-lucide="undo-2"></i> Rollback to Purchase Approved' 
+          : '<i data-lucide="undo-2"></i> Rollback to Submitted';
+          
+        rollbackBtn.onclick = () => transitionWorkflowStage(prevStage, "Reverting verified stage.");
+        container.appendChild(rollbackBtn);
+      }
+
+      // Complete GRN
+      if (mode !== "view" && activeGrn.stage === "Verified") {
+        const completeBtn = document.createElement("button");
+        completeBtn.className = "btn btn-success";
+        completeBtn.innerHTML = '<i data-lucide="check-circle2"></i> Complete Receipt';
+        completeBtn.onclick = () => completeGRN();
+        container.appendChild(completeBtn);
+      }
+
+      // Print PDF button (always visible for Completed stage)
+      if (activeGrn.stage === "Completed") {
+        const printBtn = document.createElement("button");
+        printBtn.className = "btn btn-secondary";
+        printBtn.innerHTML = '<i data-lucide="printer"></i> Print PDF';
+        printBtn.onclick = () => printReceipt();
+        container.appendChild(printBtn);
+      }
+
+      // If view mode, show Edit button if it is in Draft or Submitted or Pending Approval stage
+      if (mode === "view" && (activeGrn.stage === "Draft" || activeGrn.stage === "Submitted" || activeGrn.stage === "Pending Purchase Approval")) {
+        const editBtn = document.createElement("button");
+        editBtn.className = "btn btn-primary";
+        editBtn.innerHTML = '<i data-lucide="pencil"></i> Edit GRN';
+        editBtn.onclick = () => {
+          mode = "edit";
+          populateFormFields();
+          logAction("Switched page layout to EDIT mode", "info");
+        };
+        container.appendChild(editBtn);
+      }
+
+      lucide.createIcons();
+    }
+
+    // --- Form Validations ---
+    function validateGRNDate() {
+      const entered = new Date(document.getElementById("form-grn-date").value);
+      const today = new Date();
+      today.setHours(23,59,59,999);
+
+      if (entered > today) {
+        logAction("Validation Failure: GRN Date cannot be in the future.", "error");
+        alert("Error: Goods Receipt Date cannot be in the future.");
+        document.getElementById("form-grn-date").value = activeGrn.grnDate;
+        return false;
+      }
+      activeGrn.grnDate = document.getElementById("form-grn-date").value;
+      logAction(`Updated GRN Date to ${activeGrn.grnDate}`, "info");
+      return true;
+    }
+
+    function validateInvoiceDate() {
+      const grnVal = document.getElementById("form-grn-date").value;
+      const invVal = document.getElementById("form-invoice-date").value;
+      
+      if (!grnVal || !invVal) return true;
+
+      const grnDate = new Date(grnVal);
+      const invDate = new Date(invVal);
+
+      if (invDate > grnDate) {
+        logAction("Validation Failure: Invoice Date cannot be after GRN Date.", "error");
+        alert("Error: Invoice Date must be less than or equal to GRN Date.");
+        document.getElementById("form-invoice-date").value = activeGrn.invoiceDate;
+        return false;
+      }
+      activeGrn.invoiceDate = invVal;
+      logAction(`Updated Invoice Date to ${activeGrn.invoiceDate}`, "info");
+      return true;
+    }
+
+    function validateWarehouse() {
+      const wh = document.getElementById("form-warehouse").value;
+      activeGrn.warehouse = wh;
+      logAction(`Warehouse set to ${wh || "None"}`, "info");
+    }
+
+    function onReceiptTypeChange() {
+      const type = document.getElementById("form-receipt-type").value;
+      activeGrn.receiptType = type;
+      logAction(`Receipt Type set to: ${type}`, "info");
+    }
+
+    function onReceiptSourceChange() {
+      const src = document.getElementById("form-receipt-source").value;
+      activeGrn.receiptSource = src;
+      
+      // Clear linked POs, products, and batches when switching to prevent corrupt data
+      activeGrn.poList = [];
+      activeGrn.poCount = 0;
+      activeGrn.products = [];
+      activeGrn.batches = [];
+      activeGrn.inspections = [];
+      
+      if (src === "Direct Receipt") {
+        activeGrn.approvalStatus = "Pending";
+        activeGrn.approvedBy = "";
+        activeGrn.approvedOn = "";
+        activeGrn.approvalRemarks = "";
+      }
+      
+      populateFormFields();
+      showToast(`Switched receipt source to ${src}`, "info");
+      logAction(`Switched receipt source to ${src}`, "info");
+    }
+
+    function approvePurchaseGRN() {
+      const remarks = prompt("Enter Purchase Approval remarks:", "Approved. Emergency purchase verified.");
+      if (remarks === null) return; // cancelled
+      
+      activeGrn.approvalStatus = "Approved";
+      activeGrn.approvedBy = "Sarah Manager";
+      activeGrn.approvedOn = new Date().toISOString().slice(0, 16).replace('T', ' ');
+      activeGrn.approvalRemarks = remarks || "Approved.";
+      
+      transitionWorkflowStage("Purchase Approved", `Purchase Approved: ${remarks}`);
+      
+      // Persist immediately
+      const idx = grns.findIndex(g => g.grnNumber === activeGrn.grnNumber);
+      if (idx >= 0) {
+        grns[idx] = activeGrn;
+        localStorage.setItem("happy_erp_grns", JSON.stringify(grns));
+      }
+      showToast("Purchase approved successfully!", "success");
+    }
+
+    function rejectPurchaseGRN() {
+      const remarks = prompt("Enter Rejection remarks:", "Rejected. Pricing mismatch.");
+      if (remarks === null) return; // cancelled
+      
+      activeGrn.approvalStatus = "Rejected";
+      activeGrn.approvedBy = "Sarah Manager";
+      activeGrn.approvedOn = new Date().toISOString().slice(0, 16).replace('T', ' ');
+      activeGrn.approvalRemarks = remarks || "Rejected.";
+      
+      transitionWorkflowStage("Cancelled", `Purchase Rejected: ${remarks}`);
+      
+      // Persist immediately
+      const idx = grns.findIndex(g => g.grnNumber === activeGrn.grnNumber);
+      if (idx >= 0) {
+        grns[idx] = activeGrn;
+        localStorage.setItem("happy_erp_grns", JSON.stringify(grns));
+      }
+      showToast("Purchase rejected and receipt cancelled.", "warning");
+    }
+
+    function addProductRowDirect() {
+      if (!activeGrn.vendorName) {
+        alert("Please select a Vendor first.");
+        return;
+      }
+      const vendorData = MOCK_VENDORS[activeGrn.vendorName];
+      if (!vendorData || !vendorData.products || vendorData.products.length === 0) {
+        alert("No products available for this vendor.");
+        return;
+      }
+      
+      // Create an option list
+      let msg = "Select a product to add:\n\n";
+      vendorData.products.forEach((p, i) => {
+        msg += `${i + 1}. ${p.name} (${p.variety}) - Rate: ₹${p.rate}\n`;
+      });
+      
+      const choice = prompt(msg + "\nEnter product number (e.g. 1):");
+      if (!choice) return;
+      
+      const idx = parseInt(choice) - 1;
+      if (isNaN(idx) || idx < 0 || idx >= vendorData.products.length) {
+        alert("Invalid selection.");
+        return;
+      }
+      
+      const selectedProd = vendorData.products[idx];
+      
+      // Check if product already exists
+      const existing = activeGrn.products.find(p => p.productId === selectedProd.productId);
+      if (existing) {
+        alert("Product already added to the receipt. You can adjust its quantity in the table.");
+        return;
+      }
+      
+      const qtyStr = prompt(`Enter received quantity for ${selectedProd.name}:`, "100");
+      if (qtyStr === null) return;
+      const qty = parseFloat(qtyStr) || 0;
+      
+      activeGrn.products.push({
+        poNumber: "N/A",
+        productId: selectedProd.productId,
+        name: selectedProd.name,
+        variety: selectedProd.variety,
+        pack: selectedProd.pack,
+        ordered: 0,
+        prevReceived: 0,
+        pending: qty,
+        currentReceived: qty,
+        excess: 0,
+        rate: selectedProd.rate,
+        uom: selectedProd.uom,
+        batchManaged: selectedProd.batchManaged,
+        expiryManaged: selectedProd.expiryManaged || false,
+        remarks: "",
+        isSplit: false
+      });
+
+      if (selectedProd.batchManaged) {
+        activeGrn.batches.push({
+          productId: selectedProd.productId,
+          name: selectedProd.name,
+          batchNumber: `B-${selectedProd.variety.toUpperCase()}-${Math.floor(Math.random() * 900) + 100}`,
+          mfgDate: new Date().toISOString().split('T')[0],
+          expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0], // 1 year expiry
+          quantity: qty,
+          remarks: ""
+        });
+      }
+      
+      logAction(`Added product ${selectedProd.name} directly to receipt`, "success");
+      populateFormFields();
+    }
+
+    // --- Quality Inspection DataTable Controllers ---
+    let inspSortField = "";
+    let inspSortAsc = true;
+    let collapsedInspColumns = {};
+
+    function syncQualityInspections() {
+      if (!activeGrn.inspections) activeGrn.inspections = [];
+
+      const expectedInspections = [];
+
+      activeGrn.products.forEach((prod) => {
+        if (prod.batchManaged) {
+          const productBatches = activeGrn.batches.filter(b => b.productId === prod.productId);
+          productBatches.forEach((batch, bIdx) => {
+            expectedInspections.push({
+              poNumber: prod.poNumber,
+              productId: prod.productId,
+              productName: prod.name,
+              variety: prod.variety,
+              batchNumber: batch.batchNumber || `Batch-${bIdx + 1}`,
+              receivedQuantity: parseFloat(batch.quantity) || 0,
+              uom: prod.uom,
+              defaultRequired: prod.expiryManaged || false
+            });
+          });
+        } else {
+          expectedInspections.push({
+            poNumber: prod.poNumber,
+            productId: prod.productId,
+            productName: prod.name,
+            variety: prod.variety,
+            batchNumber: "N/A",
+            receivedQuantity: (parseFloat(prod.currentReceived) || 0) + (parseFloat(prod.excess) || 0),
+            uom: prod.uom,
+            defaultRequired: false
+          });
+        }
+      });
+
+      const newInspections = [];
+      expectedInspections.forEach((expected) => {
+        const match = activeGrn.inspections.find(ins => 
+          ins.poNumber === expected.poNumber && 
+          ins.productId === expected.productId && 
+          ins.batchNumber === expected.batchNumber
+        );
+
+        if (match) {
+          match.receivedQuantity = expected.receivedQuantity;
+          if (match.inspectionRequired) {
+            if (match.approvedQuantity + match.rejectedQuantity !== match.receivedQuantity) {
+              if (match.approvedQuantity > match.receivedQuantity) {
+                match.approvedQuantity = match.receivedQuantity;
+                match.rejectedQuantity = 0;
+              } else {
+                match.approvedQuantity = Math.max(0, match.receivedQuantity - match.rejectedQuantity);
+              }
+            }
+          } else {
+            match.approvedQuantity = expected.receivedQuantity;
+            match.rejectedQuantity = 0;
+          }
+          newInspections.push(match);
+        } else {
+          newInspections.push({
+            id: "insp-" + Math.random().toString(36).substr(2, 9),
+            poNumber: expected.poNumber,
+            productId: expected.productId,
+            productName: expected.productName,
+            variety: expected.variety,
+            batchNumber: expected.batchNumber,
+            receivedQuantity: expected.receivedQuantity,
+            uom: expected.uom,
+            inspectionRequired: expected.defaultRequired,
+            inspectionStatus: expected.defaultRequired ? "Pending" : "Approved",
+            inspectedBy: "James Smith (QC Manager)",
+            inspectionDate: activeGrn.grnDate || new Date().toISOString().split('T')[0],
+            approvedQuantity: expected.defaultRequired ? 0 : expected.receivedQuantity,
+            rejectedQuantity: 0,
+            inspectionRemarks: ""
+          });
+        }
+      });
+
+      activeGrn.inspections = newInspections;
+      populateQualityFilterOptions();
+    }
+
+    function populateQualityFilterOptions() {
+      const poSelect = document.getElementById("filter-insp-po");
+      const prodSelect = document.getElementById("filter-insp-product");
+
+      const prevPoVal = poSelect ? poSelect.value : "All";
+      const prevProdVal = prodSelect ? prodSelect.value : "All";
+
+      if (poSelect) {
+        poSelect.innerHTML = '<option value="All">All POs</option>';
+        activeGrn.poList.forEach(po => {
+          poSelect.innerHTML += `<option value="${po}">${po}</option>`;
+        });
+        poSelect.value = prevPoVal;
+      }
+
+      if (prodSelect) {
+        prodSelect.innerHTML = '<option value="All">All Products</option>';
+        const uniqueProds = [];
+        activeGrn.products.forEach(p => {
+          if (!uniqueProds.includes(p.name)) {
+            uniqueProds.push(p.name);
+            prodSelect.innerHTML += `<option value="${p.name}">${p.name}</option>`;
+          }
+        });
+        prodSelect.value = prevProdVal;
+      }
+    }
+
+    function renderQualityTable() {
+      const tbody = document.getElementById("quality-inspection-body");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      if (!activeGrn.inspections || activeGrn.inspections.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; color:var(--text-muted); padding:20px;">No quality inspection records generated. Link POs and products first.</td></tr>`;
+        return;
+      }
+
+      const searchVal = document.getElementById("insp-search-input").value.trim().toLowerCase();
+      const filterPo = document.getElementById("filter-insp-po").value;
+      const filterProduct = document.getElementById("filter-insp-product").value;
+      const filterStatus = document.getElementById("filter-insp-status").value;
+      const filterUser = document.getElementById("filter-insp-user").value;
+      const filterFrom = document.getElementById("filter-insp-from").value;
+      const filterTo = document.getElementById("filter-insp-to").value;
+
+      let items = activeGrn.inspections.filter(item => {
+        const searchMatch = !searchVal || 
+          item.poNumber.toLowerCase().includes(searchVal) ||
+          item.productName.toLowerCase().includes(searchVal) ||
+          item.batchNumber.toLowerCase().includes(searchVal) ||
+          item.inspectedBy.toLowerCase().includes(searchVal);
+          
+        const poMatch = filterPo === "All" || item.poNumber === filterPo;
+        const productMatch = filterProduct === "All" || item.productName === filterProduct;
+        const statusMatch = filterStatus === "All" || item.inspectionStatus === filterStatus;
+        const userMatch = filterUser === "All" || item.inspectedBy === filterUser;
+        
+        let dateMatch = true;
+        if (item.inspectionDate) {
+          if (filterFrom && item.inspectionDate < filterFrom) dateMatch = false;
+          if (filterTo && item.inspectionDate > filterTo) dateMatch = false;
+        }
+
+        return searchMatch && poMatch && productMatch && statusMatch && userMatch && dateMatch;
+      });
+
+      if (inspSortField) {
+        items.sort((a, b) => {
+          let valA = a[inspSortField] || "";
+          let valB = b[inspSortField] || "";
+          if (typeof valA === "string") valA = valA.toLowerCase();
+          if (typeof valB === "string") valB = valB.toLowerCase();
+
+          if (valA < valB) return inspSortAsc ? -1 : 1;
+          if (valA > valB) return inspSortAsc ? 1 : -1;
+          return 0;
+        });
+      }
+
+      const isLocked = mode === "view" || 
+                       activeGrn.stage === "Verified" || 
+                       activeGrn.stage === "Completed" || 
+                       activeGrn.stage === "Cancelled";
+
+      const groupBy = document.getElementById("insp-group-by").value;
+      let groups = {};
+
+      if (groupBy === "po") {
+        items.forEach(item => {
+          if (!groups[item.poNumber]) groups[item.poNumber] = [];
+          groups[item.poNumber].push(item);
+        });
+      } else if (groupBy === "product") {
+        items.forEach(item => {
+          if (!groups[item.productName]) groups[item.productName] = [];
+          groups[item.productName].push(item);
+        });
+      } else if (groupBy === "status") {
+        items.forEach(item => {
+          if (!groups[item.inspectionStatus]) groups[item.inspectionStatus] = [];
+          groups[item.inspectionStatus].push(item);
+        });
+      } else {
+        groups["All Items"] = items;
+      }
+
+      Object.keys(groups).forEach(groupName => {
+        if (groupBy !== "none") {
+          const gRow = document.createElement("tr");
+          gRow.className = "group-header-row";
+          gRow.innerHTML = `<td colspan="13" style="background:rgba(99,102,241,0.06); font-weight:700; color:var(--primary); padding:10px 18px;">
+            <span style="text-transform:uppercase; font-size:0.75rem;">${groupBy}: ${groupName}</span> (${groups[groupName].length} items)
+          </td>`;
+          tbody.appendChild(gRow);
+        }
+
+        groups[groupName].forEach((insp) => {
+          const idx = activeGrn.inspections.findIndex(x => x.id === insp.id);
+          const row = document.createElement("tr");
+          row.className = "insp-row";
+          
+          const poStyle = collapsedInspColumns["col-po"] ? "display:none;" : "";
+          const varietyStyle = collapsedInspColumns["col-variety"] ? "display:none;" : "";
+          const batchStyle = collapsedInspColumns["col-batch"] ? "display:none;" : "";
+          const inspectorStyle = collapsedInspColumns["col-inspector"] ? "display:none;" : "";
+          const dateStyle = collapsedInspColumns["col-date"] ? "display:none;" : "";
+          const remarksStyle = collapsedInspColumns["col-remarks"] ? "display:none;" : "";
+
+          row.innerHTML = `
+            <td class="col-po" style="${poStyle}"><strong>${insp.poNumber}</strong></td>
+            <td>
+              <div style="font-weight:600;">${insp.productName}</div>
+              <div style="font-size:0.725rem; color:var(--text-muted);">UOM: ${insp.uom}</div>
+            </td>
+            <td class="col-variety" style="${varietyStyle}">${insp.variety || 'N/A'}</td>
+            <td class="col-batch" style="${batchStyle}"><span class="badge badge-draft">${insp.batchNumber}</span></td>
+            <td style="text-align:right; font-weight:600;">${insp.receivedQuantity}</td>
+            <td style="text-align:center;">
+              <input type="checkbox" ${insp.inspectionRequired ? 'checked' : ''} 
+                onchange="onInspRequiredChange(${idx}, this.checked)" ${isLocked ? 'disabled' : ''} style="width:16px; height:16px; cursor:pointer;">
+            </td>
+            <td>
+              <select class="form-control" style="padding:4px 6px; font-size:0.75rem; width:110px;" 
+                onchange="onInspStatusChange(${idx}, this.value)" ${isLocked || !insp.inspectionRequired ? 'disabled' : ''}>
+                <option value="Pending" ${insp.inspectionStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option value="Approved" ${insp.inspectionStatus === 'Approved' ? 'selected' : ''}>Approved</option>
+                <option value="Rejected" ${insp.inspectionStatus === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                <option value="Partial" ${insp.inspectionStatus === 'Partial' ? 'selected' : ''}>Partial</option>
+              </select>
+            </td>
+            <td class="col-inspector" style="${inspectorStyle}">
+              <select class="form-control" style="padding:4px 6px; font-size:0.75rem; width:140px;" 
+                onchange="onInspFieldChange(${idx}, 'inspectedBy', this.value)" ${isLocked || !insp.inspectionRequired ? 'disabled' : ''}>
+                <option value="James Smith (QC Manager)" ${insp.inspectedBy.includes('James') ? 'selected' : ''}>James Smith (QC Manager)</option>
+                <option value="Sarah Connor (QC Executive)" ${insp.inspectedBy.includes('Sarah') ? 'selected' : ''}>Sarah Connor (QC Executive)</option>
+              </select>
+            </td>
+            <td class="col-date" style="${dateStyle}">
+              <input type="date" class="form-control" style="padding:4px 6px; font-size:0.75rem; width:125px;" value="${insp.inspectionDate}"
+                onchange="onInspDateChange(${idx}, this.value)" ${isLocked || !insp.inspectionRequired ? 'disabled' : ''}>
+            </td>
+            <td style="text-align:right;">
+              <input type="number" class="inline-edit-input" style="width:65px;" value="${insp.approvedQuantity}" min="0"
+                onchange="onInspApprovedQtyChange(${idx}, this.value)" ${isLocked || !insp.inspectionRequired || insp.inspectionStatus === 'Rejected' ? 'disabled' : ''}>
+            </td>
+            <td style="text-align:right;">
+              <input type="number" class="inline-edit-input" style="width:65px;" value="${insp.rejectedQuantity}" min="0"
+                onchange="onInspRejectedQtyChange(${idx}, this.value)" ${isLocked || !insp.inspectionRequired || insp.inspectionStatus === 'Approved' ? 'disabled' : ''}>
+            </td>
+            <td class="col-remarks" style="${remarksStyle}">
+              <input type="text" class="form-control" style="padding:4px 6px; font-size:0.75rem; width:100px;" value="${insp.inspectionRemarks}" placeholder="Notes"
+                onchange="onInspFieldChange(${idx}, 'inspectionRemarks', this.value)" ${isLocked ? 'disabled' : ''}>
+            </td>
+            <td style="text-align:right;" class="action-cell">
+              <button class="btn btn-ghost" style="padding:4px;" onclick="toggleInspRowMenu(event, ${idx})">
+                <i data-lucide="more-vertical" style="width:14px; height:14px;"></i>
+              </button>
+              <div class="action-menu-dropdown" id="insp-menu-${idx}" style="right: 18px; top: 32px;">
+                <button onclick="viewInspectionRow(${idx})"><i data-lucide="eye" style="width:12px; height:12px;"></i> View Details</button>
+                <button onclick="modifyInspectionRow(${idx})"><i data-lucide="pencil" style="width:12px; height:12px;"></i> Modify Details</button>
+                <hr>
+                <button onclick="quickApproveRow(${idx})" ${isLocked || !insp.inspectionRequired ? 'disabled' : ''}><i data-lucide="check-circle" style="color:var(--success); width:12px; height:12px;"></i> Mark Approved</button>
+                <button onclick="quickRejectRow(${idx})" ${isLocked || !insp.inspectionRequired ? 'disabled' : ''}><i data-lucide="x-circle" style="color:var(--danger); width:12px; height:12px;"></i> Mark Rejected</button>
+                <button onclick="quickPartialRow(${idx})" ${isLocked || !insp.inspectionRequired ? 'disabled' : ''}><i data-lucide="alert-circle" style="color:var(--warning); width:12px; height:12px;"></i> Mark Partial</button>
+                <hr>
+                <button onclick="duplicateInspectionRow(${idx})"><i data-lucide="copy" style="width:12px; height:12px;"></i> Duplicate Row</button>
+                ${!isLocked && activeGrn.stage === 'Draft' ? `<button onclick="deleteInspectionRow(${idx})" style="color:var(--danger);"><i data-lucide="trash-2" style="width:12px; height:12px;"></i> Delete Row</button>` : ''}
+              </div>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+
+      lucide.createIcons();
+    }
+
+    function filterQualityTable() {
+      renderQualityTable();
+    }
+
+    function resetQualityFilters() {
+      document.getElementById("insp-search-input").value = "";
+      document.getElementById("filter-insp-po").value = "All";
+      document.getElementById("filter-insp-product").value = "All";
+      document.getElementById("filter-insp-status").value = "All";
+      document.getElementById("filter-insp-user").value = "All";
+      document.getElementById("filter-insp-from").value = "";
+      document.getElementById("filter-insp-to").value = "";
+      renderQualityTable();
+      logAction("Quality table filters cleared", "info");
+    }
+
+    function toggleQualityFilterPanel() {
+      const panel = document.getElementById("quality-filter-panel");
+      const isHidden = panel.style.display === "none";
+      panel.style.display = isHidden ? "block" : "none";
+    }
+
+    function toggleColumnSelectDropdown() {
+      const dropdown = document.getElementById("insp-column-dropdown");
+      const isOpen = dropdown.style.display === "block";
+      dropdown.style.display = isOpen ? "none" : "block";
+    }
+
+    function toggleInspColumn(colClass, visible) {
+      collapsedInspColumns[colClass] = !visible;
+      renderQualityTable();
+    }
+
+    function sortQualityTable(field) {
+      if (inspSortField === field) {
+        inspSortAsc = !inspSortAsc;
+      } else {
+        inspSortField = field;
+        inspSortAsc = true;
+      }
+      renderQualityTable();
+      logAction(`Quality table sorted by ${field} (${inspSortAsc ? 'Asc' : 'Desc'})`, "info");
+    }
+
+    function groupQualityTable() {
+      renderQualityTable();
+      logAction(`Grouped quality inspection table by: ${document.getElementById("insp-group-by").value}`, "info");
+    }
+
+    function syncInspectionToProductAndBatch(insp) {
+      // 1. Update receivedQuantity of this inspection
+      insp.receivedQuantity = (parseFloat(insp.approvedQuantity) || 0) + (parseFloat(insp.rejectedQuantity) || 0);
+
+      // 2. If batch managed, update the corresponding batch quantity
+      const prod = activeGrn.products.find(p => p.productId === insp.productId);
+      if (prod && prod.batchManaged) {
+        const batch = activeGrn.batches.find(b => b.productId === insp.productId && b.batchNumber === insp.batchNumber);
+        if (batch) {
+          batch.quantity = insp.receivedQuantity;
+        }
+      }
+
+      // 3. Update the product's currentReceived and excess quantities based on all its inspections
+      if (prod) {
+        const productInspections = activeGrn.inspections.filter(i => i.productId === insp.productId);
+        const totalReceived = productInspections.reduce((sum, i) => sum + i.receivedQuantity, 0);
+
+        if (totalReceived <= prod.pending) {
+          prod.currentReceived = totalReceived;
+          prod.excess = 0;
+        } else {
+          prod.currentReceived = prod.pending;
+          prod.excess = totalReceived - prod.pending;
+        }
+      }
+    }
+
+    function onInspRequiredChange(idx, checked) {
+      const insp = activeGrn.inspections[idx];
+      insp.inspectionRequired = checked;
+      if (!checked) {
+        insp.inspectionStatus = "Approved";
+        insp.approvedQuantity = insp.receivedQuantity;
+        insp.rejectedQuantity = 0;
+        logAction(`Inspection set to NOT REQUIRED for product ${insp.productName} (Batch: ${insp.batchNumber}). Auto-approving all units.`, "warning");
+      } else {
+        insp.inspectionStatus = "Pending";
+        insp.approvedQuantity = 0;
+        insp.rejectedQuantity = 0;
+        logAction(`Inspection set to REQUIRED for product ${insp.productName} (Batch: ${insp.batchNumber}). Status reset to Pending.`, "info");
+      }
+      syncInspectionToProductAndBatch(insp);
+      updateSummaries();
+      renderProductsTable();
+      renderBatchesTable();
+      renderQualityTable();
+    }
+
+    function onInspStatusChange(idx, status) {
+      const insp = activeGrn.inspections[idx];
+      insp.inspectionStatus = status;
+      if (status === "Approved") {
+        insp.approvedQuantity = insp.receivedQuantity;
+        insp.rejectedQuantity = 0;
+        logAction(`Quality: Marked ${insp.productName} (Batch: ${insp.batchNumber}) as APPROVED.`, "success");
+      } else if (status === "Rejected") {
+        insp.approvedQuantity = 0;
+        insp.rejectedQuantity = insp.receivedQuantity;
+        logAction(`Quality: Marked ${insp.productName} (Batch: ${insp.batchNumber}) as REJECTED.`, "error");
+      } else if (status === "Partial") {
+        logAction(`Quality: Marked ${insp.productName} (Batch: ${insp.batchNumber}) as PARTIAL. Please specify quantities.`, "warning");
+      } else {
+        insp.approvedQuantity = 0;
+        insp.rejectedQuantity = 0;
+      }
+      syncInspectionToProductAndBatch(insp);
+      updateSummaries();
+      renderProductsTable();
+      renderBatchesTable();
+      renderQualityTable();
+    }
+
+    function onInspApprovedQtyChange(idx, val) {
+      const insp = activeGrn.inspections[idx];
+      let approved = parseFloat(val) || 0;
+
+      insp.approvedQuantity = approved;
+      syncInspectionToProductAndBatch(insp);
+
+      if (insp.approvedQuantity === insp.receivedQuantity && insp.receivedQuantity > 0) {
+        insp.inspectionStatus = "Approved";
+      } else if (insp.approvedQuantity === 0 && insp.rejectedQuantity > 0) {
+        insp.inspectionStatus = "Rejected";
+      } else if (insp.approvedQuantity > 0 && insp.rejectedQuantity > 0) {
+        insp.inspectionStatus = "Partial";
+      } else {
+        insp.inspectionStatus = "Pending";
+      }
+
+      logAction(`Quality update: ${insp.productName} Approved = ${insp.approvedQuantity}, Rejected = ${insp.rejectedQuantity}, Total Rec = ${insp.receivedQuantity}`, "info");
+      updateSummaries();
+      renderProductsTable();
+      renderBatchesTable();
+      renderQualityTable();
+    }
+
+    function onInspRejectedQtyChange(idx, val) {
+      const insp = activeGrn.inspections[idx];
+      let rejected = parseFloat(val) || 0;
+
+      insp.rejectedQuantity = rejected;
+      syncInspectionToProductAndBatch(insp);
+
+      if (insp.approvedQuantity === insp.receivedQuantity && insp.receivedQuantity > 0) {
+        insp.inspectionStatus = "Approved";
+      } else if (insp.approvedQuantity === 0 && insp.rejectedQuantity > 0) {
+        insp.inspectionStatus = "Rejected";
+      } else if (insp.approvedQuantity > 0 && insp.rejectedQuantity > 0) {
+        insp.inspectionStatus = "Partial";
+      } else {
+        insp.inspectionStatus = "Pending";
+      }
+
+      logAction(`Quality update: ${insp.productName} Approved = ${insp.approvedQuantity}, Rejected = ${insp.rejectedQuantity}, Total Rec = ${insp.receivedQuantity}`, "info");
+      updateSummaries();
+      renderProductsTable();
+      renderBatchesTable();
+      renderQualityTable();
+    }
+
+    function onInspFieldChange(idx, field, val) {
+      activeGrn.inspections[idx][field] = val;
+    }
+
+    function onInspDateChange(idx, val) {
+      const grnVal = document.getElementById("form-grn-date").value;
+      if (grnVal && val && new Date(val) < new Date(grnVal)) {
+        logAction(`Validation Failure: Inspection Date (${val}) cannot be earlier than GRN Date (${grnVal})`, "error");
+        alert("Error: Inspection Date cannot be earlier than Goods Receipt Date.");
+        activeGrn.inspections[idx].inspectionDate = grnVal;
+        renderQualityTable();
+        return;
+      }
+      activeGrn.inspections[idx].inspectionDate = val;
+      logAction(`QC Inspection Date updated for row ${idx+1}: ${val}`, "info");
+    }
+
+    function toggleInspRowMenu(event, idx) {
+      event.stopPropagation();
+      const dropdown = document.getElementById(`insp-menu-${idx}`);
+      const isCurrentlyOpen = dropdown.style.display === "block";
+      
+      document.querySelectorAll(".action-menu-dropdown").forEach(el => {
+        if (el.id.startsWith("insp-menu-")) el.style.display = "none";
+      });
+
+      if (!isCurrentlyOpen) {
+        dropdown.style.display = "block";
+      }
+    }
+
+    function viewInspectionRow(idx) {
+      const insp = activeGrn.inspections[idx];
+      alert(`QC Inspection details:\n\nPO: ${insp.poNumber}\nProduct: ${insp.productName}\nVariety: ${insp.variety || 'N/A'}\nBatch: ${insp.batchNumber}\nReceived: ${insp.receivedQuantity} ${insp.uom}\nQC Required: ${insp.inspectionRequired ? 'Yes' : 'No'}\nStatus: ${insp.inspectionStatus}\nInspector: ${insp.inspectedBy}\nDate: ${insp.inspectionDate}\nApproved: ${insp.approvedQuantity}\nRejected: ${insp.rejectedQuantity}\nRemarks: ${insp.inspectionRemarks}`);
+    }
+
+    function modifyInspectionRow(idx) {
+      openInspectionModal(idx);
+    }
+
+    function quickApproveRow(idx) {
+      onInspStatusChange(idx, "Approved");
+    }
+
+    function quickRejectRow(idx) {
+      onInspStatusChange(idx, "Rejected");
+    }
+
+    function quickPartialRow(idx) {
+      onInspStatusChange(idx, "Partial");
+    }
+
+    function duplicateInspectionRow(idx) {
+      const source = activeGrn.inspections[idx];
+      const copy = JSON.parse(JSON.stringify(source));
+      copy.id = "insp-" + Math.random().toString(36).substr(2, 9);
+      copy.receivedQuantity = 0;
+      copy.approvedQuantity = 0;
+      copy.rejectedQuantity = 0;
+      copy.inspectionRemarks = `Split entry for QC.`;
+      
+      activeGrn.inspections.splice(idx + 1, 0, copy);
+      logAction(`Duplicated Quality Inspection row for product: ${source.productName}`, "info");
+      renderQualityTable();
+    }
+
+    function deleteInspectionRow(idx) {
+      const insp = activeGrn.inspections[idx];
+      activeGrn.inspections.splice(idx, 1);
+      logAction(`Deleted Quality Inspection row for product: ${insp.productName}`, "warning");
+      updateSummaries();
+      renderQualityTable();
+    }
+
+    function openInspectionModal(idx) {
+      const insp = activeGrn.inspections[idx];
+      document.getElementById("modal-insp-index").value = idx;
+      document.getElementById("modal-insp-po").value = insp.poNumber;
+      document.getElementById("modal-insp-product").value = insp.productName;
+      document.getElementById("modal-insp-variety").value = insp.variety || 'N/A';
+      document.getElementById("modal-insp-batch").value = insp.batchNumber;
+      document.getElementById("modal-insp-received").value = `${insp.receivedQuantity} ${insp.uom}`;
+      document.getElementById("modal-insp-required").checked = insp.inspectionRequired;
+      document.getElementById("modal-insp-status").value = insp.inspectionStatus;
+      document.getElementById("modal-insp-user").value = insp.inspectedBy;
+      document.getElementById("modal-insp-date").value = insp.inspectionDate;
+      document.getElementById("modal-insp-approved").value = insp.approvedQuantity;
+      document.getElementById("modal-insp-rejected").value = insp.rejectedQuantity;
+      document.getElementById("modal-insp-remarks").value = insp.inspectionRemarks;
+
+      const isLocked = mode === "view" || 
+                       activeGrn.stage === "Verified" || 
+                       activeGrn.stage === "Completed" || 
+                       activeGrn.stage === "Cancelled";
+
+      const isQcActive = insp.inspectionRequired;
+      
+      document.getElementById("modal-insp-required").disabled = isLocked;
+      document.getElementById("modal-insp-status").disabled = isLocked || !isQcActive;
+      document.getElementById("modal-insp-user").disabled = isLocked || !isQcActive;
+      document.getElementById("modal-insp-date").disabled = isLocked || !isQcActive;
+      document.getElementById("modal-insp-approved").disabled = isLocked || !isQcActive || insp.inspectionStatus === 'Rejected';
+      document.getElementById("modal-insp-rejected").disabled = isLocked || !isQcActive || insp.inspectionStatus === 'Approved';
+      document.getElementById("modal-insp-remarks").disabled = isLocked;
+
+      document.getElementById("inspection-modal").classList.add("open");
+      lucide.createIcons();
+    }
+
+    function closeInspectionModal() {
+      document.getElementById("inspection-modal").classList.remove("open");
+    }
+
+    function onModalInspRequiredChange(checked) {
+      const receivedText = document.getElementById("modal-insp-received").value;
+      const received = parseFloat(receivedText) || 0;
+      document.getElementById("modal-insp-status").disabled = !checked;
+      document.getElementById("modal-insp-user").disabled = !checked;
+      document.getElementById("modal-insp-date").disabled = !checked;
+      
+      if (!checked) {
+        document.getElementById("modal-insp-status").value = "Approved";
+        document.getElementById("modal-insp-approved").value = received;
+        document.getElementById("modal-insp-rejected").value = 0;
+        document.getElementById("modal-insp-approved").disabled = true;
+        document.getElementById("modal-insp-rejected").disabled = true;
+      } else {
+        document.getElementById("modal-insp-status").value = "Pending";
+        document.getElementById("modal-insp-approved").value = 0;
+        document.getElementById("modal-insp-rejected").value = 0;
+        document.getElementById("modal-insp-approved").disabled = false;
+        document.getElementById("modal-insp-rejected").disabled = false;
+      }
+    }
+
+    function onModalInspStatusChange(status) {
+      const receivedText = document.getElementById("modal-insp-received").value;
+      const received = parseFloat(receivedText) || 0;
+      
+      if (status === "Approved") {
+        document.getElementById("modal-insp-approved").value = received;
+        document.getElementById("modal-insp-rejected").value = 0;
+        document.getElementById("modal-insp-approved").disabled = false;
+        document.getElementById("modal-insp-rejected").disabled = true;
+      } else if (status === "Rejected") {
+        document.getElementById("modal-insp-approved").value = 0;
+        document.getElementById("modal-insp-rejected").value = received;
+        document.getElementById("modal-insp-approved").disabled = true;
+        document.getElementById("modal-insp-rejected").disabled = false;
+      } else {
+        document.getElementById("modal-insp-approved").disabled = false;
+        document.getElementById("modal-insp-rejected").disabled = false;
+      }
+    }
+
+    function onModalInspApprovedChange(val) {
+      const approved = parseFloat(val) || 0;
+      const rejected = parseFloat(document.getElementById("modal-insp-rejected").value) || 0;
+      const received = approved + rejected;
+      
+      const receivedVal = document.getElementById("modal-insp-received").value || "";
+      const uomText = receivedVal.split(' ').pop() || "";
+      document.getElementById("modal-insp-received").value = `${received} ${uomText}`;
+      
+      updateModalStatus(approved, rejected, received);
+    }
+
+    function onModalInspRejectedChange(val) {
+      const approved = parseFloat(document.getElementById("modal-insp-approved").value) || 0;
+      const rejected = parseFloat(val) || 0;
+      const received = approved + rejected;
+      
+      const receivedVal = document.getElementById("modal-insp-received").value || "";
+      const uomText = receivedVal.split(' ').pop() || "";
+      document.getElementById("modal-insp-received").value = `${received} ${uomText}`;
+      
+      updateModalStatus(approved, rejected, received);
+    }
+
+    function updateModalStatus(approved, rejected, received) {
+      const statusEl = document.getElementById("modal-insp-status");
+      if (approved === received && received > 0) {
+        statusEl.value = "Approved";
+      } else if (rejected === received && received > 0) {
+        statusEl.value = "Rejected";
+      } else if (approved > 0 && rejected > 0) {
+        statusEl.value = "Partial";
+      } else {
+        statusEl.value = "Pending";
+      }
+    }
+
+    function saveInspectionModal() {
+      const idx = parseInt(document.getElementById("modal-insp-index").value);
+      const required = document.getElementById("modal-insp-required").checked;
+      const status = document.getElementById("modal-insp-status").value;
+      const user = document.getElementById("modal-insp-user").value;
+      const date = document.getElementById("modal-insp-date").value;
+      const approved = parseFloat(document.getElementById("modal-insp-approved").value) || 0;
+      const rejected = parseFloat(document.getElementById("modal-insp-rejected").value) || 0;
+      const remarks = document.getElementById("modal-insp-remarks").value;
+
+      const insp = activeGrn.inspections[idx];
+      
+      const grnVal = document.getElementById("form-grn-date").value;
+      if (required && grnVal && date && new Date(date) < new Date(grnVal)) {
+        alert("Error: Inspection Date cannot be earlier than Goods Receipt Date.");
+        return;
+      }
+
+      insp.inspectionRequired = required;
+      insp.inspectionStatus = status;
+      insp.inspectedBy = user;
+      insp.inspectionDate = date;
+      insp.approvedQuantity = approved;
+      insp.rejectedQuantity = rejected;
+      insp.inspectionRemarks = remarks;
+
+      syncInspectionToProductAndBatch(insp);
+
+      logAction(`Quality Update: Saved inspection details for ${insp.productName} (Batch: ${insp.batchNumber})`, "success");
+      closeInspectionModal();
+      updateSummaries();
+      renderProductsTable();
+      renderBatchesTable();
+      renderQualityTable();
+    }
+
+    function exportQualityCSV() {
+      if (!activeGrn.inspections || activeGrn.inspections.length === 0) {
+        alert("No quality inspection data available to export.");
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "PO Number,Product,Variety,Batch Number,Received Quantity,UOM,Inspection Required,Status,Inspected By,Inspection Date,Approved Quantity,Rejected Quantity,Remarks\n";
+
+      activeGrn.inspections.forEach(item => {
+        const row = [
+          item.poNumber,
+          item.productName,
+          item.variety || "N/A",
+          item.batchNumber,
+          item.receivedQuantity,
+          item.uom,
+          item.inspectionRequired ? "Yes" : "No",
+          item.inspectionStatus,
+          item.inspectedBy,
+          item.inspectionDate || "",
+          item.approvedQuantity,
+          item.rejectedQuantity,
+          `"${item.inspectionRemarks.replace(/"/g, '""')}"`
+        ].join(",");
+        csvContent += row + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `grn-quality-inspection-${activeGrn.grnNumber || 'draft'}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      logAction("Exported Quality Inspection Data to CSV.", "success");
+    }
+
+    function toggleQualityFullScreen() {
+      const card = document.getElementById("quality-inspection-card");
+      const btn = document.getElementById("btn-quality-fullscreen");
+      if (card.classList.contains("fullscreen-card")) {
+        card.classList.remove("fullscreen-card");
+        btn.innerHTML = '<i data-lucide="maximize" style="width:12px; height:12px;"></i>';
+        logAction("Exited Quality inspection full screen mode", "info");
+      } else {
+        card.classList.add("fullscreen-card");
+        btn.innerHTML = '<i data-lucide="minimize" style="width:12px; height:12px;"></i>';
+        logAction("Entered Quality inspection full screen mode", "info");
+      }
+      lucide.createIcons();
+    }
+
+    // --- Vendor Selection & PO Checklist ---
+    function onVendorSelected(vendorName, clearData = true) {
+      const container = document.getElementById("po-checkbox-list");
+      container.innerHTML = "";
+      
+      activeGrn.vendorName = vendorName;
+
+      if (!vendorName) {
+        container.innerHTML = '<span style="color:var(--text-muted); font-size:0.875rem;">Select vendor to load purchase orders</span>';
+        if (clearData) {
+          activeGrn.poList = [];
+          activeGrn.products = [];
+          activeGrn.batches = [];
+          renderPORefsTable();
+          renderProductsTable();
+          renderBatchesTable();
+          updateSummaries();
+        }
+        return;
+      }
+
+      const vendorData = MOCK_VENDORS[vendorName];
+      if (!vendorData) return;
+
+      logAction(`Loaded purchase orders list for vendor: ${vendorName}. Currency: ${vendorData.currency}`, "info");
+
+      // Generate check box triggers
+      vendorData.pos.forEach(po => {
+        const label = document.createElement("label");
+        label.className = "po-checkbox-label";
+        
+        label.innerHTML = `
+          <input type="checkbox" id="po-check-${po.poNumber}" value="${po.poNumber}" onchange="handlePOToggle(this)" style="cursor:pointer;">
+          <span>${po.poNumber} (${po.stage})</span>
+        `;
+        container.appendChild(label);
+      });
+
+      if (clearData) {
+        activeGrn.poList = [];
+        activeGrn.products = [];
+        activeGrn.batches = [];
+        renderPORefsTable();
+        renderProductsTable();
+        renderBatchesTable();
+        updateSummaries();
+      }
+    }
+
+    function handlePOToggle(checkbox) {
+      const poNo = checkbox.value;
+      const vendorData = MOCK_VENDORS[activeGrn.vendorName];
+      
+      if (checkbox.checked) {
+        activeGrn.poList.push(poNo);
+        logAction(`Linked reference Purchase Order: ${poNo}`, "info");
+
+        // Import products from PO
+        const items = vendorData.products.filter(p => p.poNumber === poNo);
+        items.forEach(prod => {
+          activeGrn.products.push({
+            poNumber: prod.poNumber,
+            productId: prod.productId,
+            name: prod.name,
+            variety: prod.variety,
+            pack: prod.pack,
+            ordered: prod.ordered,
+            prevReceived: prod.prevReceived,
+            pending: prod.pending,
+            currentReceived: prod.pending, // Default to pending
+            excess: 0,
+            rate: prod.rate,
+            uom: prod.uom,
+            batchManaged: prod.batchManaged,
+            expiryManaged: prod.expiryManaged || false,
+            remarks: "",
+            isSplit: false
+          });
+
+          // If batch managed, seed default batch details for tracking
+          if (prod.batchManaged) {
+            activeGrn.batches.push({
+              productId: prod.productId,
+              name: prod.name,
+              batchNumber: "",
+              mfgDate: "",
+              expiryDate: "",
+              quantity: prod.pending,
+              remarks: ""
+            });
+          }
+        });
+      } else {
+        activeGrn.poList = activeGrn.poList.filter(p => p !== poNo);
+        logAction(`Unlinked reference Purchase Order: ${poNo}`, "warning");
+        
+        // Remove products
+        activeGrn.products = activeGrn.products.filter(p => p.poNumber !== poNo);
+        // Remove batches
+        activeGrn.batches = activeGrn.batches.filter(b => {
+          const matched = vendorData.products.find(p => p.productId === b.productId);
+          return matched ? matched.poNumber !== poNo : true;
+        });
+      }
+
+      activeGrn.poCount = activeGrn.poList.length;
+      
+      renderPORefsTable();
+      renderProductsTable();
+      renderBatchesTable();
+      updateSummaries();
+
+      syncQualityInspections();
+      renderQualityTable();
+    }
+
+    // --- Sub-Tables rendering ---
+    function renderPORefsTable() {
+      const tbody = document.getElementById("po-refs-body");
+      tbody.innerHTML = "";
+
+      if (activeGrn.poList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:16px;">No PO references linked.</td></tr>';
+        return;
+      }
+
+      const vendorData = MOCK_VENDORS[activeGrn.vendorName];
+      activeGrn.poList.forEach(poNo => {
+        const po = vendorData.pos.find(p => p.poNumber === poNo);
+        if (!po) return;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><strong>${po.poNumber}</strong></td>
+          <td>${po.poDate}</td>
+          <td style="text-align:right;">${po.orderedQty}</td>
+          <td style="text-align:right;">${po.receivedQty}</td>
+          <td style="text-align:right; font-weight:700;">${po.pendingQty}</td>
+          <td><span class="badge badge-submitted">${po.stage}</span></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function renderProductsTable() {
+      const tbody = document.getElementById("product-receipt-body");
+      tbody.innerHTML = "";
+
+      if (activeGrn.products.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:16px;">No products loaded. Link POs to view items.</td></tr>';
+        return;
+      }
+
+      const isLocked = mode === "view" || 
+                       activeGrn.stage === "Verified" || 
+                       activeGrn.stage === "Completed" || 
+                       activeGrn.stage === "Cancelled";
+
+      activeGrn.products.forEach((prod, index) => {
+        const row = document.createElement("tr");
+        
+        let splitLabel = prod.isSplit ? '<span class="split-badge">SPLIT</span>' : '';
+        let batchManagedLabel = prod.batchManaged ? '<span style="font-size:0.65rem; background:rgba(99,102,241,0.12); color:var(--primary); padding:2px 5px; border-radius:4px; font-weight:700; margin-top:4px; display:inline-block;">BATCH TRACKED</span>' : '';
+        
+        row.innerHTML = `
+          <td>
+            <div style="font-weight:600;">${prod.name} ${splitLabel}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${prod.variety} | ${prod.pack}</div>
+            ${batchManagedLabel}
+          </td>
+          <td>${prod.poNumber}</td>
+          <td style="text-align:right;">${prod.ordered}</td>
+          <td style="text-align:right;">${prod.prevReceived}</td>
+          <td style="text-align:right; font-weight:600;">${prod.pending}</td>
+          <td style="text-align:right;">
+            <input type="number" class="inline-edit-input" value="${prod.currentReceived}" min="0" 
+              onchange="onProductQtyChange(${index}, this.value)" ${isLocked ? 'disabled' : ''}>
+          </td>
+          <td style="text-align:right;">
+            <input type="number" class="inline-edit-input" style="width:75px;" value="${prod.excess}" min="0" 
+              onchange="onProductExcessChange(${index}, this.value)" ${isLocked ? 'disabled' : ''}>
+          </td>
+          <td>${prod.uom}</td>
+          <td style="text-align:right;">
+            <div style="display:flex; justify-content:flex-end; gap:6px;">
+              <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="openProductModal(${index})" title="Edit Details"><i data-lucide="pencil" style="width:12px; height:12px;"></i> Details</button>
+              ${!isLocked ? `<button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="splitProductLine(${index})" title="Split Receipt Line"><i data-lucide="split" style="width:12px; height:12px;"></i> Split</button>` : ''}
+              ${!isLocked && (prod.isSplit || activeGrn.stage === 'Draft') ? `<button class="btn btn-ghost" style="padding:4px; color:var(--danger)" onclick="deleteProductRow(${index})" title="Remove item"><i data-lucide="trash-2" style="width:12px; height:12px;"></i></button>` : ''}
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+      lucide.createIcons();
+    }
+
+    function onProductQtyChange(index, val) {
+      let qty = parseFloat(val) || 0;
+      let prod = activeGrn.products[index];
+
+      // Validation limit check
+      if (qty > prod.pending) {
+        logAction(`Validation Trigger: Quantity input (${qty}) exceeds pending (${prod.pending}) for ${prod.name}`, "error");
+        alert(`Warning: Received quantity exceeds pending order limit of ${prod.pending}. Excess receipt should be entered in the Excess Qty field.`);
+        qty = prod.pending;
+      }
+
+      prod.currentReceived = qty;
+      
+      // Auto update batch quantity if only one batch exists for this product
+      const productBatches = activeGrn.batches.filter(b => b.productId === prod.productId);
+      if (productBatches.length === 1) {
+        productBatches[0].quantity = qty;
+        renderBatchesTable();
+      }
+
+      updateSummaries();
+      renderProductsTable();
+      syncQualityInspections();
+      renderQualityTable();
+    }
+
+    function onProductExcessChange(index, val) {
+      let excess = parseFloat(val) || 0;
+      const prod = activeGrn.products[index];
+      
+      if (excess > 0 && !userHasExcessPermission) {
+        logAction(`Validation Trigger: Excess receipt quantity (${excess}) entered without permission for ${prod.name}`, "error");
+        alert("Permission Denied: Receiving quantities in excess of the Purchase Order pending quantity requires 'Excess Receipt Permission'. Please request approval or enable permission in the Scenario Tester.");
+        excess = 0;
+      }
+      
+      prod.excess = excess;
+      if (excess > 0) {
+        logAction(`Excess receipt set for ${prod.name} = ${excess} ${prod.uom}`, "success");
+      }
+      
+      renderProductsTable();
+      updateSummaries();
+      syncQualityInspections();
+      renderQualityTable();
+    }
+
+    // Split Receipt function
+    function splitProductLine(index) {
+      const source = activeGrn.products[index];
+      
+      // Create split row with 0 quantity
+      const splitRow = JSON.parse(JSON.stringify(source));
+      splitRow.currentReceived = 0;
+      splitRow.excess = 0;
+      splitRow.isSplit = true;
+      
+      // Insert right after source
+      activeGrn.products.splice(index + 1, 0, splitRow);
+      
+      // Add corresponding batch row
+      if (source.batchManaged) {
+        activeGrn.batches.push({
+          productId: source.productId,
+          name: source.name,
+          batchNumber: "",
+          mfgDate: "",
+          expiryDate: "",
+          quantity: 0,
+          remarks: ""
+        });
+      }
+
+      logAction(`Split product receipt line for ${source.name}`, "info");
+      renderProductsTable();
+      renderBatchesTable();
+      updateSummaries();
+      syncQualityInspections();
+      renderQualityTable();
+    }
+
+    function deleteProductRow(index) {
+      const prod = activeGrn.products[index];
+      activeGrn.products.splice(index, 1);
+      logAction(`Deleted item row from receipt: ${prod.name}`, "warning");
+      
+      // Check if we need to clean up batches
+      const remaining = activeGrn.products.filter(p => p.productId === prod.productId);
+      if (remaining.length === 0) {
+        activeGrn.batches = activeGrn.batches.filter(b => b.productId !== prod.productId);
+      }
+
+      renderProductsTable();
+      renderBatchesTable();
+      updateSummaries();
+      syncQualityInspections();
+      renderQualityTable();
+    }
+
+    // --- Batches grid rendering ---
+    function renderBatchesTable() {
+      const tbody = document.getElementById("batch-details-body");
+      const section = document.getElementById("batch-section");
+      tbody.innerHTML = "";
+
+      const batchManagedProducts = activeGrn.products.filter(p => p.batchManaged);
+      
+      if (batchManagedProducts.length === 0) {
+        section.style.display = "none";
+        return;
+      } else {
+        section.style.display = "block";
+      }
+
+      // If Aspirin is loaded, check if we need to show the Expiry date as mandatory
+      const hasExpiryManaged = batchManagedProducts.some(p => p.expiryManaged);
+      const asterisk = document.getElementById("batch-expiry-asterisk");
+      if (asterisk) {
+        asterisk.style.display = hasExpiryManaged ? "inline" : "none";
+      }
+
+      if (activeGrn.batches.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:16px;">No batch details specified. Click "Add Batch" to capture traceability info.</td></tr>';
+        return;
+      }
+
+      const isLocked = mode === "view" || 
+                       activeGrn.stage === "Verified" || 
+                       activeGrn.stage === "Completed" || 
+                       activeGrn.stage === "Cancelled";
+
+      activeGrn.batches.forEach((batch, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>
+            <select class="form-control" style="padding:5px 8px; font-size:0.8rem;" onchange="onBatchProductChange(${index}, this.value)" ${isLocked ? 'disabled' : ''}>
+              ${batchManagedProducts.map(p => `<option value="${p.productId}" ${p.productId === batch.productId ? 'selected' : ''}>${p.name}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <input type="text" class="form-control" style="padding:5px 8px; font-size:0.8rem;" value="${batch.batchNumber}" placeholder="e.g. B-XYZ-01"
+              onchange="onBatchFieldChange(${index}, 'batchNumber', this.value)" ${isLocked ? 'disabled' : ''}>
+          </td>
+          <td>
+            <input type="date" class="form-control" style="padding:5px 8px; font-size:0.8rem;" value="${batch.mfgDate}" 
+              onchange="onBatchFieldChange(${index}, 'mfgDate', this.value)" ${isLocked ? 'disabled' : ''}>
+          </td>
+          <td>
+            <input type="date" class="form-control" style="padding:5px 8px; font-size:0.8rem;" value="${batch.expiryDate}" 
+              onchange="onBatchFieldChange(${index}, 'expiryDate', this.value)" ${isLocked ? 'disabled' : ''}>
+          </td>
+          <td>
+            <input type="number" class="form-control" style="padding:5px 8px; font-size:0.8rem; text-align:right;" value="${batch.quantity}" 
+              onchange="onBatchFieldChange(${index}, 'quantity', this.value)" ${isLocked ? 'disabled' : ''}>
+          </td>
+          <td>
+            <input type="text" class="form-control" style="padding:5px 8px; font-size:0.8rem;" value="${batch.remarks}" placeholder="Notes"
+              onchange="onBatchFieldChange(${index}, 'remarks', this.value)" ${isLocked ? 'disabled' : ''}>
+          </td>
+          <td style="text-align:right;">
+            ${!isLocked ? `<button class="btn btn-ghost" style="padding:4px; color:var(--danger)" onclick="deleteBatchRow(${index})"><i data-lucide="trash-2" style="width:14px; height:14px;"></i></button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+      lucide.createIcons();
+    }
+
+    function addBatchRow() {
+      const batchManagedProducts = activeGrn.products.filter(p => p.batchManaged);
+      if (batchManagedProducts.length === 0) return;
+
+      activeGrn.batches.push({
+        productId: batchManagedProducts[0].productId,
+        name: batchManagedProducts[0].name,
+        batchNumber: "",
+        mfgDate: "",
+        expiryDate: "",
+        quantity: 0,
+        remarks: ""
+      });
+      logAction("Added new Batch grid row.", "info");
+      renderBatchesTable();
+      syncQualityInspections();
+      renderQualityTable();
+    }
+
+    function deleteBatchRow(index) {
+      activeGrn.batches.splice(index, 1);
+      logAction("Removed Batch grid row.", "warning");
+      renderBatchesTable();
+      syncQualityInspections();
+      renderQualityTable();
+    }
+
+    function onBatchProductChange(index, productId) {
+      const prod = activeGrn.products.find(p => p.productId === productId);
+      activeGrn.batches[index].productId = productId;
+      activeGrn.batches[index].name = prod.name;
+      logAction(`Batch row ${index + 1} item changed to ${prod.name}`, "info");
+      syncQualityInspections();
+      renderQualityTable();
+    }
+
+    function onBatchFieldChange(index, field, val) {
+      const b = activeGrn.batches[index];
+      const prod = activeGrn.products.find(p => p.productId === b.productId);
+      
+      if (field === "quantity") {
+        let num = parseFloat(val) || 0;
+        
+        // Check batch quantities sum doesn't exceed total product receipt sum
+        const productLines = activeGrn.products.filter(p => p.productId === b.productId);
+        const maxReceivable = productLines.reduce((sum, p) => sum + (p.currentReceived + p.excess), 0);
+
+        const otherBatchesSum = activeGrn.batches
+          .filter((x, idx) => x.productId === b.productId && idx !== index)
+          .reduce((sum, x) => sum + x.quantity, 0);
+
+        if ((otherBatchesSum + num) > maxReceivable) {
+          logAction(`Validation Failure: Total batch quantity (${otherBatchesSum + num}) exceeds received quantity (${maxReceivable}) for ${b.name}`, "error");
+          alert(`Error: Cumulative batch quantity for ${b.name} exceeds receipt total quantity of ${maxReceivable}.`);
+          num = Math.max(0, maxReceivable - otherBatchesSum);
+        }
+
+        b.quantity = num;
+      } 
+      else if (field === "expiryDate") {
+        if (b.mfgDate && val && new Date(val) <= new Date(b.mfgDate)) {
+          logAction(`Validation Failure: Expiry Date (${val}) must be after Manufacturing Date (${b.mfgDate})`, "error");
+          alert("Error: Expiry Date must be later than Manufacturing Date.");
+          b.expiryDate = "";
+          renderBatchesTable();
+          syncQualityInspections();
+          renderQualityTable();
+          return;
+        }
+        b.expiryDate = val;
+      }
+      else if (field === "mfgDate") {
+        const today = new Date().toISOString().split('T')[0];
+        if (val > today) {
+          logAction(`Validation Failure: Manufacturing Date (${val}) cannot be in the future.`, "error");
+          alert("Error: Manufacturing Date cannot be in the future.");
+          b.mfgDate = "";
+          renderBatchesTable();
+          syncQualityInspections();
+          renderQualityTable();
+          return;
+        }
+        b.mfgDate = val;
+      }
+      else {
+        b[field] = val;
+      }
+      
+      syncQualityInspections();
+      renderQualityTable();
+    }
+
+    // --- Attachments Grid & upload simulation ---
+    function renderAttachments() {
+      const container = document.getElementById("attachments-table-container");
+      const tbody = document.getElementById("attachments-body");
+      tbody.innerHTML = "";
+
+      if (!activeGrn.attachments || activeGrn.attachments.length === 0) {
+        container.style.display = "none";
+        return;
+      }
+
+      container.style.display = "block";
+      activeGrn.attachments.forEach((file, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><strong>${file.fileName}</strong></td>
+          <td><span class="badge badge-draft">${file.fileType}</span></td>
+          <td>${file.uploadedBy}</td>
+          <td>${file.uploadedAt}</td>
+          <td style="text-align:right;">
+            <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="viewAttachment('${file.fileName}')"><i data-lucide="eye" style="width:12px; height:12px;"></i> View</button>
+            ${mode !== "view" && activeGrn.stage === "Draft" ? `<button class="btn btn-ghost" style="padding:4px; color:var(--danger);" onclick="deleteAttachment(${index})"><i data-lucide="trash-2" style="width:12px; height:12px;"></i></button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+      lucide.createIcons();
+    }
+
+    function simulateFileUpload() {
+      if (mode === "view" || activeGrn.stage === "Verified" || activeGrn.stage === "Completed" || activeGrn.stage === "Cancelled") {
+        alert("File uploads are disabled in this stage.");
+        return;
+      }
+
+      const dummyFiles = ["acme_delivery_challan_1001.pdf", "qc_lab_report_chemical.pdf", "invoice_99018.png", "temp_log_sensor.xlsx"];
+      const randFile = dummyFiles[Math.floor(Math.random() * dummyFiles.length)];
+      const ext = randFile.split('.').pop().toUpperCase();
+
+      if (!activeGrn.attachments) activeGrn.attachments = [];
+      activeGrn.attachments.push({
+        fileName: randFile,
+        fileType: ext,
+        uploadedBy: "James Executive",
+        uploadedAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        fileUrl: "#"
+      });
+
+      logAction(`Uploaded file successfully: ${randFile} (Storage path: bucket/grn-docs/${activeGrn.grnNumber}/${randFile})`, "success");
+      renderAttachments();
+    }
+
+    function viewAttachment(fileName) {
+      logAction(`Attachment Viewer: Overlaying native render of ${fileName}`, "info");
+      alert(`=== Attachment Document Viewer ===\nFile: ${fileName}\n(Mocking full-screen file preview component)`);
+    }
+
+    function deleteAttachment(index) {
+      logAction(`Removed attachment: ${activeGrn.attachments[index].fileName}`, "warning");
+      activeGrn.attachments.splice(index, 1);
+      renderAttachments();
+    }
+
+    // --- Barcode Scanner Simulation ---
+    function handleBarcodeScan(e) {
+      if (e.key === "Enter") {
+        const code = e.target.value.trim().toLowerCase();
+        e.target.value = "";
+
+        if (!activeGrn.vendorName) {
+          alert("Please select vendor and link PO references first.");
+          return;
+        }
+
+        // Search match in products loaded
+        const match = activeGrn.products.find(p => p.productId.toLowerCase() === code || p.name.toLowerCase().includes(code));
+        if (match) {
+          match.currentReceived += 1;
+          logAction(`Barcode Scanner: Identified product ${match.name}. Incrementing current received quantity to ${match.currentReceived}.`, "success");
+          renderProductsTable();
+          updateSummaries();
+          syncQualityInspections();
+          renderQualityTable();
+        } else {
+          logAction(`Barcode Scanner Error: Material code "${code}" not found in current linked POs.`, "error");
+          alert("Barcode error: Product not found in linked Purchase Orders.");
+        }
+      }
+    }
+
+    // --- Real-time math & widget updates ---
+    function updateSummaries() {
+      let totalQty = 0;
+      let totalValue = 0;
+
+      activeGrn.products.forEach(p => {
+        totalQty += (p.currentReceived + p.excess);
+        totalValue += (p.currentReceived + p.excess) * p.rate;
+      });
+
+      activeGrn.totalQuantity = totalQty;
+      activeGrn.totalAmount = totalValue;
+
+      // Sum quality approved/rejected
+      let totalApproved = 0;
+      let totalRejected = 0;
+      if (activeGrn.inspections) {
+        activeGrn.inspections.forEach(item => {
+          if (item.inspectionRequired) {
+            totalApproved += parseFloat(item.approvedQuantity) || 0;
+            totalRejected += parseFloat(item.rejectedQuantity) || 0;
+          } else {
+            totalApproved += parseFloat(item.receivedQuantity) || 0;
+          }
+        });
+      }
+      activeGrn.approvedQuantity = totalApproved;
+      activeGrn.rejectedQuantity = totalRejected;
+
+      let currency = activeGrn.vendorName.includes("Global") ? "$" : "₹";
+      let totalValStr = `${currency}${totalValue.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+      // Widget 1: GRN Summary card
+      document.getElementById("summary-po-count").textContent = activeGrn.poList.length;
+      document.getElementById("summary-product-count").textContent = activeGrn.products.length;
+      document.getElementById("summary-received-qty").textContent = totalQty;
+      document.getElementById("summary-rejected-qty").textContent = totalRejected;
+      document.getElementById("summary-approved-qty").textContent = totalApproved;
+      document.getElementById("summary-total-value").textContent = totalValStr;
+
+      // Widget 2: PO Receipt Summary Card
+      let orderedSum = 0;
+      let prevSum = 0;
+      
+      if (activeGrn.vendorName && MOCK_VENDORS[activeGrn.vendorName]) {
+        const vendorData = MOCK_VENDORS[activeGrn.vendorName];
+        activeGrn.poList.forEach(poNo => {
+          const po = vendorData.pos.find(p => p.poNumber === poNo);
+          if (po) {
+            orderedSum += po.orderedQty;
+            prevSum += po.receivedQty;
+          }
+        });
+      }
+
+      document.getElementById("widget-ordered-qty").textContent = orderedSum;
+      document.getElementById("widget-prev-qty").textContent = prevSum;
+      document.getElementById("widget-curr-qty").textContent = totalQty;
+      
+      let remains = orderedSum - prevSum - totalQty;
+      document.getElementById("widget-pending-qty").textContent = Math.max(0, remains);
+    }
+
+    function updateTimelineWidget() {
+      const flow = document.getElementById("timeline-flow");
+      flow.innerHTML = "";
+
+      activeGrn.timeline.forEach((item, index) => {
+        const element = document.createElement("div");
+        element.className = "timeline-item active";
+        if (item.stage === "Completed") element.className = "timeline-item completed";
+
+        element.innerHTML = `
+          <div class="timeline-marker"></div>
+          <strong>${item.stage}</strong>
+          <div class="timeline-details">${item.setBy} | ${item.setAt}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">"${item.remarks}"</div>
+        `;
+        flow.appendChild(element);
+      });
+    }
+
+    // --- Modal Popup Dialog for Product edit ---
+    let activeProductIndex = null;
+
+    function openProductModal(index) {
+      activeProductIndex = index;
+      const prod = activeGrn.products[index];
+
+      document.getElementById("modal-product-index").value = index;
+      document.getElementById("modal-product-name").value = prod.name;
+      document.getElementById("modal-variety").value = prod.variety;
+      document.getElementById("modal-pack").value = prod.pack;
+      document.getElementById("modal-uom").value = prod.uom;
+      document.getElementById("modal-ordered-qty").value = prod.ordered;
+      document.getElementById("modal-prev-qty").value = prod.prevReceived;
+      document.getElementById("modal-pending-qty").value = prod.pending;
+      document.getElementById("modal-rec-qty").value = prod.currentReceived;
+      document.getElementById("modal-excess-qty").value = prod.excess;
+      document.getElementById("modal-remarks").value = prod.remarks;
+
+      const isLocked = mode === "view" || 
+                       activeGrn.stage === "Verified" || 
+                       activeGrn.stage === "Completed" || 
+                       activeGrn.stage === "Cancelled";
+      
+      document.getElementById("modal-rec-qty").disabled = isLocked;
+      document.getElementById("modal-excess-qty").disabled = isLocked;
+      document.getElementById("modal-remarks").disabled = isLocked;
+
+      document.getElementById("product-modal").classList.add("open");
+      logAction(`Opened Product Edit details dialog for: ${prod.name}`, "info");
+    }
+
+    function closeProductModal() {
+      document.getElementById("product-modal").classList.remove("open");
+    }
+
+    function validateModalQty() {
+      const rec = parseFloat(document.getElementById("modal-rec-qty").value) || 0;
+      const pending = parseFloat(document.getElementById("modal-pending-qty").value) || 0;
+
+      if (rec > pending) {
+        logAction(`Validation Trigger: Received quantity exceeds pending order list limit ${pending}`, "error");
+        alert(`Warning: Current Received quantity cannot exceed pending PO quantity ${pending}.`);
+        document.getElementById("modal-rec-qty").value = pending;
+      }
+    }
+
+    function saveProductModal() {
+      const index = parseInt(document.getElementById("modal-product-index").value);
+      const recVal = parseFloat(document.getElementById("modal-rec-qty").value) || 0;
+      let excessVal = parseFloat(document.getElementById("modal-excess-qty").value) || 0;
+      const remarksVal = document.getElementById("modal-remarks").value;
+
+      const prod = activeGrn.products[index];
+
+      if (excessVal > 0 && !userHasExcessPermission) {
+        logAction(`Validation Trigger: Excess receipt quantity (${excessVal}) entered without permission for ${prod.name} in details modal`, "error");
+        alert("Permission Denied: Receiving quantities in excess of the Purchase Order pending quantity requires 'Excess Receipt Permission'. Please request approval or enable permission.");
+        excessVal = 0;
+      }
+
+      prod.currentReceived = recVal;
+      prod.excess = excessVal;
+      prod.remarks = remarksVal;
+
+      logAction(`Saved details for ${prod.name}: Rec Qty = ${recVal}, Excess = ${excessVal}`, "success");
+      
+      closeProductModal();
+      renderProductsTable();
+      updateSummaries();
+
+      if (activeGrn.inspectionRequired) {
+        calculateQualityQuantities();
+      }
+    }
+
+    // --- Save and transition database calls ---
+    function saveGRNData(stage) {
+      if (!activeGrn.vendorName) {
+        alert("Please select a vendor.");
+        return;
+      }
+      if (activeGrn.receiptSource === "PO Based" && activeGrn.poList.length === 0 && !activeGrn.products.some(p => p.poNumber === "N/A")) {
+        alert("Please link at least one Purchase Order reference.");
+        return;
+      }
+      if (activeGrn.receiptSource === "Direct Receipt" && activeGrn.products.length === 0) {
+        alert("Please add at least one product line for Direct Receipt.");
+        return;
+      }
+      if (!activeGrn.warehouse) {
+        alert("Warehouse selection is mandatory for stock management.");
+        return;
+      }
+      if (activeGrn.receiptType === "Returnable Receipt") {
+        const retDate = document.getElementById("form-expected-return").value;
+        if (!retDate) {
+          alert("Expected Return Date is mandatory for Returnable Receipts.");
+          return;
+        }
+        activeGrn.expectedReturnDate = retDate;
+      }
+
+      activeGrn.grnDate = document.getElementById("form-grn-date").value;
+      activeGrn.receiptSource = document.getElementById("form-receipt-source").value;
+      activeGrn.receiptType = document.getElementById("form-receipt-type").value;
+      activeGrn.vehicleNumber = document.getElementById("form-vehicle-number").value;
+      activeGrn.lrNumber = document.getElementById("form-lr-number").value;
+      activeGrn.transporter = document.getElementById("form-transporter").value;
+      activeGrn.invoiceNumber = document.getElementById("form-invoice-number").value;
+      activeGrn.invoiceDate = document.getElementById("form-invoice-date").value;
+      activeGrn.remarks = document.getElementById("form-remarks").value;
+
+      // Update stage if clicked submit
+      if (stage && stage !== activeGrn.stage) {
+        activeGrn.stage = stage;
+        let setRemark = "GRN submitted.";
+        if (stage === "Pending Purchase Approval") {
+          setRemark = "Submitted for Purchase Manager approval.";
+        } else if (stage === "Submitted") {
+          setRemark = "GRN submitted for verification.";
+        }
+        activeGrn.timeline.push({
+          stage: stage,
+          setAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+          setBy: "James Executive",
+          remarks: setRemark
+        });
+      }
+
+      // Check if it's new or existing write
+      const idx = grns.findIndex(g => g.grnNumber === activeGrn.grnNumber);
+      if (idx >= 0) {
+        grns[idx] = activeGrn;
+      } else {
+        grns.unshift(activeGrn);
+      }
+
+      localStorage.setItem("happy_erp_grns", JSON.stringify(grns));
+      logAction(`Firestore Database Write: updated document grns/${activeGrn.grnNumber} stage: ${activeGrn.stage.toUpperCase()}`, "success");
+      
+      alert(`GRN ${activeGrn.grnNumber} saved successfully as ${activeGrn.stage}!`);
+      window.location.href = "grn-list.html";
+    }
+
+    function verifyAndSetStage() {
+      // 1. Warehouse validation
+      if (!activeGrn.warehouse) {
+        logAction("Validation Failure: Warehouse is mandatory for stock ledger update.", "error");
+        alert("Error: Warehouse selection is required to verify the GRN.");
+        return;
+      }
+
+      // 2. Direct receipt approval check
+      const hasDirectItems = activeGrn.receiptSource === "Direct Receipt" || activeGrn.products.some(p => p.poNumber === "N/A");
+      if (hasDirectItems && activeGrn.approvalStatus !== "Approved") {
+        logAction("Validation Failure: Direct receipt / Mixed items require Purchase Manager approval before verification.", "error");
+        alert("Error: Purchase Approval is required for Direct Receipt or Mixed GRN items before verification.");
+        return;
+      }
+
+      // 2. Batch details check
+      let batchCheckPassed = true;
+      activeGrn.products.forEach(p => {
+        if (p.batchManaged) {
+          const batches = activeGrn.batches.filter(b => b.productId === p.productId);
+          const batchSum = batches.reduce((sum, b) => sum + b.quantity, 0);
+          const receivedSum = p.currentReceived + p.excess;
+
+          if (batches.length === 0 || batches.some(b => !b.batchNumber)) {
+            logAction(`Validation Failure: Product ${p.name} is Batch Managed. Batch Number cannot be blank.`, "error");
+            batchCheckPassed = false;
+          }
+          if (p.expiryManaged && batches.some(b => !b.expiryDate)) {
+            logAction(`Validation Failure: Product ${p.name} is Expiry Managed. Expiry Date is mandatory.`, "error");
+            batchCheckPassed = false;
+          }
+          if (Math.abs(batchSum - receivedSum) > 0.01) {
+            logAction(`Validation Failure: Cumulative batch quantity (${batchSum}) must match total received quantity (${receivedSum}) for ${p.name}`, "error");
+            batchCheckPassed = false;
+          }
+        }
+      });
+
+      if (!batchCheckPassed) {
+        alert("Error: Batch Details validation failed. Check that Batch Numbers are filled, Expiry Dates are specified, and Batch Quantities sum matches current receipt quantities.");
+        return;
+      }
+
+      // 3. Quality inspection checks
+      let qualityCheckPassed = true;
+      if (activeGrn.inspections) {
+        activeGrn.inspections.forEach(item => {
+          if (item.inspectionRequired) {
+            if (item.inspectionStatus === "Pending") {
+              logAction(`Validation Failure: Product ${item.productName} (Batch: ${item.batchNumber}) inspection is Pending.`, "error");
+              qualityCheckPassed = false;
+            }
+            if (!item.inspectionDate) {
+              logAction(`Validation Failure: Product ${item.productName} (Batch: ${item.batchNumber}) has no Inspection Date.`, "error");
+              qualityCheckPassed = false;
+            }
+            if (!item.inspectedBy) {
+              logAction(`Validation Failure: Product ${item.productName} (Batch: ${item.batchNumber}) has no Inspector assigned.`, "error");
+              qualityCheckPassed = false;
+            }
+            const sumQty = (parseFloat(item.approvedQuantity) || 0) + (parseFloat(item.rejectedQuantity) || 0);
+            if (Math.abs(sumQty - item.receivedQuantity) > 0.01) {
+              logAction(`Validation Failure: Product ${item.productName} (Batch: ${item.batchNumber}) approved (${item.approvedQuantity}) + rejected (${item.rejectedQuantity}) != received (${item.receivedQuantity}).`, "error");
+              qualityCheckPassed = false;
+            }
+          }
+        });
+      }
+
+      if (!qualityCheckPassed) {
+        alert("Error: Quality Inspection validation failed. All required quality inspections must be completed (not Pending) with a valid date, inspector, and matching approved/rejected quantities.");
+        return;
+      }
+
+      transitionWorkflowStage("Verified", "Physically verified items, batch numbers and invoice details.");
+    }
+
+    function completeGRN() {
+      // Transition stage to Complete
+      transitionWorkflowStage("Completed", "Goods received, inventory ledger updated successfully.");
+      
+      // Print system triggers in console
+      logAction("Trigger: Creating Inventory Ledger Entry...", "success");
+
+      const isSample = activeGrn.receiptType === "Sample Receipt";
+      const isReturnable = activeGrn.receiptType === "Returnable Receipt";
+
+      activeGrn.products.forEach(p => {
+        let totalRec = p.currentReceived + p.excess;
+        if (isReturnable) {
+          logAction(`Ledger Update: WH Location [${activeGrn.warehouse}] (Returnable) -> Product [${p.name}] -> Qty [+${totalRec} ${p.uom}] (Financial rate is ₹0.00)`, "success");
+        } else if (isSample) {
+          logAction(`Ledger Update: WH Location [${activeGrn.warehouse}] (Sample Stock) -> Product [${p.name}] -> Qty [+${totalRec} ${p.uom}] (Free Sample - Rate set to ₹0.00)`, "success");
+        } else {
+          logAction(`Ledger Update: WH Location [${activeGrn.warehouse}] -> Product [${p.name}] -> Qty [+${totalRec} ${p.uom}] (Rate: ₹${p.rate})`, "success");
+        }
+      });
+
+      if (isReturnable) {
+        logAction(`System Action: Scheduled return notification trigger for Expected Return Date: ${activeGrn.expectedReturnDate}`, "info");
+      }
+
+      logAction("Trigger: Updating Linked Purchase Orders Stages...", "info");
+      activeGrn.products.forEach(p => {
+        if (p.poNumber !== "N/A") {
+          let rem = p.pending - p.currentReceived;
+          if (rem <= 0) {
+            logAction(`Trigger: PO ${p.poNumber} item ${p.name} status updated to COMPLETED.`, "info");
+          } else {
+            logAction(`Trigger: PO ${p.poNumber} item ${p.name} status updated to PARTIAL RECEIVED.`, "info");
+          }
+        }
+      });
+
+      // Save complete status
+      const idx = grns.findIndex(g => g.grnNumber === activeGrn.grnNumber);
+      if (idx >= 0) {
+        grns[idx] = activeGrn;
+        localStorage.setItem("happy_erp_grns", JSON.stringify(grns));
+      }
+    }
+
+    function transitionWorkflowStage(nextStage, remarks) {
+      activeGrn.stage = nextStage;
+      activeGrn.updatedAt = new Date().toISOString().slice(0, 16).replace('T', ' ');
+      activeGrn.timeline.push({
+        stage: nextStage,
+        setAt: activeGrn.updatedAt,
+        setBy: nextStage === "Verified" || nextStage === "Completed" ? "Sarah Manager" : "James Executive",
+        remarks: remarks
+      });
+
+      logAction(`Workflow: GRN ${activeGrn.grnNumber} stage updated to ${nextStage.toUpperCase()}`, "success");
+      populateFormFields();
+    }
+
+    function printReceipt() {
+      logAction(`Action: Sent print job for ${activeGrn.grnNumber} layout.`, "success");
+      alert(`Sent Goods Receipt Note ${activeGrn.grnNumber} to local printer.`);
+    }
+
+    window.onclick = function(event) {
+      if (!event.target.closest('.action-cell')) {
+        document.querySelectorAll(".action-menu-dropdown").forEach(el => {
+          el.style.display = "none";
+        });
+      }
+      if (!event.target.closest('#btn-insp-columns') && !event.target.closest('#insp-column-dropdown')) {
+        const dropdown = document.getElementById("insp-column-dropdown");
+        if (dropdown) dropdown.style.display = "none";
+      }
+    };
+  </script>
+</body>
+</html>

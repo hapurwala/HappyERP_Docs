@@ -1,0 +1,3026 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HappyERP - Goods Receipt Note (GRN) Test Environment</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    /* --- CSS Variables & Design System (Supporting Dark/Light Mode) --- */
+    :root[data-theme="dark"] {
+      --bg: #090d16;
+      --card-bg: rgba(22, 30, 49, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-glow: rgba(79, 70, 229, 0.4);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.2);
+      --warning: #f59e0b;
+      --warning-glow: rgba(245, 158, 11, 0.2);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.2);
+      --border: rgba(255, 255, 255, 0.1);
+      --input-bg: #111827;
+      --input-focus: #4f46e5;
+      --console-bg: #030712;
+      --console-text: #34d399;
+      --glass-bg: rgba(15, 23, 42, 0.6);
+      --scrollbar-thumb: #374151;
+    }
+
+    :root[data-theme="light"] {
+      --bg: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(0, 0, 0, 0.06);
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-glow: rgba(79, 70, 229, 0.2);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.15);
+      --warning: #d97706;
+      --warning-glow: rgba(217, 119, 6, 0.15);
+      --danger: #dc2626;
+      --danger-glow: rgba(220, 38, 38, 0.15);
+      --border: #e2e8f0;
+      --input-bg: #ffffff;
+      --input-focus: #4f46e5;
+      --console-bg: #0f172a;
+      --console-text: #10b981;
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --scrollbar-thumb: #cbd5e1;
+    }
+
+    /* --- General Reset & Base Styles --- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border-radius: 4px;
+    }
+
+    /* --- Layout Structure --- */
+    #app-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #sidebar-test-panel {
+      width: 320px;
+      border-right: 1px solid var(--border);
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* --- Navigation Bar --- */
+    header {
+      height: 64px;
+      border-bottom: 1px solid var(--border);
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text span {
+      color: var(--primary);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* --- Buttons & Inputs --- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border-color: var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background-color: var(--border);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #dc2626;
+      box-shadow: 0 0 10px var(--danger-glow);
+    }
+
+    .btn-ghost {
+      background-color: transparent;
+      color: var(--text-muted);
+      border: none;
+    }
+    .btn-ghost:hover {
+      color: var(--text);
+      background-color: var(--border);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      background-color: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      outline: none;
+      width: 100%;
+    }
+
+    .form-control:focus {
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 2px var(--primary-glow);
+    }
+
+    .form-control:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background-color: var(--border);
+    }
+
+    /* --- Status Badges --- */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-draft { background: rgba(156, 163, 175, 0.15); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.3); }
+    .badge-submitted { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .badge-verified { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-completed { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-cancelled { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-rejected { background: rgba(220, 38, 38, 0.2); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.4); }
+
+    /* --- Tables --- */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card-bg);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    th {
+      background-color: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 12px 16px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    /* --- Cards & Grid Containers --- */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .grid-container-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-container-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .grid-container-entry {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    /* --- PAGE 1: GRN List Page Styles --- */
+    .page {
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 20px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .kpi-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(79, 70, 229, 0.1);
+      color: var(--primary);
+    }
+
+    .kpi-info h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .kpi-info p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .toolbar-config {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 12px 16px;
+      border-radius: 12px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-filter-inputs {
+      display: flex;
+      gap: 12px;
+      flex: 1;
+      align-items: center;
+    }
+
+    .action-cell {
+      position: relative;
+    }
+
+    .action-menu-dropdown {
+      display: none;
+      position: absolute;
+      right: 16px;
+      top: 40px;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      z-index: 100;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      width: 180px;
+    }
+
+    .action-menu-dropdown button {
+      width: 100%;
+      text-align: left;
+      padding: 10px 14px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 0.8125rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .action-menu-dropdown button:hover {
+      background-color: var(--border);
+    }
+
+    /* --- PAGE 2: Add/Modify GRN (Entry Form) --- */
+    .entry-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .right-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .timeline-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      margin-left: 12px;
+      border-left: 2px solid var(--border);
+      padding-left: 20px;
+    }
+
+    .timeline-item {
+      position: relative;
+      font-size: 0.8125rem;
+    }
+
+    .timeline-marker {
+      position: absolute;
+      left: -27px;
+      top: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border);
+      border: 2px solid var(--bg);
+    }
+
+    .timeline-item.active .timeline-marker {
+      background: var(--primary);
+      box-shadow: 0 0 8px var(--primary);
+    }
+
+    .timeline-details {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 2px;
+    }
+
+    /* --- PAGE 3: Product Popup Modal --- */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-container {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 550px;
+      max-width: 90vw;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+      transform: translateY(-20px);
+      transition: transform 0.2s ease;
+      overflow: hidden;
+    }
+
+    .modal-backdrop.open .modal-container {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-body {
+      padding: 20px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* --- Live Testing & Action Logs Console (Bottom Drawer) --- */
+    #test-logs-drawer {
+      height: 220px;
+      background-color: var(--console-bg);
+      border-top: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 15;
+    }
+
+    .drawer-header {
+      height: 36px;
+      padding: 0 16px;
+      background-color: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--console-text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .log-list {
+      flex: 1;
+      padding: 10px 16px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.8125rem;
+      color: var(--console-text);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-entry {
+      line-height: 1.4;
+      display: flex;
+      gap: 8px;
+    }
+
+    .log-time {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      user-select: none;
+    }
+
+    .log-text.info { color: #38bdf8; }
+    .log-text.success { color: #34d399; font-weight: 600; }
+    .log-text.warning { color: #fbbf24; }
+    .log-text.error { color: #f87171; font-weight: 600; }
+
+    /* Test Case Suite Items */
+    .suite-title {
+      padding: 14px 16px 8px 16px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .test-case-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .test-case-item:hover {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .test-case-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .test-case-name {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .test-case-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    .test-case-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-test-ready { background-color: var(--border); color: var(--text-muted); }
+    .badge-test-pass { background-color: var(--success-glow); color: var(--success); }
+    .badge-test-fail { background-color: var(--danger-glow); color: var(--danger); }
+    .badge-test-running { background-color: var(--primary-glow); color: var(--primary); animation: pulse 1.5s infinite; }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+
+    .inline-edit-input {
+      width: 80px;
+      padding: 4px 6px;
+      font-size: 0.8125rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background-color: var(--input-bg);
+      color: var(--text);
+    }
+
+    /* Floating Close button in actions menu */
+    .close-dropdown-helper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 90;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Backdrop Helper to close dropdowns -->
+  <div id="dropdown-backdrop" class="close-dropdown-helper" onclick="closeAllActionMenus()"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo-container">
+      <i data-lucide="package-check" style="color:var(--primary); width:28px; height:28px;"></i>
+      <span class="logo-text">Happy<span>ERP</span> Docs</span>
+      <span class="badge badge-draft" style="margin-left: 10px; font-size: 0.65rem;">GRN Sandbox</span>
+    </div>
+    <div style="font-family: 'Outfit'; font-weight: 600; font-size: 1rem;">Goods Receipt Note UI Testing Sandbox</div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="toggleTheme()" id="theme-btn">
+        <i data-lucide="sun"></i><span>Light Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div id="app-container">
+    
+    <!-- Sidebar: Automated Test Cases -->
+    <div id="sidebar-test-panel">
+      <div class="suite-title">Automated Test Cases</div>
+      <div id="test-case-list">
+        <!-- JS will populate test cases here -->
+      </div>
+      <div style="padding: 16px; margin-top: auto; border-top:1px solid var(--border)">
+        <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="runAllTestCases()">
+          <i data-lucide="play-circle"></i> Run All Test Cases
+        </button>
+        <button class="btn btn-secondary" style="width: 100%; justify-content: center; margin-top:8px;" onclick="resetSandbox()">
+          <i data-lucide="rotate-ccw"></i> Reset Sandbox
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="main-content">
+
+      <!-- ============================================== -->
+      <!-- PAGE 1: GRN LIST PAGE -->
+      <!-- ============================================== -->
+      <div id="list-page" class="page">
+        <div class="entry-header-row">
+          <div>
+            <h1>Goods Receipt Notes (GRN)</h1>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin-top:4px;">Manage warehouse receiving operations, quality checks, and inventory updates.</p>
+          </div>
+          <button class="btn btn-primary" onclick="showEntryPage('new')">
+            <i data-lucide="plus"></i> Add New GRN
+          </button>
+        </div>
+
+        <!-- KPI Row -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="layers"></i></div>
+            <div class="kpi-info">
+              <h3 id="kpi-total-grn">4</h3>
+              <p>Total Receipts</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="color:var(--warning); background:rgba(245,158,11,0.1);"><i data-lucide="clock"></i></div>
+            <div class="kpi-info">
+              <h3 id="kpi-pending-ver">1</h3>
+              <p>Draft/Submitted</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="color:var(--success); background:rgba(16,185,129,0.1);"><i data-lucide="check-circle2"></i></div>
+            <div class="kpi-info">
+              <h3 id="kpi-completed">2</h3>
+              <p>Completed GRNs</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="color:var(--danger); background:rgba(239,68,68,0.1);"><i data-lucide="x-circle"></i></div>
+            <div class="kpi-info">
+              <h3 id="kpi-cancelled">1</h3>
+              <p>Cancelled/Rejected</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbar Config -->
+        <div class="toolbar-config">
+          <div class="search-filter-inputs">
+            <div style="position:relative; flex: 1;">
+              <i data-lucide="search" style="position:absolute; left:12px; top:11px; width:16px; height:16px; color:var(--text-muted);"></i>
+              <input type="text" class="form-control" style="padding-left:36px;" placeholder="Search GRN number, vendor, PO..." id="list-search" oninput="applyFilters()">
+            </div>
+            <select class="form-control" style="width:160px;" id="filter-vendor" onchange="applyFilters()">
+              <option value="">All Vendors</option>
+              <option value="Acme Industrial Solutions">Acme Industrial Solutions</option>
+              <option value="Global Bio-Chemicals Ltd">Global Bio-Chemicals Ltd</option>
+            </select>
+            <select class="form-control" style="width:140px;" id="filter-stage" onchange="applyFilters()">
+              <option value="">All Stages</option>
+              <option value="Draft">Draft</option>
+              <option value="Submitted">Submitted</option>
+              <option value="Verified">Verified</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary" onclick="exportGRNList()"><i data-lucide="download"></i> Export</button>
+            <button class="btn btn-secondary" onclick="logAction('Shared current filtered view', 'info')"><i data-lucide="share-2"></i> Share</button>
+          </div>
+        </div>
+
+        <!-- List Data Table -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>GRN Number</th>
+                <th>GRN Date</th>
+                <th>Vendor</th>
+                <th style="text-align:center;">PO Count</th>
+                <th style="text-align:right;">Total Quantity</th>
+                <th style="text-align:right;">Total Amount</th>
+                <th>Stage</th>
+                <th>Created By</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="grn-list-body">
+              <!-- Dynamically Populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- ============================================== -->
+      <!-- PAGE 2: ADD/MODIFY GRN ENTRY PAGE -->
+      <!-- ============================================== -->
+      <div id="entry-page" class="page" style="display:none;">
+        <div class="entry-header-row">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button class="btn btn-ghost" style="padding:4px; margin-right:4px;" onclick="showListPage()">
+                <i data-lucide="arrow-left" style="width:20px; height:20px;"></i>
+              </button>
+              <h1 id="entry-page-title">Add New Goods Receipt Note</h1>
+              <span class="badge badge-draft" id="entry-stage-badge">Draft</span>
+            </div>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin-top:4px; margin-left:36px;" id="entry-page-subtitle">Create a new receiving entry linked to purchase orders.</p>
+          </div>
+          <div style="display:flex; gap:8px;" id="entry-header-buttons">
+            <!-- Buttons dynamically set by workflow logic -->
+          </div>
+        </div>
+
+        <!-- Layout Split: Form on Left, Summaries/Timeline on Right -->
+        <div class="grid-container-entry">
+          
+          <!-- Left Column: Form Sections -->
+          <div style="display:flex; flex-direction:column; gap:20px;">
+            
+            <!-- Section 1: General Info -->
+            <div class="card">
+              <div class="section-title"><i data-lucide="info" style="width:18px; height:18px;"></i> General Information</div>
+              <div class="grid-container-3">
+                <div class="form-group">
+                  <label>GRN Number</label>
+                  <input type="text" class="form-control" id="form-grn-number" disabled>
+                </div>
+                <div class="form-group">
+                  <label>GRN Date <span style="color:var(--danger)">*</span></label>
+                  <input type="date" class="form-control" id="form-grn-date" onchange="validateGRNDate()">
+                </div>
+                <div class="form-group">
+                  <label>Receipt Type <span style="color:var(--danger)">*</span></label>
+                  <select class="form-control" id="form-receipt-type">
+                    <option value="Regular Receipt">Regular Receipt</option>
+                    <option value="Returnable Receipt">Returnable Receipt</option>
+                    <option value="Sample Receipt">Sample Receipt</option>
+                    <option value="Transfer Receipt">Transfer Receipt</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid-container-3">
+                <div class="form-group">
+                  <label>Warehouse <span style="color:var(--danger)">*</span></label>
+                  <select class="form-control" id="form-warehouse" onchange="validateWarehouse()">
+                    <option value="">Select Warehouse</option>
+                    <option value="WH-01">Main Warehouse (Raw Materials)</option>
+                    <option value="WH-02">Cold Storage A</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Vehicle Number</label>
+                  <input type="text" class="form-control" id="form-vehicle-number" placeholder="e.g. DL-1CA-1234">
+                </div>
+                <div class="form-group">
+                  <label>LR Number</label>
+                  <input type="text" class="form-control" id="form-lr-number" placeholder="Lorry Receipt No">
+                </div>
+              </div>
+              <div class="grid-container-3">
+                <div class="form-group">
+                  <label>Transporter Name</label>
+                  <input type="text" class="form-control" id="form-transporter" placeholder="e.g. Safe Cargo">
+                </div>
+                <div class="form-group">
+                  <label>Vendor Invoice Number</label>
+                  <input type="text" class="form-control" id="form-invoice-number" placeholder="Vendor reference invoice">
+                </div>
+                <div class="form-group">
+                  <label>Vendor Invoice Date</label>
+                  <input type="date" class="form-control" id="form-invoice-date" onchange="validateInvoiceDate()">
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>Remarks</label>
+                <textarea class="form-control" id="form-remarks" rows="2" placeholder="Enter general notes or comments..."></textarea>
+              </div>
+            </div>
+
+            <!-- Section 2: Purchase Order References -->
+            <div class="card">
+              <div class="section-title"><i data-lucide="file-text" style="width:18px; height:18px;"></i> Purchase Order References</div>
+              <div class="grid-container-3" style="align-items:flex-end;">
+                <div class="form-group" style="flex:1;">
+                  <label>Vendor (Lookup) <span style="color:var(--danger)">*</span></label>
+                  <select class="form-control" id="form-vendor" onchange="onVendorSelected(this.value)">
+                    <option value="">Select Vendor First</option>
+                    <option value="Acme Industrial Solutions">Acme Industrial Solutions</option>
+                    <option value="Global Bio-Chemicals Ltd">Global Bio-Chemicals Ltd</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex:1;">
+                  <label>PO Selector (Multi-Select) <span style="color:var(--danger)">*</span></label>
+                  <div style="display:flex; gap:8px;" id="po-multi-selector">
+                    <!-- Checkboxes populated via JS -->
+                    <span style="color:var(--text-muted); font-size:0.875rem; padding-top:10px;">Select vendor to load POs</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Selected PO Details Table -->
+              <div class="table-container" style="margin-top:16px;" id="po-refs-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>PO Number</th>
+                      <th>PO Date</th>
+                      <th>Ordered Qty</th>
+                      <th>Received Qty</th>
+                      <th>Pending Qty</th>
+                      <th>Stage</th>
+                    </tr>
+                  </thead>
+                  <tbody id="po-refs-body">
+                    <tr>
+                      <td colspan="6" style="text-align:center; color:var(--text-muted);">No POs linked yet. Select a vendor and check linked POs.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Section 3: Product Receipt Details -->
+            <div class="card">
+              <div class="section-title" style="margin-bottom:8px;"><i data-lucide="package" style="width:18px; height:18px;"></i> Product Receipt Details</div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div style="display:flex; align-items:center; gap:8px; flex:1;">
+                  <div style="position:relative; width: 300px;">
+                    <i data-lucide="barcode" style="position:absolute; left:12px; top:11px; width:16px; height:16px; color:var(--text-muted);"></i>
+                    <input type="text" class="form-control" style="padding-left:36px;" placeholder="Scan Barcode / Search Product..." id="barcode-input" onkeypress="handleBarcodeScan(event)">
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Product Details</th>
+                      <th>PO Ref</th>
+                      <th style="text-align:right;">Ordered Qty</th>
+                      <th style="text-align:right;">Prev Rec Qty</th>
+                      <th style="text-align:right;">Pending Qty</th>
+                      <th style="text-align:right; width:120px;">Current Rec Qty</th>
+                      <th style="text-align:right; width:100px;">Excess Qty</th>
+                      <th>UOM</th>
+                      <th style="text-align:right;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="product-receipt-body">
+                    <tr>
+                      <td colspan="9" style="text-align:center; color:var(--text-muted);">No products loaded. Link POs above to view products.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Section 4: Batch / Lot Details -->
+            <div class="card" id="batch-section">
+              <div class="section-title" style="justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <i data-lucide="qr-code" style="width:18px; height:18px;"></i> Batch / Lot Details
+                </div>
+                <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="addBatchRow()" id="btn-add-batch"><i data-lucide="plus"></i> Add Batch</button>
+              </div>
+
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Batch Number</th>
+                      <th>Mfg Date</th>
+                      <th>Expiry Date</th>
+                      <th style="text-align:right; width:120px;">Received Qty</th>
+                      <th>Remarks</th>
+                      <th style="text-align:right;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="batch-details-body">
+                    <tr>
+                      <td colspan="7" style="text-align:center; color:var(--text-muted);">No batch details added. Necessary for batch-tracked products.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Section 5: Quality Inspection -->
+            <div class="card">
+              <div class="section-title" style="justify-content:space-between; margin-bottom:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <i data-lucide="shield-check" style="width:18px; height:18px;"></i> Quality Inspection
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <label for="form-inspection-required" style="font-size:0.75rem; font-weight:600; color:var(--text-muted); cursor:pointer;">INSPECTION REQUIRED</label>
+                  <input type="checkbox" id="form-inspection-required" onchange="toggleQualityInspection(this.checked)" style="width:18px; height:18px; cursor:pointer;">
+                </div>
+              </div>
+
+              <div id="inspection-fields" style="display:none; border-top:1px solid var(--border); padding-top:16px;">
+                <div class="grid-container-3">
+                  <div class="form-group">
+                    <label>Inspection Status</label>
+                    <input type="text" class="form-control" id="form-inspection-status" value="Pending" disabled>
+                  </div>
+                  <div class="form-group">
+                    <label>Inspected By <span style="color:var(--danger)">*</span></label>
+                    <select class="form-control" id="form-inspected-by">
+                      <option value="James Smith (QC Manager)">James Smith (QC Manager)</option>
+                      <option value="Sarah Connor (QC Executive)">Sarah Connor (QC Executive)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Inspection Date <span style="color:var(--danger)">*</span></label>
+                    <input type="date" class="form-control" id="form-inspection-date" onchange="validateInspectionDate()">
+                  </div>
+                </div>
+                <div class="grid-container-3" style="margin-top:10px;">
+                  <div class="form-group">
+                    <label>Rejected Quantity</label>
+                    <input type="number" class="form-control" id="form-rejected-qty" value="0" min="0" oninput="calculateQualityQuantities()">
+                  </div>
+                  <div class="form-group">
+                    <label>Approved Quantity</label>
+                    <input type="text" class="form-control" id="form-approved-qty" value="0" disabled>
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Inspection Remarks</label>
+                  <textarea class="form-control" id="form-inspection-remarks" rows="2" placeholder="Quality comments..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 6: Attachments -->
+            <div class="card">
+              <div class="section-title"><i data-lucide="paperclip" style="width:18px; height:18px;"></i> Attachments</div>
+              <div style="border: 2px dashed var(--border); border-radius:8px; padding:20px; text-align:center; cursor:pointer; margin-bottom:16px;" onclick="simulateFileUpload()">
+                <i data-lucide="upload-cloud" style="width:36px; height:36px; color:var(--text-muted); margin-bottom:8px;"></i>
+                <p style="font-size:0.875rem; font-weight:500;">Drag and drop files here, or click to upload</p>
+                <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Supported: PDF, JPG, PNG, XLSX, DOCX (Max 10MB)</p>
+              </div>
+
+              <div class="table-container" id="attachments-table-container" style="display:none;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>File Name</th>
+                      <th>File Type</th>
+                      <th>Uploaded By</th>
+                      <th>Uploaded At</th>
+                      <th style="text-align:right;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attachments-body">
+                    <!-- JS populated -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Sidebar Widgets -->
+          <div class="right-sidebar">
+            
+            <!-- Widget 1: GRN Summary -->
+            <div class="card">
+              <div class="section-title" style="border-bottom:none; margin-bottom:12px;"><i data-lucide="bar-chart-2" style="width:18px; height:18px;"></i> GRN Summary</div>
+              <div style="display:flex; flex-direction:column; gap:10px; font-size:0.875rem;">
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-muted);">Total PO Count:</span>
+                  <span id="summary-po-count" style="font-weight:600;">0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-muted);">Total Products:</span>
+                  <span id="summary-product-count" style="font-weight:600;">0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                  <span style="color:var(--text-muted);">Total Received Qty:</span>
+                  <span id="summary-received-qty" style="font-weight:600;">0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-muted);">Rejected Qty:</span>
+                  <span id="summary-rejected-qty" style="font-weight:600; color:var(--danger)">0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                  <span style="color:var(--text-muted);">Approved Qty:</span>
+                  <span id="summary-approved-qty" style="font-weight:600; color:var(--success)">0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:1rem; font-weight:700;">
+                  <span>Total Value:</span>
+                  <span id="summary-total-value">₹0.00</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Widget 2: Purchase Order Receipt Summary -->
+            <div class="card">
+              <div class="section-title" style="border-bottom:none; margin-bottom:12px;"><i data-lucide="line-chart" style="width:18px; height:18px;"></i> PO Receipt Summary</div>
+              <div style="display:flex; flex-direction:column; gap:10px; font-size:0.875rem;">
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-muted);">Total Ordered Qty:</span>
+                  <span id="widget-ordered-qty" style="font-weight:600;">0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-muted);">Prev Received Qty:</span>
+                  <span id="widget-prev-qty" style="font-weight:600;">0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-muted);">Current Received Qty:</span>
+                  <span id="widget-curr-qty" style="font-weight:600; color:var(--primary);">0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:8px; font-weight:700;">
+                  <span>Remaining Pending Qty:</span>
+                  <span id="widget-pending-qty">0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Widget 3: Workflow Timeline -->
+            <div class="card">
+              <div class="section-title" style="border-bottom:none; margin-bottom:12px;"><i data-lucide="git-pull-request" style="width:18px; height:18px;"></i> Workflow Timeline</div>
+              <div class="timeline-container" id="timeline-flow">
+                <!-- Javascript updates timeline dynamically -->
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- PAGE 3: ADD/MODIFY GRN PRODUCT POPUP MODAL -->
+  <!-- ============================================== -->
+  <div id="product-modal" class="modal-backdrop">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="modal-title">Modify GRN Product Detail</h3>
+        <button class="btn btn-ghost" style="padding:4px;" onclick="closeProductModal()">
+          <i data-lucide="x" style="width:20px; height:20px;"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modal-product-index">
+        
+        <div class="form-group">
+          <label>Product Name</label>
+          <input type="text" class="form-control" id="modal-product-name" disabled>
+        </div>
+
+        <div class="grid-container-3">
+          <div class="form-group">
+            <label>Variety</label>
+            <input type="text" class="form-control" id="modal-variety" disabled>
+          </div>
+          <div class="form-group">
+            <label>Pack</label>
+            <input type="text" class="form-control" id="modal-pack" disabled>
+          </div>
+          <div class="form-group">
+            <label>UOM</label>
+            <input type="text" class="form-control" id="modal-uom" disabled>
+          </div>
+        </div>
+
+        <div class="grid-container-3">
+          <div class="form-group">
+            <label>Ordered Qty</label>
+            <input type="text" class="form-control" id="modal-ordered-qty" disabled>
+          </div>
+          <div class="form-group">
+            <label>Prev Rec Qty</label>
+            <input type="text" class="form-control" id="modal-prev-qty" disabled>
+          </div>
+          <div class="form-group">
+            <label>Pending Qty</label>
+            <input type="text" class="form-control" id="modal-pending-qty" disabled>
+          </div>
+        </div>
+
+        <div class="grid-container-3">
+          <div class="form-group">
+            <label>Current Rec Qty <span style="color:var(--danger)">*</span></label>
+            <input type="number" class="form-control" id="modal-rec-qty" min="0" oninput="validateModalQty()">
+          </div>
+          <div class="form-group">
+            <label>Excess Qty</label>
+            <input type="number" class="form-control" id="modal-excess-qty" min="0">
+          </div>
+        </div>
+        
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Product Remarks</label>
+          <textarea class="form-control" id="modal-remarks" rows="2" placeholder="Product receipt comments..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeProductModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProductModal()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Log Drawer -->
+  <div id="test-logs-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <i data-lucide="terminal" style="width:14px; height:14px;"></i> Live Action Log & Validation Console
+      </div>
+      <button class="btn btn-ghost" style="padding:2px 8px; font-size:0.65rem;" onclick="clearConsole()"><i data-lucide="trash-2"></i> Clear Console</button>
+    </div>
+    <div class="log-list" id="console-logs-list">
+      <!-- Live logs populated dynamically -->
+    </div>
+  </div>
+
+  <!-- JS Logic -->
+  <script>
+    // --- Mock Database (Simulating Firestore DB) ---
+    let MOCK_VENDORS = {
+      "Acme Industrial Solutions": {
+        currency: "INR",
+        pos: [
+          { id: "po-1", poNumber: "PO-2026-001", poDate: "2026-05-10", orderedQty: 100, receivedQty: 0, pendingQty: 100, stage: "Ordered", value: 120000 },
+          { id: "po-2", poNumber: "PO-2026-002", poDate: "2026-05-15", orderedQty: 50, receivedQty: 30, pendingQty: 20, stage: "Partial Received", value: 45000 }
+        ],
+        products: [
+          { poNumber: "PO-2026-001", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 100, prevReceived: 0, pending: 100, rate: 1200, uom: "PCS", batchManaged: true },
+          { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, rate: 900, uom: "BOX", batchManaged: false }
+        ]
+      },
+      "Global Bio-Chemicals Ltd": {
+        currency: "USD",
+        pos: [
+          { id: "po-3", poNumber: "PO-2026-003", poDate: "2026-06-01", orderedQty: 500, receivedQty: 0, pendingQty: 500, stage: "Approved", value: 25000 }
+        ],
+        products: [
+          { poNumber: "PO-2026-003", productId: "P-003", name: "Aspirin Active Ingredient", variety: "Pharma Grade", pack: "Drum 25kg", ordered: 500, prevReceived: 0, pending: 500, rate: 50, uom: "KGS", batchManaged: true, expiryManaged: true }
+        ]
+      }
+    };
+
+    let grns = [
+      {
+        grnNumber: "GRN-2026-000001",
+        grnDate: "2026-06-10",
+        vendorName: "Acme Industrial Solutions",
+        poCount: 1,
+        poList: ["PO-2026-002"],
+        totalQuantity: 15,
+        totalAmount: 13500,
+        stage: "Completed",
+        createdBy: "James Executive",
+        updatedAt: "2026-06-11 10:30",
+        warehouse: "WH-01",
+        vehicleNumber: "DL-1C-5678",
+        lrNumber: "LR-9988",
+        transporter: "VRL Logistics",
+        invoiceNumber: "INV-109283",
+        invoiceDate: "2026-06-09",
+        remarks: "Received in good condition.",
+        inspectionRequired: false,
+        products: [
+          { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, currentReceived: 15, excess: 0, rate: 900, uom: "BOX", remarks: "" }
+        ],
+        batches: [],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-10 14:00", setBy: "James Executive", remarks: "Initial Draft" },
+          { stage: "Submitted", setAt: "2026-06-10 16:30", setBy: "James Executive", remarks: "Ready for verification" },
+          { stage: "Verified", setAt: "2026-06-11 09:15", setBy: "Sarah Manager", remarks: "Verified physical items match invoice" },
+          { stage: "Completed", setAt: "2026-06-11 10:30", setBy: "Sarah Manager", remarks: "Stock updated in systems" }
+        ]
+      },
+      {
+        grnNumber: "GRN-2026-000002",
+        grnDate: "2026-06-12",
+        vendorName: "Global Bio-Chemicals Ltd",
+        poCount: 1,
+        poList: ["PO-2026-003"],
+        totalQuantity: 200,
+        totalAmount: 10000,
+        stage: "Verified",
+        createdBy: "James Executive",
+        updatedAt: "2026-06-13 14:00",
+        warehouse: "WH-02",
+        vehicleNumber: "MH-12-QC-0099",
+        lrNumber: "LR-5566",
+        transporter: "ColdStream Transport",
+        invoiceNumber: "INV-BIO-99",
+        invoiceDate: "2026-06-11",
+        remarks: "Temp logged at 4C. QC inspection required.",
+        inspectionRequired: true,
+        inspectionStatus: "Approved",
+        inspectedBy: "James Smith (QC Manager)",
+        inspectionDate: "2026-06-13",
+        rejectedQuantity: 0,
+        approvedQuantity: 200,
+        inspectionRemarks: "Passed chemical analysis check.",
+        products: [
+          { poNumber: "PO-2026-003", productId: "P-003", name: "Aspirin Active Ingredient", variety: "Pharma Grade", pack: "Drum 25kg", ordered: 500, prevReceived: 0, pending: 500, currentReceived: 200, excess: 0, rate: 50, uom: "KGS", remarks: "" }
+        ],
+        batches: [
+          { productId: "P-003", name: "Aspirin Active Ingredient", batchNumber: "B-ASP-9988", mfgDate: "2026-05-01", expiryDate: "2028-05-01", quantity: 200, remarks: "Store at 4C" }
+        ],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-12 11:00", setBy: "James Executive", remarks: "Initial Draft" },
+          { stage: "Submitted", setAt: "2026-06-12 12:15", setBy: "James Executive", remarks: "Sent to QC" },
+          { stage: "Verified", setAt: "2026-06-13 14:00", setBy: "Sarah Manager", remarks: "QC Approved, verified details" }
+        ]
+      },
+      {
+        grnNumber: "GRN-2026-000003",
+        grnDate: "2026-06-15",
+        vendorName: "Acme Industrial Solutions",
+        poCount: 2,
+        poList: ["PO-2026-001", "PO-2026-002"],
+        totalQuantity: 25,
+        totalAmount: 10200,
+        stage: "Draft",
+        createdBy: "James Executive",
+        updatedAt: "2026-06-15 16:45",
+        warehouse: "WH-01",
+        vehicleNumber: "HR-55-9087",
+        lrNumber: "LR-7890",
+        transporter: "Safe Cargo",
+        invoiceNumber: "INV-AC-908",
+        invoiceDate: "2026-06-14",
+        remarks: "Joint delivery PO-001 and PO-002",
+        inspectionRequired: false,
+        products: [
+          { poNumber: "PO-2026-001", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 100, prevReceived: 0, pending: 100, currentReceived: 20, excess: 0, rate: 1200, uom: "PCS", remarks: "" },
+          { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, currentReceived: 5, excess: 0, rate: 900, uom: "BOX", remarks: "" }
+        ],
+        batches: [
+          { productId: "P-001", name: "Steel Pipes 2-inch", batchNumber: "B-PIPE-001", mfgDate: "2026-05-01", expiryDate: "", quantity: 20, remarks: "" }
+        ],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-15 16:45", setBy: "James Executive", remarks: "Draft loaded with multi-PO products" }
+        ]
+      },
+      {
+        grnNumber: "GRN-2026-000004",
+        grnDate: "2026-06-16",
+        vendorName: "Acme Industrial Solutions",
+        poCount: 1,
+        poList: ["PO-2026-001"],
+        totalQuantity: 0,
+        totalAmount: 0,
+        stage: "Cancelled",
+        createdBy: "James Executive",
+        updatedAt: "2026-06-16 18:00",
+        warehouse: "WH-01",
+        vehicleNumber: "DL-3C-9876",
+        lrNumber: "LR-5544",
+        transporter: "VRL Logistics",
+        invoiceNumber: "INV-AC-909",
+        invoiceDate: "2026-06-15",
+        remarks: "Wrong material delivered. Cancelled receipt.",
+        inspectionRequired: false,
+        products: [
+          { poNumber: "PO-2026-001", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 100, prevReceived: 0, pending: 100, currentReceived: 0, excess: 0, rate: 1200, uom: "PCS", remarks: "" }
+        ],
+        batches: [],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-16 17:30", setBy: "James Executive", remarks: "Draft initialized" },
+          { stage: "Cancelled", setAt: "2026-06-16 18:00", setBy: "Sarah Manager", remarks: "Materials rejected at gate. Cancelled." }
+        ]
+      }
+    ];
+
+    // --- State Variables ---
+    let activeGrn = null; // Currently editing/viewing GRN
+    let currentTheme = "dark";
+
+    // --- DOM Elements ---
+    const listPage = document.getElementById("list-page");
+    const entryPage = document.getElementById("entry-page");
+    const productModal = document.getElementById("product-modal");
+    const grnListBody = document.getElementById("grn-list-body");
+    const consoleLogsList = document.getElementById("console-logs-list");
+    const testCaseList = document.getElementById("test-case-list");
+    const dropdownBackdrop = document.getElementById("dropdown-backdrop");
+
+    // --- App Init ---
+    window.addEventListener("load", () => {
+      initLucide();
+      renderGRNList();
+      initTestCases();
+      updateKPIs();
+      logAction("GRN Sandbox initialized. All 3 pages ready.", "info");
+    });
+
+    function initLucide() {
+      lucide.createIcons();
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", nextTheme);
+      
+      const themeBtn = document.getElementById("theme-btn");
+      if (nextTheme === "light") {
+        themeBtn.innerHTML = '<i data-lucide="moon"></i><span>Dark Mode</span>';
+      } else {
+        themeBtn.innerHTML = '<i data-lucide="sun"></i><span>Light Mode</span>';
+      }
+      initLucide();
+      logAction(`Switched theme to ${nextTheme.toUpperCase()}`, "info");
+    }
+
+    // --- Console Logger ---
+    function logAction(message, type = "info") {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+      
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+      
+      const timeSpan = document.createElement("span");
+      timeSpan.className = "log-time";
+      timeSpan.textContent = `[${timeStr}]`;
+      
+      const textSpan = document.createElement("span");
+      textSpan.className = `log-text ${type}`;
+      textSpan.textContent = message;
+      
+      entry.appendChild(timeSpan);
+      entry.appendChild(textSpan);
+      consoleLogsList.appendChild(entry);
+      
+      // Auto scroll
+      consoleLogsList.scrollTop = consoleLogsList.scrollHeight;
+    }
+
+    function clearConsole() {
+      consoleLogsList.innerHTML = "";
+    }
+
+    // --- KPI Updates ---
+    function updateKPIs() {
+      document.getElementById("kpi-total-grn").textContent = grns.length;
+      document.getElementById("kpi-pending-ver").textContent = grns.filter(g => g.stage === "Draft" || g.stage === "Submitted").length;
+      document.getElementById("kpi-completed").textContent = grns.filter(g => g.stage === "Completed").length;
+      document.getElementById("kpi-cancelled").textContent = grns.filter(g => g.stage === "Cancelled" || g.stage === "Rejected").length;
+    }
+
+    // --- PAGE 1: List Rendering & Filtering ---
+    function renderGRNList(filteredGRNs = grns) {
+      grnListBody.innerHTML = "";
+      
+      if (filteredGRNs.length === 0) {
+        grnListBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">No GRNs found. Change search criteria or create one.</td></tr>';
+        return;
+      }
+
+      filteredGRNs.forEach((grn, index) => {
+        const row = document.createElement("tr");
+        
+        let currencySymbol = grn.vendorName.includes("Global") ? "$" : "₹";
+        
+        row.innerHTML = `
+          <td><strong style="color:var(--primary); cursor:pointer;" onclick="showEntryPage(${index}, 'view')">${grn.grnNumber}</strong></td>
+          <td>${grn.grnDate}</td>
+          <td>${grn.vendorName}</td>
+          <td style="text-align:center;">${grn.poCount}</td>
+          <td style="text-align:right; font-weight:500;">${grn.totalQuantity}</td>
+          <td style="text-align:right; font-weight:600;">${currencySymbol}${grn.totalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td><span class="badge badge-${grn.stage.toLowerCase()}">${grn.stage}</span></td>
+          <td>${grn.createdBy}</td>
+          <td style="text-align:right;" class="action-cell">
+            <button class="btn btn-ghost" style="padding:4px 8px;" onclick="toggleRowMenu(event, ${index})">
+              <i data-lucide="more-horizontal" style="width:16px; height:16px;"></i>
+            </button>
+            <div class="action-menu-dropdown" id="dropdown-${index}">
+              <button onclick="showEntryPage(${index}, 'view')"><i data-lucide="eye" style="width:12px; height:12px;"></i> View GRN</button>
+              ${grn.stage === 'Draft' || grn.stage === 'Submitted' ? `<button onclick="showEntryPage(${index}, 'edit')"><i data-lucide="pencil" style="width:12px; height:12px;"></i> Modify GRN</button>` : ''}
+              <button onclick="printGRN('${grn.grnNumber}')"><i data-lucide="printer" style="width:12px; height:12px;"></i> Print PDF</button>
+              ${grn.stage === 'Draft' || grn.stage === 'Submitted' ? `<button onclick="cancelGRN(${index})"><i data-lucide="share-2" style="width:12px; height:12px;"></i> Cancel GRN</button>` : ''}
+              ${grn.stage === 'Draft' ? `<button onclick="deleteGRN(${index})" style="color:var(--danger)"><i data-lucide="trash-2" style="width:12px; height:12px;"></i> Delete</button>` : ''}
+            </div>
+          </td>
+        `;
+        grnListBody.appendChild(row);
+      });
+      initLucide();
+    }
+
+    function toggleRowMenu(event, index) {
+      event.stopPropagation();
+      closeAllActionMenus();
+      const dropdown = document.getElementById(`dropdown-${index}`);
+      dropdown.style.display = "block";
+      dropdownBackdrop.style.display = "block";
+    }
+
+    function closeAllActionMenus() {
+      document.querySelectorAll(".action-menu-dropdown").forEach(d => d.style.display = "none");
+      dropdownBackdrop.style.display = "none";
+    }
+
+    function applyFilters() {
+      const searchVal = document.getElementById("list-search").value.toLowerCase();
+      const vendorVal = document.getElementById("filter-vendor").value;
+      const stageVal = document.getElementById("filter-stage").value;
+
+      const filtered = grns.filter(grn => {
+        const matchesSearch = grn.grnNumber.toLowerCase().includes(searchVal) ||
+                              grn.vendorName.toLowerCase().includes(searchVal) ||
+                              grn.poList.some(p => p.toLowerCase().includes(searchVal));
+        const matchesVendor = !vendorVal || grn.vendorName === vendorVal;
+        const matchesStage = !stageVal || grn.stage === stageVal;
+        return matchesSearch && matchesVendor && matchesStage;
+      });
+
+      renderGRNList(filtered);
+    }
+
+    function exportGRNList() {
+      logAction("Action: Triggered file export config: grn-list.xlsx", "info");
+      alert("GRN list exported successfully as CSV/Excel!");
+    }
+
+    // --- Action Methods ---
+    function printGRN(grnNo) {
+      logAction(`Action: PDF generated and sent to print preview for GRN: ${grnNo}`, "success");
+      alert(`Sent document ${grnNo} to local printer.`);
+    }
+
+    function cancelGRN(index) {
+      const grn = grns[index];
+      if (confirm(`Are you sure you want to cancel receipt ${grn.grnNumber}?`)) {
+        grn.stage = "Cancelled";
+        grn.timeline.push({
+          stage: "Cancelled",
+          setAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+          setBy: "Sarah Manager",
+          remarks: "Manual rejection at desk."
+        });
+        logAction(`GRN ${grn.grnNumber} stage updated to CANCELLED. Inventory stock reversed.`, "warning");
+        updateKPIs();
+        applyFilters();
+      }
+    }
+
+    function deleteGRN(index) {
+      const grn = grns[index];
+      if (confirm(`Delete draft ${grn.grnNumber} permanently? (Soft-deletes in Firestore)`)) {
+        logAction(`GRN ${grn.grnNumber} soft-deleted from Firestore collection 'grns'.`, "danger");
+        grns.splice(index, 1);
+        updateKPIs();
+        applyFilters();
+      }
+    }
+
+    // --- PAGE 2: Entry Page Logic & Layout ---
+    function showListPage() {
+      entryPage.style.display = "none";
+      listPage.style.display = "flex";
+      activeGrn = null;
+      applyFilters();
+      updateKPIs();
+    }
+
+    function showEntryPage(grnIndexOrNew, mode = "edit") {
+      listPage.style.display = "none";
+      entryPage.style.display = "flex";
+
+      if (grnIndexOrNew === "new") {
+        // Initialize New GRN
+        const year = new Date().getFullYear();
+        const randId = String(grns.length + 1).padStart(6, '0');
+        activeGrn = {
+          grnNumber: `GRN-${year}-${randId}`,
+          grnDate: new Date().toISOString().split('T')[0],
+          vendorName: "",
+          poCount: 0,
+          poList: [],
+          totalQuantity: 0,
+          totalAmount: 0,
+          stage: "Draft",
+          createdBy: "James Executive",
+          updatedAt: "",
+          warehouse: "",
+          vehicleNumber: "",
+          lrNumber: "",
+          transporter: "",
+          invoiceNumber: "",
+          invoiceDate: "",
+          remarks: "",
+          inspectionRequired: false,
+          inspectionStatus: "Pending",
+          inspectedBy: "",
+          inspectionDate: "",
+          rejectedQuantity: 0,
+          approvedQuantity: 0,
+          inspectionRemarks: "",
+          products: [],
+          batches: [],
+          timeline: [
+            { stage: "Draft", setAt: new Date().toISOString().slice(0, 16).replace('T', ' '), setBy: "James Executive", remarks: "Draft initialized" }
+          ]
+        };
+        document.getElementById("entry-page-title").textContent = "Create Goods Receipt Note";
+        logAction(`Loaded Create GRN View: ${activeGrn.grnNumber}`, "info");
+      } else {
+        // Load Existing GRN
+        activeGrn = JSON.parse(JSON.stringify(grns[grnIndexOrNew])); // Deep copy
+        document.getElementById("entry-page-title").textContent = `GRN Details: ${activeGrn.grnNumber}`;
+        logAction(`Loaded View/Modify GRN: ${activeGrn.grnNumber} (Stage: ${activeGrn.stage})`, "info");
+      }
+
+      // Populate Form Fields
+      document.getElementById("form-grn-number").value = activeGrn.grnNumber;
+      document.getElementById("form-grn-date").value = activeGrn.grnDate;
+      document.getElementById("form-receipt-type").value = activeGrn.receiptType || "Regular Receipt";
+      document.getElementById("form-warehouse").value = activeGrn.warehouse;
+      document.getElementById("form-vehicle-number").value = activeGrn.vehicleNumber;
+      document.getElementById("form-lr-number").value = activeGrn.lrNumber;
+      document.getElementById("form-transporter").value = activeGrn.transporter;
+      document.getElementById("form-invoice-number").value = activeGrn.invoiceNumber;
+      document.getElementById("form-invoice-date").value = activeGrn.invoiceDate;
+      document.getElementById("form-remarks").value = activeGrn.remarks;
+      document.getElementById("form-vendor").value = activeGrn.vendorName;
+
+      // Quality Inspection Section
+      const qCheck = document.getElementById("form-inspection-required");
+      qCheck.checked = activeGrn.inspectionRequired;
+      toggleQualityInspection(activeGrn.inspectionRequired, false);
+
+      if (activeGrn.inspectionRequired) {
+        document.getElementById("form-inspection-status").value = activeGrn.inspectionStatus || "Pending";
+        document.getElementById("form-inspected-by").value = activeGrn.inspectedBy || "James Smith (QC Manager)";
+        document.getElementById("form-inspection-date").value = activeGrn.inspectionDate;
+        document.getElementById("form-rejected-qty").value = activeGrn.rejectedQuantity || 0;
+        document.getElementById("form-approved-qty").value = activeGrn.approvedQuantity || 0;
+        document.getElementById("form-inspection-remarks").value = activeGrn.inspectionRemarks || "";
+      }
+
+      // Load vendor PO list options
+      onVendorSelected(activeGrn.vendorName, false);
+
+      // Link POs checkboxes
+      activeGrn.poList.forEach(poNum => {
+        const chk = document.getElementById(`po-check-${poNum}`);
+        if (chk) chk.checked = true;
+      });
+
+      // Update Subsections
+      renderPOReferencesTable();
+      renderProductReceiptTable();
+      renderBatchDetailsTable();
+      renderAttachments();
+      updateTimelineWidget();
+      updateSummaries();
+
+      // Handle Form Lock based on stage
+      let isReadOnly = (activeGrn.stage === "Verified" || activeGrn.stage === "Completed" || activeGrn.stage === "Cancelled" || activeGrn.stage === "Rejected");
+      toggleFormControlsLock(isReadOnly);
+      renderWorkflowButtons();
+
+      initLucide();
+    }
+
+    function toggleFormControlsLock(lock) {
+      const inputs = [
+        "form-grn-date", "form-receipt-type", "form-warehouse", "form-vehicle-number", 
+        "form-lr-number", "form-transporter", "form-invoice-number", "form-invoice-date", 
+        "form-remarks", "form-vendor", "form-inspection-required", "form-inspected-by", 
+        "form-inspection-date", "form-rejected-qty", "form-inspection-remarks"
+      ];
+      inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = lock;
+      });
+
+      // PO Selectors
+      document.querySelectorAll("[id^='po-check-']").forEach(chk => chk.disabled = lock);
+
+      // Inline edits in tables
+      document.querySelectorAll(".inline-edit-input").forEach(input => input.disabled = lock);
+
+      // Buttons
+      const btnAddBatch = document.getElementById("btn-add-batch");
+      if (btnAddBatch) btnAddBatch.style.display = lock ? "none" : "inline-flex";
+
+      const barcodeInput = document.getElementById("barcode-input");
+      if (barcodeInput) barcodeInput.disabled = lock;
+    }
+
+    function renderWorkflowButtons() {
+      const container = document.getElementById("entry-header-buttons");
+      container.innerHTML = "";
+
+      // Back Button is always there
+      let cancelBtn = document.createElement("button");
+      cancelBtn.className = "btn btn-secondary";
+      cancelBtn.innerHTML = `<i data-lucide="x"></i> Close`;
+      cancelBtn.onclick = showListPage;
+      container.appendChild(cancelBtn);
+
+      if (activeGrn.stage === "Draft") {
+        let saveBtn = document.createElement("button");
+        saveBtn.className = "btn btn-secondary";
+        saveBtn.innerHTML = `<i data-lucide="save"></i> Save Draft`;
+        saveBtn.onclick = () => saveGrnData("Draft");
+        container.appendChild(saveBtn);
+
+        let submitBtn = document.createElement("button");
+        submitBtn.className = "btn btn-primary";
+        submitBtn.innerHTML = `<i data-lucide="send"></i> Submit GRN`;
+        submitBtn.onclick = () => saveGrnData("Submitted");
+        container.appendChild(submitBtn);
+      } 
+      else if (activeGrn.stage === "Submitted") {
+        let rollbackBtn = document.createElement("button");
+        rollbackBtn.className = "btn btn-secondary";
+        rollbackBtn.innerHTML = `<i data-lucide="undo-2"></i> Rollback to Draft`;
+        rollbackBtn.onclick = () => transitionWorkflowStage("Draft", "Reverting stage to edit details.");
+        container.appendChild(rollbackBtn);
+
+        let verifyBtn = document.createElement("button");
+        verifyBtn.className = "btn btn-primary";
+        verifyBtn.innerHTML = `<i data-lucide="check-square"></i> Verify GRN`;
+        verifyBtn.onclick = () => transitionWorkflowStage("Verified", "Physically verified and counted.");
+        container.appendChild(verifyBtn);
+      } 
+      else if (activeGrn.stage === "Verified") {
+        let rollbackBtn = document.createElement("button");
+        rollbackBtn.className = "btn btn-secondary";
+        rollbackBtn.innerHTML = `<i data-lucide="undo-2"></i> Rollback to Submit`;
+        rollbackBtn.onclick = () => transitionWorkflowStage("Submitted", "Verification rollback requested.");
+        container.appendChild(rollbackBtn);
+
+        let completeBtn = document.createElement("button");
+        completeBtn.className = "btn btn-primary";
+        completeBtn.innerHTML = `<i data-lucide="check-circle"></i> Complete Receipt`;
+        completeBtn.onclick = () => transitionWorkflowStage("Completed", "Goods received, inventory ledger updated.");
+        container.appendChild(completeBtn);
+      }
+      else if (activeGrn.stage === "Completed") {
+        // Locked state
+        let printBtn = document.createElement("button");
+        printBtn.className = "btn btn-secondary";
+        printBtn.innerHTML = `<i data-lucide="printer"></i> Print Receipt`;
+        printBtn.onclick = () => printGRN(activeGrn.grnNumber);
+        container.appendChild(printBtn);
+      }
+    }
+
+    // --- Form OnChanges & Validations ---
+    function validateGRNDate() {
+      const dateEl = document.getElementById("form-grn-date");
+      const enteredDate = new Date(dateEl.value);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999); // Allow today
+
+      if (enteredDate > today) {
+        logAction("Validation Error: GRN Date cannot be in the future.", "error");
+        alert("GRN Date cannot be in the future.");
+        dateEl.value = new Date().toISOString().split('T')[0];
+        return false;
+      }
+      activeGrn.grnDate = dateEl.value;
+      logAction(`GRN date set to ${activeGrn.grnDate}`, "info");
+      return true;
+    }
+
+    function validateInvoiceDate() {
+      const grnDateVal = document.getElementById("form-grn-date").value;
+      const invDateEl = document.getElementById("form-invoice-date");
+      
+      if (!invDateEl.value || !grnDateVal) return true;
+
+      const grnDate = new Date(grnDateVal);
+      const invDate = new Date(invDateEl.value);
+
+      if (invDate > grnDate) {
+        logAction("Validation Error: Invoice Date must be less than or equal to GRN Date.", "error");
+        alert("Invoice Date cannot be after GRN Date.");
+        invDateEl.value = grnDateVal;
+        return false;
+      }
+      activeGrn.invoiceDate = invDateEl.value;
+      return true;
+    }
+
+    function validateWarehouse() {
+      const wh = document.getElementById("form-warehouse").value;
+      activeGrn.warehouse = wh;
+      if (wh) {
+        logAction(`Warehouse set to ${wh === 'WH-01' ? 'Main Warehouse' : 'Cold Storage'}`, "info");
+      }
+    }
+
+    function toggleQualityInspection(checked, log = true) {
+      activeGrn.inspectionRequired = checked;
+      const fieldsDiv = document.getElementById("inspection-fields");
+      fieldsDiv.style.display = checked ? "block" : "none";
+      if (log) {
+        logAction(`Quality Inspection requirement toggled: ${checked ? 'REQUIRED' : 'NOT REQUIRED'}`, "info");
+      }
+      if (checked) {
+        calculateQualityQuantities();
+      }
+    }
+
+    function validateInspectionDate() {
+      const grnDateVal = document.getElementById("form-grn-date").value;
+      const inspDateEl = document.getElementById("form-inspection-date");
+
+      if (!inspDateEl.value || !grnDateVal) return true;
+
+      const grnDate = new Date(grnDateVal);
+      const inspDate = new Date(inspDateEl.value);
+
+      if (inspDate < grnDate) {
+        logAction("Validation Error: Inspection Date must be greater than or equal to GRN Date.", "error");
+        alert("Inspection Date cannot be earlier than GRN Date.");
+        inspDateEl.value = grnDateVal;
+        return false;
+      }
+      activeGrn.inspectionDate = inspDateEl.value;
+      return true;
+    }
+
+    function calculateQualityQuantities() {
+      const rejectedEl = document.getElementById("form-rejected-qty");
+      const approvedEl = document.getElementById("form-approved-qty");
+      const statusEl = document.getElementById("form-inspection-status");
+
+      let rejected = parseFloat(rejectedEl.value) || 0;
+      let totalReceived = activeGrn.totalQuantity;
+
+      if (rejected > totalReceived) {
+        logAction("Validation Error: Rejected quantity cannot exceed total received quantity.", "error");
+        alert("Rejected quantity cannot exceed total received quantity.");
+        rejectedEl.value = 0;
+        rejected = 0;
+      }
+
+      let approved = totalReceived - rejected;
+      approvedEl.value = approved;
+
+      // Update activeGrn data
+      activeGrn.rejectedQuantity = rejected;
+      activeGrn.approvedQuantity = approved;
+
+      if (rejected === 0 && totalReceived > 0) {
+        statusEl.value = "Approved";
+      } else if (approved === 0 && totalReceived > 0) {
+        statusEl.value = "Rejected";
+      } else if (rejected > 0 && approved > 0) {
+        statusEl.value = "Partial";
+      } else {
+        statusEl.value = "Pending";
+      }
+      activeGrn.inspectionStatus = statusEl.value;
+      updateSummaries();
+    }
+
+    // --- PO Selection Actions ---
+    function onVendorSelected(vendorName, clearPOs = true) {
+      const poContainer = document.getElementById("po-multi-selector");
+      poContainer.innerHTML = "";
+      
+      activeGrn.vendorName = vendorName;
+
+      if (!vendorName) {
+        poContainer.innerHTML = '<span style="color:var(--text-muted); font-size:0.875rem;">Select vendor to load POs</span>';
+        if (clearPOs) {
+          activeGrn.poList = [];
+          activeGrn.products = [];
+          activeGrn.batches = [];
+          renderPOReferencesTable();
+          renderProductReceiptTable();
+          renderBatchDetailsTable();
+          updateSummaries();
+        }
+        return;
+      }
+
+      const vendorData = MOCK_VENDORS[vendorName];
+      if (!vendorData) return;
+
+      logAction(`Vendor selected: ${vendorName}. Currency: ${vendorData.currency}`, "info");
+
+      // Populate PO checkboxes
+      vendorData.pos.forEach(po => {
+        const wrapper = document.createElement("div");
+        wrapper.style.display = "flex";
+        wrapper.style.alignItems = "center";
+        wrapper.style.gap = "6px";
+        wrapper.style.padding = "4px 8px";
+        wrapper.style.border = "1px solid var(--border)";
+        wrapper.style.borderRadius = "6px";
+        
+        wrapper.innerHTML = `
+          <input type="checkbox" id="po-check-${po.poNumber}" value="${po.poNumber}" onchange="handlePOToggle(this)" style="cursor:pointer;">
+          <label for="po-check-${po.poNumber}" style="cursor:pointer; font-weight:500;">${po.poNumber}</label>
+        `;
+        poContainer.appendChild(wrapper);
+      });
+
+      if (clearPOs) {
+        activeGrn.poList = [];
+        activeGrn.products = [];
+        activeGrn.batches = [];
+        renderPOReferencesTable();
+        renderProductReceiptTable();
+        renderBatchDetailsTable();
+        updateSummaries();
+      }
+    }
+
+    function handlePOToggle(chk) {
+      const poNum = chk.value;
+      if (chk.checked) {
+        activeGrn.poList.push(poNum);
+        logAction(`Linked PO reference: ${poNum}`, "info");
+        // Load items from this PO
+        const vendorData = MOCK_VENDORS[activeGrn.vendorName];
+        const poProducts = vendorData.products.filter(p => p.poNumber === poNum);
+        
+        poProducts.forEach(prod => {
+          activeGrn.products.push({
+            poNumber: prod.poNumber,
+            productId: prod.productId,
+            name: prod.name,
+            variety: prod.variety,
+            pack: prod.pack,
+            ordered: prod.ordered,
+            prevReceived: prod.prevReceived,
+            pending: prod.pending,
+            currentReceived: prod.pending, // Default to receive remaining
+            excess: 0,
+            rate: prod.rate,
+            uom: prod.uom,
+            batchManaged: prod.batchManaged,
+            expiryManaged: prod.expiryManaged || false,
+            remarks: ""
+          });
+        });
+      } else {
+        activeGrn.poList = activeGrn.poList.filter(p => p !== poNum);
+        logAction(`Unlinked PO reference: ${poNum}`, "warning");
+        // Remove items
+        activeGrn.products = activeGrn.products.filter(p => p.poNumber !== poNum);
+        // Remove batches related
+        activeGrn.batches = activeGrn.batches.filter(b => {
+          const prodObj = MOCK_VENDORS[activeGrn.vendorName].products.find(p => p.productId === b.productId);
+          return prodObj ? prodObj.poNumber !== poNum : true;
+        });
+      }
+
+      activeGrn.poCount = activeGrn.poList.length;
+
+      renderPOReferencesTable();
+      renderProductReceiptTable();
+      renderBatchDetailsTable();
+      updateSummaries();
+      
+      if (activeGrn.inspectionRequired) {
+        calculateQualityQuantities();
+      }
+    }
+
+    // --- Sub-Tables Rendering ---
+    function renderPOReferencesTable() {
+      const tbody = document.getElementById("po-refs-body");
+      tbody.innerHTML = "";
+
+      if (activeGrn.poList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No POs linked yet. Select a vendor and check linked POs.</td></tr>';
+        return;
+      }
+
+      const vendorData = MOCK_VENDORS[activeGrn.vendorName];
+      activeGrn.poList.forEach(poNum => {
+        const po = vendorData.pos.find(p => p.poNumber === poNum);
+        if (!po) return;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><strong>${po.poNumber}</strong></td>
+          <td>${po.poDate}</td>
+          <td>${po.orderedQty}</td>
+          <td>${po.receivedQty}</td>
+          <td>${po.pendingQty}</td>
+          <td><span class="badge badge-submitted">${po.stage}</span></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function renderProductReceiptTable() {
+      const tbody = document.getElementById("product-receipt-body");
+      tbody.innerHTML = "";
+
+      if (activeGrn.products.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">No products loaded. Link POs above to view products.</td></tr>';
+        return;
+      }
+
+      let isReadOnly = (activeGrn.stage === "Verified" || activeGrn.stage === "Completed" || activeGrn.stage === "Cancelled" || activeGrn.stage === "Rejected");
+
+      activeGrn.products.forEach((prod, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>
+            <div style="font-weight:600;">${prod.name}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${prod.variety} | ${prod.pack}</div>
+            ${prod.batchManaged ? '<span style="font-size:0.65rem; background:rgba(79,70,229,0.15); color:var(--primary); padding:2px 4px; border-radius:4px; font-weight:600; margin-top:4px; display:inline-block;">BATCH MANAGED</span>' : ''}
+          </td>
+          <td>${prod.poNumber}</td>
+          <td style="text-align:right;">${prod.ordered}</td>
+          <td style="text-align:right;">${prod.prevReceived}</td>
+          <td style="text-align:right; font-weight:600;">${prod.pending}</td>
+          <td style="text-align:right;">
+            <input type="number" class="inline-edit-input" value="${prod.currentReceived}" min="0" 
+              onchange="onProductQtyChange(${index}, this.value)" ${isReadOnly ? 'disabled' : ''}>
+          </td>
+          <td style="text-align:right;">
+            <input type="number" class="inline-edit-input" style="width:70px;" value="${prod.excess}" min="0" 
+              onchange="onProductExcessChange(${index}, this.value)" ${isReadOnly ? 'disabled' : ''}>
+          </td>
+          <td>${prod.uom}</td>
+          <td style="text-align:right;">
+            <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="openProductModal(${index})"><i data-lucide="pencil" style="width:12px; height:12px;"></i> Details</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+      initLucide();
+    }
+
+    function onProductQtyChange(index, val) {
+      let qty = parseFloat(val) || 0;
+      let prod = activeGrn.products[index];
+
+      if (qty > prod.pending) {
+        logAction(`Validation Rule Triggered: Received Qty (${qty}) exceeds Pending Qty (${prod.pending}) for ${prod.name}.`, "error");
+        alert(`Warning: Received quantity cannot exceed pending PO quantity (${prod.pending}).`);
+        qty = prod.pending;
+      }
+
+      prod.currentReceived = qty;
+      
+      // Update batch quantity if single batch exists for this product
+      const productBatches = activeGrn.batches.filter(b => b.productId === prod.productId);
+      if (productBatches.length === 1) {
+        productBatches[0].quantity = qty;
+        renderBatchDetailsTable();
+      }
+
+      updateSummaries();
+      renderProductReceiptTable();
+      if (activeGrn.inspectionRequired) {
+        calculateQualityQuantities();
+      }
+    }
+
+    function onProductExcessChange(index, val) {
+      let excess = parseFloat(val) || 0;
+      let prod = activeGrn.products[index];
+      
+      prod.excess = excess;
+      logAction(`Updated excess receipt quantity for ${prod.name}: ${excess} ${prod.uom}`, "warning");
+      updateSummaries();
+    }
+
+    function renderBatchDetailsTable() {
+      const tbody = document.getElementById("batch-details-body");
+      tbody.innerHTML = "";
+
+      const batchTrackedItems = activeGrn.products.filter(p => p.batchManaged);
+      const batchSection = document.getElementById("batch-section");
+
+      if (batchTrackedItems.length === 0) {
+        batchSection.style.display = "none";
+        return;
+      } else {
+        batchSection.style.display = "block";
+      }
+
+      if (activeGrn.batches.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No batches added. Click "Add Batch" to capture traceability data.</td></tr>';
+        return;
+      }
+
+      let isReadOnly = (activeGrn.stage === "Verified" || activeGrn.stage === "Completed" || activeGrn.stage === "Cancelled" || activeGrn.stage === "Rejected");
+
+      activeGrn.batches.forEach((batch, index) => {
+        // Find matching product
+        const prod = activeGrn.products.find(p => p.productId === batch.productId);
+        const prodName = prod ? prod.name : "Unknown Product";
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>
+            <select class="form-control" style="padding:4px 8px; font-size:0.8125rem;" onchange="onBatchProductChange(${index}, this.value)" ${isReadOnly ? 'disabled' : ''}>
+              ${batchTrackedItems.map(p => `<option value="${p.productId}" ${p.productId === batch.productId ? 'selected' : ''}>${p.name}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <input type="text" class="form-control" style="padding:4px 8px; font-size:0.8125rem;" value="${batch.batchNumber}" 
+              onchange="onBatchFieldChange(${index}, 'batchNumber', this.value)" ${isReadOnly ? 'disabled' : ''}>
+          </td>
+          <td>
+            <input type="date" class="form-control" style="padding:4px 8px; font-size:0.8125rem;" value="${batch.mfgDate}" 
+              onchange="onBatchFieldChange(${index}, 'mfgDate', this.value)" ${isReadOnly ? 'disabled' : ''}>
+          </td>
+          <td>
+            <input type="date" class="form-control" style="padding:4px 8px; font-size:0.8125rem;" value="${batch.expiryDate}" 
+              onchange="onBatchFieldChange(${index}, 'expiryDate', this.value)" ${isReadOnly ? 'disabled' : ''}>
+          </td>
+          <td>
+            <input type="number" class="form-control" style="padding:4px 8px; font-size:0.8125rem; text-align:right;" value="${batch.quantity}" 
+              onchange="onBatchFieldChange(${index}, 'quantity', this.value)" ${isReadOnly ? 'disabled' : ''}>
+          </td>
+          <td>
+            <input type="text" class="form-control" style="padding:4px 8px; font-size:0.8125rem;" value="${batch.remarks}" 
+              onchange="onBatchFieldChange(${index}, 'remarks', this.value)" ${isReadOnly ? 'disabled' : ''}>
+          </td>
+          <td style="text-align:right;">
+            <button class="btn btn-ghost" style="padding:4px; color:var(--danger)" onclick="deleteBatchRow(${index})" ${isReadOnly ? 'disabled' : ''}>
+              <i data-lucide="trash-2" style="width:14px; height:14px;"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+      initLucide();
+    }
+
+    function addBatchRow() {
+      const batchTrackedItems = activeGrn.products.filter(p => p.batchManaged);
+      if (batchTrackedItems.length === 0) return;
+
+      activeGrn.batches.push({
+        productId: batchTrackedItems[0].productId,
+        name: batchTrackedItems[0].name,
+        batchNumber: "",
+        mfgDate: "",
+        expiryDate: "",
+        quantity: 0,
+        remarks: ""
+      });
+      logAction("Added new Batch Details grid row.", "info");
+      renderBatchDetailsTable();
+    }
+
+    function deleteBatchRow(index) {
+      activeGrn.batches.splice(index, 1);
+      logAction("Removed Batch Details grid row.", "warning");
+      renderBatchDetailsTable();
+    }
+
+    function onBatchProductChange(index, productId) {
+      const prod = activeGrn.products.find(p => p.productId === productId);
+      activeGrn.batches[index].productId = productId;
+      activeGrn.batches[index].name = prod.name;
+      logAction(`Batch row ${index + 1} product changed to ${prod.name}`, "info");
+    }
+
+    function onBatchFieldChange(index, field, val) {
+      if (field === "quantity") {
+        let num = parseFloat(val) || 0;
+        const b = activeGrn.batches[index];
+        const prod = activeGrn.products.find(p => p.productId === b.productId);
+        
+        // Sum of all batches for this product
+        const otherBatchesSum = activeGrn.batches
+          .filter((x, idx) => x.productId === b.productId && idx !== index)
+          .reduce((sum, x) => sum + x.quantity, 0);
+
+        if ((otherBatchesSum + num) > (prod.currentReceived + prod.excess)) {
+          logAction(`Validation Rule: Batch quantity (${otherBatchesSum + num}) cannot exceed total received quantity (${prod.currentReceived + prod.excess}) for ${prod.name}`, "error");
+          alert("Batch total quantity exceeds current product received quantity.");
+          num = (prod.currentReceived + prod.excess) - otherBatchesSum;
+        }
+        activeGrn.batches[index].quantity = num;
+      } else {
+        activeGrn.batches[index][field] = val;
+      }
+    }
+
+    // --- Attachments List ---
+    function renderAttachments() {
+      const container = document.getElementById("attachments-table-container");
+      const tbody = document.getElementById("attachments-body");
+      tbody.innerHTML = "";
+
+      if (!activeGrn.attachments || activeGrn.attachments.length === 0) {
+        container.style.display = "none";
+        return;
+      }
+
+      container.style.display = "block";
+      activeGrn.attachments.forEach((file, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><strong>${file.fileName}</strong></td>
+          <td><span class="badge badge-draft">${file.fileType}</span></td>
+          <td>${file.uploadedBy}</td>
+          <td>${file.uploadedAt}</td>
+          <td style="text-align:right;">
+            <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="viewFile('${file.fileUrl}')"><i data-lucide="eye" style="width:12px; height:12px;"></i> View</button>
+            <button class="btn btn-ghost" style="padding:4px; color:var(--danger);" onclick="deleteAttachment(${index})"><i data-lucide="trash-2" style="width:12px; height:12px;"></i></button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+      initLucide();
+    }
+
+    function simulateFileUpload() {
+      if (activeGrn.stage !== "Draft" && activeGrn.stage !== "Submitted") {
+        alert("Cannot add attachments at this stage.");
+        return;
+      }
+      
+      const fileNames = ["Delivery_Challan_9988.pdf", "Quality_Report_ACME.xlsx", "Product_Image_BatchA.jpg"];
+      const randFile = fileNames[Math.floor(Math.random() * fileNames.length)];
+      const extension = randFile.split('.').pop().toUpperCase();
+      
+      if (!activeGrn.attachments) activeGrn.attachments = [];
+      
+      activeGrn.attachments.push({
+        fileName: randFile,
+        fileType: extension,
+        uploadedBy: "James Executive",
+        uploadedAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        fileUrl: "#"
+      });
+
+      logAction(`Attachment uploaded successfully to Cloud Storage: ${randFile}`, "success");
+      renderAttachments();
+    }
+
+    function viewFile(url) {
+      logAction("Attachment viewer overlay opened natively.", "info");
+      alert("Attachment viewer: File opened.");
+    }
+
+    function deleteAttachment(index) {
+      logAction(`Removed attachment file: ${activeGrn.attachments[index].fileName}`, "warning");
+      activeGrn.attachments.splice(index, 1);
+      renderAttachments();
+    }
+
+    // --- Real-time Summary Cards & Widgets ---
+    function updateSummaries() {
+      // Left table values calculate
+      let totalQty = 0;
+      let totalVal = 0;
+      
+      activeGrn.products.forEach(p => {
+        totalQty += (p.currentReceived + p.excess);
+        totalVal += (p.currentReceived + p.excess) * p.rate;
+      });
+
+      activeGrn.totalQuantity = totalQty;
+      activeGrn.totalAmount = totalVal;
+
+      let currencySymbol = activeGrn.vendorName.includes("Global") ? "$" : "₹";
+
+      // Widget 1: GRN Summary
+      document.getElementById("summary-po-count").textContent = activeGrn.poList.length;
+      document.getElementById("summary-product-count").textContent = activeGrn.products.length;
+      document.getElementById("summary-received-qty").textContent = totalQty;
+      document.getElementById("summary-rejected-qty").textContent = activeGrn.rejectedQuantity || 0;
+      document.getElementById("summary-approved-qty").textContent = activeGrn.approvedQuantity || 0;
+      document.getElementById("summary-total-value").textContent = `${currencySymbol}${totalVal.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+      // Widget 2: PO Receipt Summary
+      let poOrderedSum = 0;
+      let poPrevSum = 0;
+      
+      if (activeGrn.vendorName && MOCK_VENDORS[activeGrn.vendorName]) {
+        const vendorData = MOCK_VENDORS[activeGrn.vendorName];
+        activeGrn.poList.forEach(poNum => {
+          const po = vendorData.pos.find(p => p.poNumber === poNum);
+          if (po) {
+            poOrderedSum += po.orderedQty;
+            poPrevSum += po.receivedQty;
+          }
+        });
+      }
+
+      document.getElementById("widget-ordered-qty").textContent = poOrderedSum;
+      document.getElementById("widget-prev-qty").textContent = poPrevSum;
+      document.getElementById("widget-curr-qty").textContent = totalQty;
+      
+      let pendingAfter = poOrderedSum - poPrevSum - totalQty;
+      document.getElementById("widget-pending-qty").textContent = Math.max(0, pendingAfter);
+    }
+
+    function updateTimelineWidget() {
+      const container = document.getElementById("timeline-flow");
+      container.innerHTML = "";
+
+      activeGrn.timeline.forEach((log, index) => {
+        const item = document.createElement("div");
+        item.className = "timeline-item active";
+        item.innerHTML = `
+          <div class="timeline-marker"></div>
+          <strong>${log.stage}</strong>
+          <div class="timeline-details">${log.setBy} | ${log.setAt}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">"${log.remarks}"</div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // --- Barcode Scanner Simulation ---
+    function handleBarcodeScan(e) {
+      if (e.key === "Enter") {
+        const val = e.target.value.trim();
+        e.target.value = "";
+
+        if (!activeGrn.vendorName) {
+          alert("Please select vendor first.");
+          return;
+        }
+
+        // Search in PO products
+        const matchingProd = activeGrn.products.find(p => p.productId.toLowerCase() === val.toLowerCase() || p.name.toLowerCase().includes(val.toLowerCase()));
+        if (matchingProd) {
+          matchingProd.currentReceived += 1;
+          logAction(`Barcode scan: Identified product ${matchingProd.name}. Incrementing current received quantity.`, "success");
+          renderProductReceiptTable();
+          updateSummaries();
+          
+          if (activeGrn.inspectionRequired) {
+            calculateQualityQuantities();
+          }
+        } else {
+          logAction(`Barcode scan failed: Product code "${val}" not found in linked POs.`, "error");
+          alert("Product not found in linked POs.");
+        }
+      }
+    }
+
+    // ==============================================
+    // PAGE 3: ADD/MODIFY GRN PRODUCT POPUP MODAL
+    // ==============================================
+    let activeProductIndex = null;
+
+    function openProductModal(index) {
+      if (activeGrn.stage !== "Draft" && activeGrn.stage !== "Submitted") {
+        alert("Cannot modify product details at this stage.");
+        return;
+      }
+
+      activeProductIndex = index;
+      const prod = activeGrn.products[index];
+
+      document.getElementById("modal-product-index").value = index;
+      document.getElementById("modal-product-name").value = prod.name;
+      document.getElementById("modal-variety").value = prod.variety;
+      document.getElementById("modal-pack").value = prod.pack;
+      document.getElementById("modal-uom").value = prod.uom;
+      document.getElementById("modal-ordered-qty").value = prod.ordered;
+      document.getElementById("modal-prev-qty").value = prod.prevReceived;
+      document.getElementById("modal-pending-qty").value = prod.pending;
+      document.getElementById("modal-rec-qty").value = prod.currentReceived;
+      document.getElementById("modal-excess-qty").value = prod.excess;
+      document.getElementById("modal-remarks").value = prod.remarks;
+
+      productModal.classList.add("open");
+      logAction(`Opened Product Details popup for ${prod.name}`, "info");
+    }
+
+    function closeProductModal() {
+      productModal.classList.remove("open");
+    }
+
+    function validateModalQty() {
+      const recVal = parseFloat(document.getElementById("modal-rec-qty").value) || 0;
+      const pendingVal = parseFloat(document.getElementById("modal-pending-qty").value) || 0;
+
+      if (recVal > pendingVal) {
+        logAction("Validation Rule: Received quantity cannot exceed pending quantity.", "error");
+        alert(`Warning: Received quantity cannot exceed pending PO quantity (${pendingVal}).`);
+        document.getElementById("modal-rec-qty").value = pendingVal;
+      }
+    }
+
+    function saveProductModal() {
+      const index = parseInt(document.getElementById("modal-product-index").value);
+      const recVal = parseFloat(document.getElementById("modal-rec-qty").value) || 0;
+      const excessVal = parseFloat(document.getElementById("modal-excess-qty").value) || 0;
+      const remarksVal = document.getElementById("modal-remarks").value;
+
+      const prod = activeGrn.products[index];
+      prod.currentReceived = recVal;
+      prod.excess = excessVal;
+      prod.remarks = remarksVal;
+
+      logAction(`Saved details for ${prod.name}: Rec Qty = ${recVal}, Excess = ${excessVal}`, "success");
+      
+      closeProductModal();
+      renderProductReceiptTable();
+      updateSummaries();
+      
+      if (activeGrn.inspectionRequired) {
+        calculateQualityQuantities();
+      }
+    }
+
+    // --- Stage Transitions (Entry Page Workflow) ---
+    function transitionWorkflowStage(nextStage, remarks) {
+      if (nextStage === "Verified") {
+        // Run verification checks
+        if (!activeGrn.warehouse) {
+          logAction("Validation Error: Warehouse is mandatory for stock update.", "error");
+          alert("Warehouse is mandatory for stock update.");
+          return;
+        }
+
+        // Check batch number requirements
+        let missingBatch = false;
+        activeGrn.products.forEach(p => {
+          if (p.batchManaged) {
+            const batches = activeGrn.batches.filter(b => b.productId === p.productId);
+            const totalBatchQty = batches.reduce((sum, b) => sum + b.quantity, 0);
+            
+            if (batches.length === 0 || batches.some(b => !b.batchNumber)) {
+              missingBatch = true;
+              logAction(`Validation Rule: Product ${p.name} is batch-managed. A valid Batch Number is required.`, "error");
+            }
+            if (p.expiryManaged && batches.some(b => !b.expiryDate)) {
+              missingBatch = true;
+              logAction(`Validation Rule: Product ${p.name} is expiry-managed. An Expiry Date is required.`, "error");
+            }
+          }
+        });
+        if (missingBatch) {
+          alert("Error: Batch-managed or Expiry-managed products must have batch and expiry details filled in the Batch section.");
+          return;
+        }
+      }
+
+      activeGrn.stage = nextStage;
+      activeGrn.timeline.push({
+        stage: nextStage,
+        setAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        setBy: nextStage === "Verified" || nextStage === "Completed" ? "Sarah Manager" : "James Executive",
+        remarks: remarks
+      });
+
+      logAction(`GRN status updated to: ${nextStage.toUpperCase()}.`, "success");
+
+      // System triggers on Complete
+      if (nextStage === "Completed") {
+        logAction("Trigger: Updating inventory stock ledger records.", "success");
+        logAction("Trigger: Creating Inventory Ledger Entry.", "success");
+        
+        // PO updates rules
+        activeGrn.products.forEach(p => {
+          let remains = p.pending - p.currentReceived;
+          if (remains <= 0) {
+            logAction(`Trigger: PO ${p.poNumber} item ${p.name} stage updated to COMPLETED.`, "info");
+          } else {
+            logAction(`Trigger: PO ${p.poNumber} item ${p.name} stage updated to PARTIAL RECEIVED.`, "info");
+          }
+        });
+      }
+
+      // Refresh form
+      document.getElementById("entry-stage-badge").textContent = nextStage;
+      document.getElementById("entry-stage-badge").className = `badge badge-${nextStage.toLowerCase()}`;
+      
+      let isReadOnly = (nextStage === "Verified" || nextStage === "Completed" || nextStage === "Cancelled" || nextStage === "Rejected");
+      toggleFormControlsLock(isReadOnly);
+      renderWorkflowButtons();
+      updateTimelineWidget();
+    }
+
+    function saveGrnData(newStage) {
+      if (!activeGrn.vendorName) {
+        alert("Please select vendor and link POs.");
+        return;
+      }
+      if (!activeGrn.warehouse) {
+        alert("Warehouse selection is required.");
+        return;
+      }
+
+      activeGrn.grnDate = document.getElementById("form-grn-date").value;
+      activeGrn.receiptType = document.getElementById("form-receipt-type").value;
+      activeGrn.vehicleNumber = document.getElementById("form-vehicle-number").value;
+      activeGrn.lrNumber = document.getElementById("form-lr-number").value;
+      activeGrn.transporter = document.getElementById("form-transporter").value;
+      activeGrn.invoiceNumber = document.getElementById("form-invoice-number").value;
+      activeGrn.invoiceDate = document.getElementById("form-invoice-date").value;
+      activeGrn.remarks = document.getElementById("form-remarks").value;
+
+      if (newStage && newStage !== activeGrn.stage) {
+        activeGrn.stage = newStage;
+        activeGrn.timeline.push({
+          stage: newStage,
+          setAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+          setBy: "James Executive",
+          remarks: "Status updated by user action."
+        });
+      }
+
+      // Save into main list
+      const existingIdx = grns.findIndex(g => g.grnNumber === activeGrn.grnNumber);
+      if (existingIdx >= 0) {
+        grns[existingIdx] = JSON.parse(JSON.stringify(activeGrn));
+      } else {
+        grns.unshift(JSON.parse(JSON.stringify(activeGrn)));
+      }
+
+      logAction(`Firestore write: saved document grns/${activeGrn.grnNumber}`, "success");
+      alert(`GRN ${activeGrn.grnNumber} saved successfully!`);
+      showListPage();
+    }
+
+
+    // ==============================================
+    // AUTOMATED TEST SUITE ENGINE
+    // ==============================================
+    let TEST_SUITE = [
+      {
+        id: "tc-1",
+        name: "TC-01: Multi-PO Item Loading",
+        desc: "Simulate linking two POs for Acme Vendor and check if item grids consolidate.",
+        status: "ready",
+        run: async () => {
+          showEntryPage("new");
+          await sleep(600);
+          
+          // Select Acme Vendor
+          document.getElementById("form-vendor").value = "Acme Industrial Solutions";
+          onVendorSelected("Acme Industrial Solutions", true);
+          await sleep(600);
+
+          // Select both PO-2026-001 and PO-2026-002 checkboxes
+          const chk1 = document.getElementById("po-check-PO-2026-001");
+          const chk2 = document.getElementById("po-check-PO-2026-002");
+          
+          if (chk1 && chk2) {
+            chk1.checked = true;
+            handlePOToggle(chk1);
+            await sleep(400);
+
+            chk2.checked = true;
+            handlePOToggle(chk2);
+            await sleep(400);
+          }
+
+          // Assertions
+          let productRows = document.getElementById("product-receipt-body").querySelectorAll("tr");
+          let poRows = document.getElementById("po-refs-body").querySelectorAll("tr");
+
+          if (productRows.length === 2 && poRows.length === 2) {
+            assertPass("Successfully loaded 2 items from 2 linked Purchase Orders.");
+            return true;
+          } else {
+            assertFail(`Expected 2 products & 2 PO references, found ${productRows.length} products & ${poRows.length} POs.`);
+            return false;
+          }
+        }
+      },
+      {
+        id: "tc-2",
+        name: "TC-02: Quantity Limit Validation",
+        desc: "Input a quantity exceeding the pending amount and verify if validation blocks and resets.",
+        status: "ready",
+        run: async () => {
+          // Assuming activeGrn loaded with Acme PO products
+          if (activeGrn.products.length === 0) {
+            assertFail("Pre-requisite: Please run TC-01 first to load products.");
+            return false;
+          }
+
+          logAction("Simulating user editing Steel Pipes 2-inch current received qty to 150 (Pending is 100).", "info");
+          await sleep(600);
+
+          const qtyInput = document.getElementById("product-receipt-body").querySelector("input.inline-edit-input");
+          qtyInput.value = 150;
+          
+          // Trigger change event
+          qtyInput.dispatchEvent(new Event('change'));
+          await sleep(800);
+
+          if (parseFloat(qtyInput.value) === 100) {
+            assertPass("Validation intercepted over-receiving correctly and reset qty to pending max (100).");
+            return true;
+          } else {
+            assertFail(`Validation failed: Qty accepted value ${qtyInput.value} which is greater than pending limit 100.`);
+            return false;
+          }
+        }
+      },
+      {
+        id: "tc-3",
+        name: "TC-03: Warehouse Selection Check",
+        desc: "Attempt to submit the GRN without selecting a warehouse to ensure it gets blocked.",
+        status: "ready",
+        run: async () => {
+          // Blank warehouse
+          document.getElementById("form-warehouse").value = "";
+          activeGrn.warehouse = "";
+          await sleep(600);
+
+          logAction("Attempting to transition stage to Submitted with empty warehouse...", "info");
+          
+          // Override alert temporarily to catch it
+          let alertTriggered = false;
+          const origAlert = window.alert;
+          window.alert = (msg) => { alertTriggered = true; logAction(`Caught Alert dialog: "${msg}"`, "warning"); };
+          
+          transitionWorkflowStage("Verified", "System verify step");
+          await sleep(800);
+          
+          // Restore alert
+          window.alert = origAlert;
+
+          if (alertTriggered && activeGrn.stage === "Draft") {
+            assertPass("Warehouse check blocked progress successfully. Stage remains in DRAFT.");
+            return true;
+          } else {
+            assertFail(`Warehouse check failed: stage moved to ${activeGrn.stage}.`);
+            return false;
+          }
+        }
+      },
+      {
+        id: "tc-4",
+        name: "TC-04: Batch & Expiry Validation",
+        desc: "Submit a verified stage check on a batch-managed drug ingredient without expiry details.",
+        status: "ready",
+        run: async () => {
+          // Switch vendor to Global Bio-Chemicals (which has Aspirin active ingredient, batch/expiry managed)
+          document.getElementById("form-vendor").value = "Global Bio-Chemicals Ltd";
+          onVendorSelected("Global Bio-Chemicals Ltd", true);
+          document.getElementById("form-warehouse").value = "WH-02"; // Select valid warehouse
+          activeGrn.warehouse = "WH-02";
+          await sleep(600);
+
+          const chk = document.getElementById("po-check-PO-2026-003");
+          if (chk) {
+            chk.checked = true;
+            handlePOToggle(chk);
+            await sleep(600);
+          }
+
+          // At this point, Aspirin is loaded. It has current received quantity set to 500, but no batches.
+          logAction("Attempting to verify GRN without batch details for Aspirin...", "info");
+          
+          let alertTriggered = false;
+          const origAlert = window.alert;
+          window.alert = (msg) => { alertTriggered = true; logAction(`Alert caught: "${msg}"`, "warning"); };
+
+          transitionWorkflowStage("Verified", "Verify pharmaceutical delivery.");
+          await sleep(800);
+          
+          window.alert = origAlert;
+
+          if (alertTriggered && activeGrn.stage === "Draft") {
+            assertPass("Batch validation rules blocked stage change to Verified successfully.");
+            return true;
+          } else {
+            assertFail("Batch check failed to block transition.");
+            return false;
+          }
+        }
+      },
+      {
+        id: "tc-5",
+        name: "TC-05: Quality Inspection Math",
+        desc: "Enable quality inspection, reject 50 units, and verify approved quantity equals 450.",
+        status: "ready",
+        run: async () => {
+          // Enable Quality Check
+          document.getElementById("form-inspection-required").checked = true;
+          toggleQualityInspection(true, true);
+          await sleep(600);
+
+          // Change values
+          document.getElementById("form-rejected-qty").value = 50;
+          calculateQualityQuantities();
+          await sleep(800);
+
+          let approvedVal = parseFloat(document.getElementById("form-approved-qty").value);
+          let statusVal = document.getElementById("form-inspection-status").value;
+
+          if (approvedVal === 450 && statusVal === "Partial") {
+            assertPass("Approved qty auto-calculated to 450. Inspection status set to 'Partial'.");
+            return true;
+          } else {
+            assertFail(`Math failed: expected 450 approved & status 'Partial', found ${approvedVal} and status '${statusVal}'.`);
+            return false;
+          }
+        }
+      },
+      {
+        id: "tc-6",
+        name: "TC-06: Stage Locks (Read-Only)",
+        desc: "Transition GRN to Verified stage and ensure all editing fields are disabled.",
+        status: "ready",
+        run: async () => {
+          // Provide dummy batch to satisfy TC-04 rule
+          activeGrn.batches = [{
+            productId: "P-003",
+            name: "Aspirin Active Ingredient",
+            batchNumber: "B-ASP-TEST",
+            mfgDate: "2026-06-01",
+            expiryDate: "2028-06-01",
+            quantity: 500,
+            remarks: ""
+          }];
+          renderBatchDetailsTable();
+          await sleep(600);
+
+          // Transition to Verified
+          transitionWorkflowStage("Verified", "Verify audit test");
+          await sleep(600);
+
+          // Check if inputs are disabled
+          const grnDateDisabled = document.getElementById("form-grn-date").disabled;
+          const whDisabled = document.getElementById("form-warehouse").disabled;
+
+          if (grnDateDisabled && whDisabled) {
+            assertPass("Verified stage successfully locked form controls to read-only.");
+            return true;
+          } else {
+            assertFail("Form controls did not disable during Verified lock.");
+            return false;
+          }
+        }
+      },
+      {
+        id: "tc-7",
+        name: "TC-07: PO Stage Auto-Updates",
+        desc: "Transition GRN to Completed and check console for PO completion trigger logs.",
+        status: "ready",
+        run: async () => {
+          logAction("Moving GRN from Verified to Completed...", "info");
+          await sleep(600);
+
+          transitionWorkflowStage("Completed", "Complete receipt. Stock added.");
+          await sleep(800);
+
+          // Check if log console received the completion trigger messages
+          const logsText = consoleLogsList.textContent;
+          const hasPOCompletedTrigger = logsText.includes("PO PO-2026-003 item Aspirin Active Ingredient stage updated to COMPLETED");
+
+          if (activeGrn.stage === "Completed" && hasPOCompletedTrigger) {
+            assertPass("Completed stage triggered PO inventory updates correctly.");
+            return true;
+          } else {
+            assertFail("Workflow complete trigger not fired or failed.");
+            return false;
+          }
+        }
+      }
+    ];
+
+    function initTestCases() {
+      testCaseList.innerHTML = "";
+      TEST_SUITE.forEach(tc => {
+        const item = document.createElement("div");
+        item.className = "test-case-item";
+        item.id = `tc-item-${tc.id}`;
+        item.onclick = () => runTestCase(tc.id);
+        
+        item.innerHTML = `
+          <div class="test-case-header">
+            <span class="test-case-name">${tc.name}</span>
+            <span class="test-case-badge badge-test-ready" id="tc-badge-${tc.id}">Ready</span>
+          </div>
+          <span class="test-case-desc">${tc.desc}</span>
+        `;
+        testCaseList.appendChild(item);
+      });
+    }
+
+    async function runTestCase(id) {
+      const tc = TEST_SUITE.find(t => t.id === id);
+      if (!tc) return;
+
+      const badge = document.getElementById(`tc-badge-${id}`);
+      badge.textContent = "Running";
+      badge.className = "test-case-badge badge-test-running";
+      
+      logAction(`Running ${tc.name}...`, "info");
+      
+      try {
+        let pass = await tc.run();
+        if (pass) {
+          badge.textContent = "Pass";
+          badge.className = "test-case-badge badge-test-pass";
+        } else {
+          badge.textContent = "Fail";
+          badge.className = "test-case-badge badge-test-fail";
+        }
+      } catch (err) {
+        logAction(`Execution Error in test case ${id}: ${err.message}`, "error");
+        badge.textContent = "Fail";
+        badge.className = "test-case-badge badge-test-fail";
+      }
+    }
+
+    async function runAllTestCases() {
+      logAction("Initiating full test suite run...", "info");
+      for (let i = 0; i < TEST_SUITE.length; i++) {
+        await runTestCase(TEST_SUITE[i].id);
+        await sleep(1000);
+      }
+      logAction("Full test suite run completed.", "success");
+    }
+
+    function resetSandbox() {
+      // Reload initial database state and show list page
+      grns = [
+        {
+          grnNumber: "GRN-2026-000001",
+          grnDate: "2026-06-10",
+          vendorName: "Acme Industrial Solutions",
+          poCount: 1,
+          poList: ["PO-2026-002"],
+          totalQuantity: 15,
+          totalAmount: 13500,
+          stage: "Completed",
+          createdBy: "James Executive",
+          updatedAt: "2026-06-11 10:30",
+          warehouse: "WH-01",
+          vehicleNumber: "DL-1C-5678",
+          lrNumber: "LR-9988",
+          transporter: "VRL Logistics",
+          invoiceNumber: "INV-109283",
+          invoiceDate: "2026-06-09",
+          remarks: "Received in good condition.",
+          inspectionRequired: false,
+          products: [
+            { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, currentReceived: 15, excess: 0, rate: 900, uom: "BOX", remarks: "" }
+          ],
+          batches: [],
+          timeline: [
+            { stage: "Draft", setAt: "2026-06-10 14:00", setBy: "James Executive", remarks: "Initial Draft" },
+            { stage: "Submitted", setAt: "2026-06-10 16:30", setBy: "James Executive", remarks: "Ready for verification" },
+            { stage: "Verified", setAt: "2026-06-11 09:15", setBy: "Sarah Manager", remarks: "Verified physical items match invoice" },
+            { stage: "Completed", setAt: "2026-06-11 10:30", setBy: "Sarah Manager", remarks: "Stock updated in systems" }
+          ]
+        },
+        {
+          grnNumber: "GRN-2026-000002",
+          grnDate: "2026-06-12",
+          vendorName: "Global Bio-Chemicals Ltd",
+          poCount: 1,
+          poList: ["PO-2026-003"],
+          totalQuantity: 200,
+          totalAmount: 10000,
+          stage: "Verified",
+          createdBy: "James Executive",
+          updatedAt: "2026-06-13 14:00",
+          warehouse: "WH-02",
+          vehicleNumber: "MH-12-QC-0099",
+          lrNumber: "LR-5566",
+          transporter: "ColdStream Transport",
+          invoiceNumber: "INV-BIO-99",
+          invoiceDate: "2026-06-11",
+          remarks: "Temp logged at 4C. QC inspection required.",
+          inspectionRequired: true,
+          inspectionStatus: "Approved",
+          inspectedBy: "James Smith (QC Manager)",
+          inspectionDate: "2026-06-13",
+          rejectedQuantity: 0,
+          approvedQuantity: 200,
+          inspectionRemarks: "Passed chemical analysis check.",
+          products: [
+            { poNumber: "PO-2026-003", productId: "P-003", name: "Aspirin Active Ingredient", variety: "Pharma Grade", pack: "Drum 25kg", ordered: 500, prevReceived: 0, pending: 500, currentReceived: 200, excess: 0, rate: 50, uom: "KGS", remarks: "" }
+          ],
+          batches: [
+            { productId: "P-003", name: "Aspirin Active Ingredient", batchNumber: "B-ASP-9988", mfgDate: "2026-05-01", expiryDate: "2028-05-01", quantity: 200, remarks: "Store at 4C" }
+          ],
+          timeline: [
+            { stage: "Draft", setAt: "2026-06-12 11:00", setBy: "James Executive", remarks: "Initial Draft" },
+            { stage: "Submitted", setAt: "2026-06-12 12:15", setBy: "James Executive", remarks: "Sent to QC" },
+            { stage: "Verified", setAt: "2026-06-13 14:00", setBy: "Sarah Manager", remarks: "QC Approved, verified details" }
+          ]
+        },
+        {
+          grnNumber: "GRN-2026-000003",
+          grnDate: "2026-06-15",
+          vendorName: "Acme Industrial Solutions",
+          poCount: 2,
+          poList: ["PO-2026-001", "PO-2026-002"],
+          totalQuantity: 25,
+          totalAmount: 10200,
+          stage: "Draft",
+          createdBy: "James Executive",
+          updatedAt: "2026-06-15 16:45",
+          warehouse: "WH-01",
+          vehicleNumber: "HR-55-9087",
+          lrNumber: "LR-7890",
+          transporter: "Safe Cargo",
+          invoiceNumber: "INV-AC-908",
+          invoiceDate: "2026-06-14",
+          remarks: "Joint delivery PO-001 and PO-002",
+          inspectionRequired: false,
+          products: [
+            { poNumber: "PO-2026-001", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 100, prevReceived: 0, pending: 100, currentReceived: 20, excess: 0, rate: 1200, uom: "PCS", remarks: "" },
+            { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, currentReceived: 5, excess: 0, rate: 900, uom: "BOX", remarks: "" }
+          ],
+          batches: [
+            { productId: "P-001", name: "Steel Pipes 2-inch", batchNumber: "B-PIPE-001", mfgDate: "2026-05-01", expiryDate: "", quantity: 20, remarks: "" }
+          ],
+          timeline: [
+            { stage: "Draft", setAt: "2026-06-15 16:45", setBy: "James Executive", remarks: "Draft loaded with multi-PO products" }
+          ]
+        },
+        {
+          grnNumber: "GRN-2026-000004",
+          grnDate: "2026-06-16",
+          vendorName: "Acme Industrial Solutions",
+          poCount: 1,
+          poList: ["PO-2026-001"],
+          totalQuantity: 0,
+          totalAmount: 0,
+          stage: "Cancelled",
+          createdBy: "James Executive",
+          updatedAt: "2026-06-16 18:00",
+          warehouse: "WH-01",
+          vehicleNumber: "DL-3C-9876",
+          lrNumber: "LR-5544",
+          transporter: "VRL Logistics",
+          invoiceNumber: "INV-AC-909",
+          invoiceDate: "2026-06-15",
+          remarks: "Wrong material delivered. Cancelled receipt.",
+          inspectionRequired: false,
+          products: [
+            { poNumber: "PO-2026-001", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 100, prevReceived: 0, pending: 100, currentReceived: 0, excess: 0, rate: 1200, uom: "PCS", remarks: "" }
+          ],
+          batches: [],
+          timeline: [
+            { stage: "Draft", setAt: "2026-06-16 17:30", setBy: "James Executive", remarks: "Draft initialized" },
+            { stage: "Cancelled", setAt: "2026-06-16 18:00", setBy: "Sarah Manager", remarks: "Materials rejected at gate. Cancelled." }
+          ]
+        }
+      ];
+      
+      showListPage();
+      initTestCases();
+      clearConsole();
+      logAction("Sandbox and mock database reset to original configuration.", "warning");
+    }
+
+    function assertPass(msg) {
+      logAction(`[PASS] ${msg}`, "success");
+    }
+
+    function assertFail(msg) {
+      logAction(`[FAIL] ${msg}`, "error");
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+  </script>
+</body>
+</html>

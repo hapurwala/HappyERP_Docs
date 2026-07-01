@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HappyERP - Goods Receipt Note (GRN) List</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Link Shared Stylesheet -->
+  <link rel="stylesheet" href="grn-style.css">
+  <style>
+    /* List Page Specific Layout overrides */
+    .filter-drawer {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      animation: slideDown 0.25s ease-out;
+      backdrop-filter: blur(8px);
+    }
+    
+    @keyframes slideDown {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .column-select-dropdown, .groupby-dropdown {
+      display: none;
+      position: absolute;
+      background-color: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      z-index: 100;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      min-width: 180px;
+    }
+
+    .column-select-item, .groupby-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.8125rem;
+      border-radius: 4px;
+    }
+
+    .column-select-item:hover, .groupby-item:hover {
+      background-color: var(--row-hover-bg);
+    }
+
+    .group-header-row {
+      background-color: rgba(99, 102, 241, 0.08);
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .group-header-row td {
+      padding: 10px 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="grn-list.html" class="logo-container">
+      <i data-lucide="package-check" style="color:var(--primary); width:28px; height:28px;"></i>
+      <span class="logo-text">Happy<span>ERP</span></span>
+    </a>
+    <div class="header-title-module">Goods Receipt Note (GRN) Sandbox</div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="toggleTheme()" id="theme-btn">
+        <i data-lucide="sun"></i><span>Light Mode</span>
+      </button>
+      <button class="btn btn-secondary" onclick="resetDatabase()">
+        <i data-lucide="rotate-ccw"></i><span>Reset DB</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Container -->
+  <div id="app-container">
+    <div id="main-content">
+      <div class="page">
+        
+        <!-- Page Title Bar -->
+        <div class="entry-header-row">
+          <div>
+            <h1 style="font-size: 1.75rem;">Goods Receipt Notes (GRN)</h1>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin-top:4px;">Manage warehouse receiving operations, track linked POs, batch details, and quality inspections.</p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <a href="grn-entry.html?mode=new" class="btn btn-primary">
+              <i data-lucide="plus"></i> Add New GRN
+            </a>
+          </div>
+        </div>
+
+        <!-- KPI Metrics Row -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-icon"><i data-lucide="layers"></i></div>
+            <div class="kpi-info">
+              <h3 id="kpi-total-grn">0</h3>
+              <p>Total Receipts</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="color:var(--warning); background:rgba(245,158,11,0.1);"><i data-lucide="clock"></i></div>
+            <div class="kpi-info">
+              <h3 id="kpi-pending-ver">0</h3>
+              <p>Pending Verification</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="color:var(--success); background:rgba(16,185,129,0.1);"><i data-lucide="check-circle2"></i></div>
+            <div class="kpi-info">
+              <h3 id="kpi-completed">0</h3>
+              <p>Completed Receipts</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="color:var(--danger); background:rgba(239,68,68,0.1);"><i data-lucide="x-circle"></i></div>
+            <div class="kpi-info">
+              <h3 id="kpi-cancelled">0</h3>
+              <p>Cancelled Receipts</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbar Config -->
+        <div class="toolbar-config">
+          <div class="search-filter-inputs">
+            <!-- Search Keyword -->
+            <div class="search-container">
+              <i data-lucide="search" style="position:absolute; left:12px; top:11px; width:16px; height:16px; color:var(--text-muted);"></i>
+              <input type="text" class="form-control" style="padding-left:36px;" placeholder="Search GRN number, vendor, PO..." id="list-search" oninput="applyFilters()">
+            </div>
+            
+            <!-- Quick filters -->
+            <button class="btn btn-secondary" onclick="toggleFilterDrawer()">
+              <i data-lucide="sliders-horizontal"></i> Filters <span id="active-filter-badge" class="badge badge-submitted" style="display:none; padding:1px 5px; margin-left:4px; font-size:0.6rem;">0</span>
+            </button>
+            
+            <!-- View Layout Toggle -->
+            <button class="btn btn-secondary" onclick="toggleLayoutView()" id="layout-toggle-btn" title="Toggle Grid/Table View">
+              <i data-lucide="grid"></i>
+            </button>
+            
+            <!-- Group By dropdown trigger -->
+            <div style="position: relative;">
+              <button class="btn btn-secondary" onclick="toggleGroupByDropdown(event)" id="groupby-btn">
+                <i data-lucide="folder-tree"></i> Group By: <span id="groupby-label" style="font-weight:600;">None</span>
+              </button>
+              <div class="groupby-dropdown" id="groupby-dropdown-menu">
+                <div class="groupby-item" onclick="setGroupBy('none')">None</div>
+                <div class="groupby-item" onclick="setGroupBy('vendorName')">Vendor</div>
+                <div class="groupby-item" onclick="setGroupBy('stage')">Stage</div>
+                <div class="groupby-item" onclick="setGroupBy('receiptType')">Receipt Type</div>
+              </div>
+            </div>
+
+            <!-- Column Selection dropdown trigger -->
+            <div style="position: relative;">
+              <button class="btn btn-secondary" onclick="toggleColumnSelectDropdown(event)" id="col-select-btn">
+                <i data-lucide="layout-grid"></i> Columns
+              </button>
+              <div class="column-select-dropdown" id="column-select-menu">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary" onclick="exportGRNList()" title="Export filtered list to CSV"><i data-lucide="download"></i> Export</button>
+            <button class="btn btn-secondary" onclick="shareCurrentView()" title="Copy filter link to clipboard"><i data-lucide="share-2"></i> Share</button>
+            <button class="btn btn-secondary" onclick="toggleFullScreen()" title="Full Screen Mode"><i data-lucide="maximize-2" id="fullscreen-icon"></i></button>
+          </div>
+        </div>
+
+        <!-- Expandable Filters Panel -->
+        <div class="filter-drawer" id="filter-drawer">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="font-family:'Outfit'; font-size:1rem;">Advanced Filter Fields</h3>
+            <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="clearFilters()"><i data-lucide="x-circle"></i> Clear All</button>
+          </div>
+          <div class="grid-container-4">
+            <!-- Organization -->
+            <div class="form-group">
+              <label>Organisation</label>
+              <select class="form-control" id="filter-organisation" onchange="applyFilters()">
+                <option value="">All Organisations</option>
+                <option value="Org-01">Happy Corporate Ltd</option>
+                <option value="Org-02">Global Foods Inc</option>
+              </select>
+            </div>
+            <!-- Branch -->
+            <div class="form-group">
+              <label>Branch</label>
+              <select class="form-control" id="filter-branch" onchange="applyFilters()">
+                <option value="">All Branches</option>
+                <option value="BR-01">Mumbai Logistics</option>
+                <option value="BR-02">Delhi Depot</option>
+                <option value="BR-03">New York Whse</option>
+              </select>
+            </div>
+            <!-- Vendor -->
+            <div class="form-group">
+              <label>Vendor</label>
+              <select class="form-control" id="filter-vendor" onchange="applyFilters()">
+                <option value="">All Vendors</option>
+                <option value="Acme Industrial Solutions">Acme Industrial Solutions</option>
+                <option value="Global Bio-Chemicals Ltd">Global Bio-Chemicals Ltd</option>
+              </select>
+            </div>
+            <!-- Stage -->
+            <div class="form-group">
+              <label>Stage</label>
+              <select class="form-control" id="filter-stage" onchange="applyFilters()">
+                <option value="">All Stages</option>
+                <option value="Draft">Draft</option>
+                <option value="Submitted">Submitted</option>
+                <option value="Verified">Verified</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid-container-4" style="margin-top:10px;">
+            <!-- Date Range From -->
+            <div class="form-group">
+              <label>Date From</label>
+              <input type="date" class="form-control" id="filter-date-from" onchange="applyFilters()">
+            </div>
+            <!-- Date Range To -->
+            <div class="form-group">
+              <label>Date To</label>
+              <input type="date" class="form-control" id="filter-date-to" onchange="applyFilters()">
+            </div>
+            <!-- Receipt Type -->
+            <div class="form-group">
+              <label>Receipt Type</label>
+              <select class="form-control" id="filter-receipt-type" onchange="applyFilters()">
+                <option value="">All Receipt Types</option>
+                <option value="Regular Receipt">Regular Receipt</option>
+                <option value="Returnable Receipt">Returnable Receipt</option>
+                <option value="Sample Receipt">Sample Receipt</option>
+                <option value="Transfer Receipt">Transfer Receipt</option>
+              </select>
+            </div>
+            <!-- Created By -->
+            <div class="form-group">
+              <label>Created By</label>
+              <select class="form-control" id="filter-created-by" onchange="applyFilters()">
+                <option value="">All Users</option>
+                <option value="James Executive">James Executive</option>
+                <option value="Sarah Manager">Sarah Manager</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Data Table Container -->
+        <div class="table-container" id="list-table-view">
+          <table>
+            <thead>
+              <tr id="table-headers">
+                <!-- Dynamically generated based on column selection -->
+              </tr>
+            </thead>
+            <tbody id="grn-list-tbody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Alternative Grid View Container -->
+        <div id="list-grid-view" class="grn-card-grid" style="display:none;">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px;">
+          <div style="font-size:0.875rem; color:var(--text-muted);" id="pagination-info">
+            Showing 1-4 of 4 records
+          </div>
+          <div style="display:flex; align-items:center; gap:16px;">
+            <div style="display:flex; align-items:center; gap:8px; font-size:0.875rem; color:var(--text-muted);">
+              Rows per page:
+              <select class="form-control" style="width:70px; padding:6px 10px;" id="rows-per-page" onchange="changePageSize(this.value)">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary" style="padding:6px 12px;" onclick="prevPage()" id="prev-page-btn"><i data-lucide="chevron-left" style="width:16px; height:16px;"></i></button>
+              <button class="btn btn-secondary" style="padding:6px 12px;" onclick="nextPage()" id="next-page-btn"><i data-lucide="chevron-right" style="width:16px; height:16px;"></i></button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification container -->
+  <div id="toast-container"></div>
+
+  <!-- Backdrop for action menus -->
+  <div id="dropdown-backdrop" style="position:fixed; top:0; left:0; right:0; bottom:0; z-index:80; display:none;" onclick="closeAllActionMenus()"></div>
+
+  <!-- JS Logic -->
+  <script>
+    // --- Initial Mock Database State ---
+    const DEFAULT_GRNS = [
+      {
+        grnNumber: "GRN-2026-000001",
+        grnDate: "2026-06-10",
+        vendorName: "Acme Industrial Solutions",
+        poCount: 1,
+        poList: ["PO-2026-002"],
+        totalQuantity: 15,
+        totalAmount: 13500,
+        stage: "Completed",
+        createdBy: "James Executive",
+        updatedAt: "2026-06-11 10:30",
+        warehouse: "WH-01",
+        receiptSource: "PO Based",
+        receiptType: "Regular Receipt",
+        organisation: "Org-01",
+        branch: "BR-01",
+        vehicleNumber: "DL-1C-5678",
+        lrNumber: "LR-9988",
+        transporter: "VRL Logistics",
+        invoiceNumber: "INV-109283",
+        invoiceDate: "2026-06-09",
+        remarks: "Received in good condition.",
+        inspectionRequired: false,
+        products: [
+          { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, currentReceived: 15, excess: 0, rate: 900, uom: "BOX", remarks: "" }
+        ],
+        batches: [],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-10 14:00", setBy: "James Executive", remarks: "Draft initialized" },
+          { stage: "Submitted", setAt: "2026-06-10 16:30", setBy: "James Executive", remarks: "Ready for verification" },
+          { stage: "Verified", setAt: "2026-06-11 09:15", setBy: "Sarah Manager", remarks: "Verified physical items match invoice" },
+          { stage: "Completed", setAt: "2026-06-11 10:30", setBy: "Sarah Manager", remarks: "Stock updated in systems" }
+        ]
+      },
+      {
+        grnNumber: "GRN-2026-000002",
+        grnDate: "2026-06-12",
+        vendorName: "Global Bio-Chemicals Ltd",
+        poCount: 1,
+        poList: ["PO-2026-003"],
+        totalQuantity: 200,
+        totalAmount: 10000,
+        stage: "Verified",
+        createdBy: "James Executive",
+        updatedAt: "2026-06-13 14:00",
+        warehouse: "WH-02",
+        receiptSource: "PO Based",
+        receiptType: "Regular Receipt",
+        organisation: "Org-02",
+        branch: "BR-03",
+        vehicleNumber: "MH-12-QC-0099",
+        lrNumber: "LR-5566",
+        transporter: "ColdStream Transport",
+        invoiceNumber: "INV-BIO-99",
+        invoiceDate: "2026-06-11",
+        remarks: "Temp logged at 4C. QC inspection required.",
+        inspectionRequired: true,
+        inspectionStatus: "Approved",
+        inspectedBy: "James Smith (QC Manager)",
+        inspectionDate: "2026-06-13",
+        rejectedQuantity: 0,
+        approvedQuantity: 200,
+        inspectionRemarks: "Passed chemical analysis check.",
+        products: [
+          { poNumber: "PO-2026-003", productId: "P-003", name: "Aspirin Active Ingredient", variety: "Pharma Grade", pack: "Drum 25kg", ordered: 500, prevReceived: 0, pending: 500, currentReceived: 200, excess: 0, rate: 50, uom: "KGS", remarks: "" }
+        ],
+        batches: [
+          { productId: "P-003", name: "Aspirin Active Ingredient", batchNumber: "B-ASP-9988", mfgDate: "2026-05-01", expiryDate: "2028-05-01", quantity: 200, remarks: "Store at 4C" }
+        ],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-12 11:00", setBy: "James Executive", remarks: "Initial Draft" },
+          { stage: "Submitted", setAt: "2026-06-12 12:15", setBy: "James Executive", remarks: "Sent to QC" },
+          { stage: "Verified", setAt: "2026-06-13 14:00", setBy: "Sarah Manager", remarks: "QC Approved, verified details" }
+        ]
+      },
+      {
+        grnNumber: "GRN-2026-000003",
+        grnDate: "2026-06-15",
+        vendorName: "Acme Industrial Solutions",
+        poCount: 2,
+        poList: ["PO-2026-001", "PO-2026-002"],
+        totalQuantity: 25,
+        totalAmount: 10200,
+        stage: "Draft",
+        createdBy: "James Executive",
+        updatedAt: "2026-06-15 16:45",
+        warehouse: "WH-01",
+        receiptSource: "PO Based",
+        receiptType: "Regular Receipt",
+        organisation: "Org-01",
+        branch: "BR-01",
+        vehicleNumber: "HR-55-9087",
+        lrNumber: "LR-7890",
+        transporter: "Safe Cargo",
+        invoiceNumber: "INV-AC-908",
+        invoiceDate: "2026-06-14",
+        remarks: "Joint delivery PO-001 and PO-002",
+        inspectionRequired: false,
+        products: [
+          { poNumber: "PO-2026-001", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 100, prevReceived: 0, pending: 100, currentReceived: 20, excess: 0, rate: 1200, uom: "PCS", remarks: "" },
+          { poNumber: "PO-2026-002", productId: "P-002", name: "Hex Bolt Fasteners", variety: "M12 Zinc", pack: "Box of 100", ordered: 50, prevReceived: 30, pending: 20, currentReceived: 5, excess: 0, rate: 900, uom: "BOX", remarks: "" }
+        ],
+        batches: [
+          { productId: "P-001", name: "Steel Pipes 2-inch", batchNumber: "B-PIPE-001", mfgDate: "2026-05-01", expiryDate: "", quantity: 20, remarks: "" }
+        ],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-15 16:45", setBy: "James Executive", remarks: "Draft loaded with multi-PO products" }
+        ]
+      },
+      {
+        grnNumber: "GRN-2026-000004",
+        grnDate: "2026-06-16",
+        vendorName: "Acme Industrial Solutions",
+        poCount: 1,
+        poList: ["PO-2026-001"],
+        totalQuantity: 0,
+        totalAmount: 0,
+        stage: "Cancelled",
+        createdBy: "James Executive",
+        updatedAt: "2026-06-16 18:00",
+        warehouse: "WH-01",
+        receiptSource: "PO Based",
+        receiptType: "Regular Receipt",
+        organisation: "Org-01",
+        branch: "BR-01",
+        vehicleNumber: "DL-3C-9876",
+        lrNumber: "LR-5544",
+        transporter: "VRL Logistics",
+        invoiceNumber: "INV-AC-909",
+        invoiceDate: "2026-06-15",
+        remarks: "Wrong material delivered. Cancelled receipt.",
+        inspectionRequired: false,
+        products: [
+          { poNumber: "PO-2026-001", productId: "P-001", name: "Steel Pipes 2-inch", variety: "Grade-A", pack: "Bundle of 10", ordered: 100, prevReceived: 0, pending: 100, currentReceived: 0, excess: 0, rate: 1200, uom: "PCS", remarks: "" }
+        ],
+        batches: [],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-16 17:30", setBy: "James Executive", remarks: "Draft initialized" },
+          { stage: "Cancelled", setAt: "2026-06-16 18:00", setBy: "Sarah Manager", remarks: "Materials rejected at gate. Cancelled." }
+        ]
+      },
+      {
+        grnNumber: "GRN-2026-000005",
+        grnDate: "2026-06-20",
+        vendorName: "ABC Rice Traders",
+        poCount: 0,
+        poList: [],
+        totalQuantity: 100,
+        totalAmount: 5000,
+        stage: "Pending Purchase Approval",
+        createdBy: "James Executive",
+        updatedAt: "2026-06-20 11:30",
+        warehouse: "WH-01",
+        receiptSource: "Direct Receipt",
+        receiptType: "Regular Receipt",
+        organisation: "Org-01",
+        branch: "BR-01",
+        vehicleNumber: "DL-3C-1234",
+        lrNumber: "LR-1122",
+        transporter: "VRL Logistics",
+        invoiceNumber: "INV-DIR-101",
+        invoiceDate: "2026-06-19",
+        remarks: "Emergency direct market purchase of Rice.",
+        inspectionRequired: true,
+        inspectionStatus: "Pending",
+        products: [
+          { poNumber: "N/A", productId: "P-004", name: "Rice Premium Quality", variety: "Basmati", pack: "Bag 50kg", ordered: 0, prevReceived: 0, pending: 0, currentReceived: 100, excess: 0, rate: 50, uom: "KGS", remarks: "" }
+        ],
+        batches: [
+          { productId: "P-004", name: "Rice Premium Quality", batchNumber: "B-RICE-99", mfgDate: "2026-06-01", expiryDate: "2027-06-01", quantity: 100, remarks: "" }
+        ],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-20 10:00", setBy: "James Executive", remarks: "Draft initialized without PO" },
+          { stage: "Pending Purchase Approval", setAt: "2026-06-20 11:30", setBy: "James Executive", remarks: "Submitted for Purchase Manager approval" }
+        ]
+      }
+    ];
+
+    // --- State Variables ---
+    let grns = [];
+    let layoutView = "table"; // "table" or "grid"
+    let selectedGroupBy = "none";
+    let currentPage = 1;
+    let pageSize = 20;
+
+    // Define table columns with display names and default visibility
+    const COLUMNS = [
+      { key: "grnNumber", name: "GRN Number", visible: true },
+      { key: "grnDate", name: "GRN Date", visible: true },
+      { key: "receiptSource", name: "Receipt Source", visible: true },
+      { key: "vendorName", name: "Vendor", visible: true },
+      { key: "poCount", name: "PO Count", visible: true },
+      { key: "totalQuantity", name: "Total Qty", visible: true },
+      { key: "totalAmount", name: "Total Amount", visible: true },
+      { key: "stage", name: "Stage", visible: true },
+      { key: "createdBy", name: "Created By", visible: true },
+      { key: "updatedAt", name: "Updated At", visible: true }
+    ];
+
+    // --- Page Setup ---
+    window.addEventListener("load", () => {
+      initDatabase();
+      loadTheme();
+      initColumnsMenu();
+      parseUrlParams();
+      applyFilters();
+      lucide.createIcons();
+    });
+
+    function initDatabase() {
+      const stored = localStorage.getItem("happy_erp_grns");
+      if (stored) {
+        grns = JSON.parse(stored);
+      } else {
+        grns = JSON.parse(JSON.stringify(DEFAULT_GRNS));
+        localStorage.setItem("happy_erp_grns", JSON.stringify(grns));
+      }
+    }
+
+    function resetDatabase() {
+      if (confirm("Reset local database to default GRN test records?")) {
+        localStorage.removeItem("happy_erp_grns");
+        initDatabase();
+        applyFilters();
+        showToast("Database reset to defaults", "info");
+      }
+    }
+
+    function loadTheme() {
+      const savedTheme = localStorage.getItem("theme") || "dark";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      updateThemeButton(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      updateThemeButton(next);
+      showToast(`Switched to ${next} theme`, "info");
+    }
+
+    function updateThemeButton(theme) {
+      const btn = document.getElementById("theme-btn");
+      if (theme === "light") {
+        btn.innerHTML = '<i data-lucide="moon"></i><span>Dark Mode</span>';
+      } else {
+        btn.innerHTML = '<i data-lucide="sun"></i><span>Light Mode</span>';
+      }
+      lucide.createIcons();
+    }
+
+    // --- Column Visibility Menu ---
+    function initColumnsMenu() {
+      const menu = document.getElementById("column-select-menu");
+      menu.innerHTML = "";
+      COLUMNS.forEach(col => {
+        const item = document.createElement("div");
+        item.className = "column-select-item";
+        item.onclick = (e) => {
+          e.stopPropagation();
+          toggleColumnVisibility(col.key);
+        };
+        
+        item.innerHTML = `
+          <input type="checkbox" id="col-check-${col.key}" ${col.visible ? 'checked' : ''} style="cursor:pointer;">
+          <label style="cursor:pointer; flex:1; margin-left:6px;">${col.name}</label>
+        `;
+        menu.appendChild(item);
+      });
+    }
+
+    function toggleColumnSelectDropdown(e) {
+      e.stopPropagation();
+      const menu = document.getElementById("column-select-menu");
+      const isVisible = menu.style.display === "block";
+      closeAllToolbars();
+      if (!isVisible) {
+        menu.style.display = "block";
+        document.getElementById("dropdown-backdrop").style.display = "block";
+      }
+    }
+
+    function toggleColumnVisibility(key) {
+      const col = COLUMNS.find(c => c.key === key);
+      if (col) {
+        col.visible = !col.visible;
+        document.getElementById(`col-check-${key}`).checked = col.visible;
+        applyFilters();
+      }
+    }
+
+    // --- Group By Menu ---
+    function toggleGroupByDropdown(e) {
+      e.stopPropagation();
+      const menu = document.getElementById("groupby-dropdown-menu");
+      const isVisible = menu.style.display === "block";
+      closeAllToolbars();
+      if (!isVisible) {
+        menu.style.display = "block";
+        document.getElementById("dropdown-backdrop").style.display = "block";
+      }
+    }
+
+    function setGroupBy(field) {
+      selectedGroupBy = field;
+      const label = document.getElementById("groupby-label");
+      if (field === "none") label.textContent = "None";
+      else if (field === "vendorName") label.textContent = "Vendor";
+      else if (field === "stage") label.textContent = "Stage";
+      else if (field === "receiptType") label.textContent = "Receipt Type";
+      
+      closeAllToolbars();
+      applyFilters();
+      showToast(`Grouped by ${label.textContent}`, "info");
+    }
+
+    // --- Filter Drawer ---
+    function toggleFilterDrawer() {
+      const drawer = document.getElementById("filter-drawer");
+      drawer.style.display = drawer.style.display === "block" ? "none" : "block";
+    }
+
+    function clearFilters() {
+      document.getElementById("list-search").value = "";
+      document.getElementById("filter-organisation").value = "";
+      document.getElementById("filter-branch").value = "";
+      document.getElementById("filter-vendor").value = "";
+      document.getElementById("filter-stage").value = "";
+      document.getElementById("filter-date-from").value = "";
+      document.getElementById("filter-date-to").value = "";
+      document.getElementById("filter-receipt-type").value = "";
+      document.getElementById("filter-created-by").value = "";
+      applyFilters();
+      showToast("All filters cleared", "info");
+    }
+
+    // --- Layout View Toggle ---
+    function toggleLayoutView() {
+      layoutView = layoutView === "table" ? "grid" : "table";
+      const btn = document.getElementById("layout-toggle-btn");
+      if (layoutView === "table") {
+        btn.innerHTML = '<i data-lucide="grid"></i>';
+        document.getElementById("list-table-view").style.display = "block";
+        document.getElementById("list-grid-view").style.display = "none";
+      } else {
+        btn.innerHTML = '<i data-lucide="list"></i>';
+        document.getElementById("list-table-view").style.display = "none";
+        document.getElementById("list-grid-view").style.display = "grid";
+      }
+      lucide.createIcons();
+      applyFilters();
+    }
+
+    // --- Search & Filters Engine ---
+    let filteredRecords = [];
+
+    function applyFilters() {
+      initDatabase(); // Reload latest state
+      
+      const searchVal = document.getElementById("list-search").value.toLowerCase().trim();
+      const orgVal = document.getElementById("filter-organisation").value;
+      const branchVal = document.getElementById("filter-branch").value;
+      const vendorVal = document.getElementById("filter-vendor").value;
+      const stageVal = document.getElementById("filter-stage").value;
+      const dateFrom = document.getElementById("filter-date-from").value;
+      const dateTo = document.getElementById("filter-date-to").value;
+      const receiptVal = document.getElementById("filter-receipt-type").value;
+      const creatorVal = document.getElementById("filter-created-by").value;
+
+      // Count active advanced filters
+      let activeCount = 0;
+      if (orgVal) activeCount++;
+      if (branchVal) activeCount++;
+      if (vendorVal) activeCount++;
+      if (stageVal) activeCount++;
+      if (dateFrom) activeCount++;
+      if (dateTo) activeCount++;
+      if (receiptVal) activeCount++;
+      if (creatorVal) activeCount++;
+
+      const filterBadge = document.getElementById("active-filter-badge");
+      if (activeCount > 0) {
+        filterBadge.textContent = activeCount;
+        filterBadge.style.display = "inline-flex";
+      } else {
+        filterBadge.style.display = "none";
+      }
+
+      filteredRecords = grns.filter(grn => {
+        // Keyword Search (GRN No, Vendor, linked POs)
+        const matchesSearch = !searchVal || 
+          grn.grnNumber.toLowerCase().includes(searchVal) ||
+          grn.vendorName.toLowerCase().includes(searchVal) ||
+          grn.poList.some(po => po.toLowerCase().includes(searchVal)) ||
+          (grn.remarks && grn.remarks.toLowerCase().includes(searchVal));
+
+        // Advanced Select Filters
+        const matchesOrg = !orgVal || grn.organisation === orgVal;
+        const matchesBranch = !branchVal || grn.branch === branchVal;
+        const matchesVendor = !vendorVal || grn.vendorName === vendorVal;
+        const matchesStage = !stageVal || grn.stage === stageVal;
+        const matchesReceipt = !receiptVal || grn.receiptType === receiptVal;
+        const matchesCreator = !creatorVal || grn.createdBy === creatorVal;
+
+        // Date Range filter
+        let matchesDate = true;
+        if (dateFrom) {
+          matchesDate = matchesDate && (grn.grnDate >= dateFrom);
+        }
+        if (dateTo) {
+          matchesDate = matchesDate && (grn.grnDate <= dateTo);
+        }
+
+        return matchesSearch && matchesOrg && matchesBranch && matchesVendor && matchesStage && matchesReceipt && matchesCreator && matchesDate;
+      });
+
+      updateKPIs();
+      renderUI();
+    }
+
+    function updateKPIs() {
+      document.getElementById("kpi-total-grn").textContent = grns.length;
+      document.getElementById("kpi-pending-ver").textContent = grns.filter(g => g.stage === "Draft" || g.stage === "Submitted").length;
+      document.getElementById("kpi-completed").textContent = grns.filter(g => g.stage === "Completed").length;
+      document.getElementById("kpi-cancelled").textContent = grns.filter(g => g.stage === "Cancelled").length;
+    }
+
+    // --- Render View UI ---
+    function renderUI() {
+      // Calculate pagination slice
+      const totalCount = filteredRecords.length;
+      const maxPage = Math.max(1, Math.ceil(totalCount / pageSize));
+      if (currentPage > maxPage) currentPage = maxPage;
+      
+      const startIdx = (currentPage - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, totalCount);
+      const pageSlice = filteredRecords.slice(startIdx, endIdx);
+
+      // Render pagination details
+      document.getElementById("pagination-info").textContent = 
+        totalCount === 0 ? "Showing 0-0 of 0 records" : `Showing ${startIdx + 1}-${endIdx} of ${totalCount} records`;
+      
+      document.getElementById("prev-page-btn").disabled = currentPage === 1;
+      document.getElementById("next-page-btn").disabled = currentPage === maxPage;
+
+      if (layoutView === "table") {
+        renderTableLayout(pageSlice);
+      } else {
+        renderGridLayout(pageSlice);
+      }
+      lucide.createIcons();
+    }
+
+    // Table view generator
+    function renderTableLayout(records) {
+      const headersRow = document.getElementById("table-headers");
+      headersRow.innerHTML = "";
+      
+      // Load visible headers
+      COLUMNS.forEach(col => {
+        if (col.visible) {
+          let styleText = "";
+          if (col.key === "totalQuantity" || col.key === "totalAmount") {
+            styleText = ' style="text-align:right;"';
+          } else if (col.key === "poCount") {
+            styleText = ' style="text-align:center;"';
+          }
+          headersRow.innerHTML += `<th${styleText}>${col.name}</th>`;
+        }
+      });
+      headersRow.innerHTML += `<th style="text-align:right;">Actions</th>`;
+
+      const tbody = document.getElementById("grn-list-tbody");
+      tbody.innerHTML = "";
+
+      if (records.length === 0) {
+        const visibleColCount = COLUMNS.filter(c => c.visible).length + 1;
+        tbody.innerHTML = `<tr><td colspan="${visibleColCount}" style="text-align:center; color:var(--text-muted); padding:40px;">No matching GRN records found.</td></tr>`;
+        return;
+      }
+
+      // Grouping logic check
+      if (selectedGroupBy !== "none") {
+        const grouped = groupRecordsByField(records, selectedGroupBy);
+        
+        for (let groupVal in grouped) {
+          const groupHeader = document.createElement("tr");
+          groupHeader.className = "group-header-row";
+          const visibleColCount = COLUMNS.filter(c => c.visible).length + 1;
+          groupHeader.innerHTML = `<td colspan="${visibleColCount}"><div style="display:flex; align-items:center; gap:8px;"><i data-lucide="folder" style="width:16px; height:16px;"></i> ${groupVal} (${grouped[groupVal].length} items)</div></td>`;
+          tbody.appendChild(groupHeader);
+          
+          grouped[groupVal].forEach(grn => {
+            appendTableRow(tbody, grn);
+          });
+        }
+      } else {
+        records.forEach(grn => {
+          appendTableRow(tbody, grn);
+        });
+      }
+    }
+
+    function appendTableRow(tbody, grn) {
+      const row = document.createElement("tr");
+      const idx = grns.findIndex(g => g.grnNumber === grn.grnNumber);
+      
+      let currencySymbol = grn.vendorName.includes("Global") ? "$" : "₹";
+      let totalAmountStr = `${currencySymbol}${grn.totalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+      let rowHtml = "";
+      COLUMNS.forEach(col => {
+        if (col.visible) {
+          let val = grn[col.key];
+          if (col.key === "receiptSource") {
+            val = val || "PO Based";
+          }
+          if (col.key === "grnNumber") {
+            rowHtml += `<td><a href="grn-entry.html?id=${val}&mode=view" style="font-weight:700; color:var(--primary); text-decoration:none; border-bottom:1px dashed var(--primary);">${val}</a></td>`;
+          } else if (col.key === "totalAmount") {
+            rowHtml += `<td style="text-align:right; font-weight:600;">${totalAmountStr}</td>`;
+          } else if (col.key === "totalQuantity") {
+            rowHtml += `<td style="text-align:right; font-weight:500;">${val}</td>`;
+          } else if (col.key === "poCount") {
+            rowHtml += `<td style="text-align:center;">${val}</td>`;
+          } else if (col.key === "stage") {
+            rowHtml += `<td><span class="badge badge-${val.toLowerCase().replace(/\s+/g, '-')}">${val}</span></td>`;
+          } else {
+            rowHtml += `<td>${val}</td>`;
+          }
+        }
+      });
+
+      // Actions Menu Dropdown
+      const isDirectApproved = grn.receiptSource === "Direct Receipt" && 
+        (grn.stage === "Purchase Approved" || grn.stage === "QC Pending" || grn.stage === "QC Approved" || grn.stage === "Completed");
+      
+      rowHtml += `
+        <td style="text-align:right;" class="action-cell">
+          <button class="btn btn-ghost" style="padding:4px 8px;" onclick="toggleRowMenu(event, ${idx})">
+            <i data-lucide="more-horizontal" style="width:16px; height:16px;"></i>
+          </button>
+          <div class="action-menu-dropdown" id="dropdown-${idx}">
+            <button onclick="navigateWithQuery('${grn.grnNumber}', 'view')"><i data-lucide="eye" style="width:14px; height:14px;"></i> View GRN Details</button>
+            ${grn.stage === 'Draft' || grn.stage === 'Submitted' ? `<button onclick="navigateWithQuery('${grn.grnNumber}', 'edit')"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Modify GRN</button>` : ''}
+            ${isDirectApproved ? `<button onclick="createPurchaseOrderForDirectGRN(${idx})"><i data-lucide="file-plus" style="width:14px; height:14px;"></i> Create Purchase Order</button>` : ''}
+            <button onclick="duplicateGRN(${idx})"><i data-lucide="copy" style="width:14px; height:14px;"></i> Duplicate GRN</button>
+            <button onclick="printGRN('${grn.grnNumber}')"><i data-lucide="printer" style="width:14px; height:14px;"></i> Print PDF Receipt</button>
+            ${grn.stage === 'Completed' && grn.receiptType !== 'Returnable Receipt' && grn.receiptType !== 'Sample Receipt' ? `<button onclick="createInvoice('${grn.grnNumber}')"><i data-lucide="receipt" style="width:14px; height:14px;"></i> Create Purchase Invoice</button>` : ''}
+            ${grn.stage !== 'Draft' && grn.stage !== 'Cancelled' ? `<button onclick="undoStage(${idx})"><i data-lucide="undo-2" style="width:14px; height:14px;"></i> Undo Stage</button>` : ''}
+            <hr>
+            ${grn.stage !== 'Completed' && grn.stage !== 'Cancelled' ? `<button onclick="cancelGRN(${idx})" style="color:var(--warning);"><i data-lucide="slash" style="width:14px; height:14px;"></i> Cancel Receipt</button>` : ''}
+            ${grn.stage === 'Draft' ? `<button onclick="deleteGRN(${idx})" style="color:var(--danger)"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete Draft</button>` : ''}
+          </div>
+        </td>
+      `;
+      row.innerHTML = rowHtml;
+      tbody.appendChild(row);
+    }
+
+    // Grid layout generator
+    function renderGridLayout(records) {
+      const container = document.getElementById("list-grid-view");
+      container.innerHTML = "";
+
+      if (records.length === 0) {
+        container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:40px;">No matching GRN records found.</div>`;
+        return;
+      }
+
+      records.forEach(grn => {
+        const idx = grns.findIndex(g => g.grnNumber === grn.grnNumber);
+        const card = document.createElement("div");
+        card.className = "card grn-list-card";
+        
+        let currencySymbol = grn.vendorName.includes("Global") ? "$" : "₹";
+        let amountStr = `${currencySymbol}${grn.totalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+
+        const sourceLabel = grn.receiptSource || "PO Based";
+        const isDirectApproved = grn.receiptSource === "Direct Receipt" && 
+          (grn.stage === "Purchase Approved" || grn.stage === "QC Pending" || grn.stage === "QC Approved" || grn.stage === "Completed");
+
+        card.innerHTML = `
+          <div>
+            <div class="grn-card-header">
+              <div>
+                <a href="grn-entry.html?id=${grn.grnNumber}&mode=view" style="font-size:1.1rem; font-weight:700; color:var(--primary); text-decoration:none;">${grn.grnNumber}</a>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Date: ${grn.grnDate}</div>
+              </div>
+              <span class="badge badge-${grn.stage.toLowerCase().replace(/\s+/g, '-')}">${grn.stage}</span>
+            </div>
+            
+            <div style="margin: 14px 0;">
+              <div style="font-weight:600; font-size:0.875rem; margin-bottom:8px;">${grn.vendorName}</div>
+              <div class="grn-card-body-row">
+                <span style="color:var(--text-muted);">Source:</span>
+                <span style="font-weight:600; color:var(--primary);">${sourceLabel}</span>
+              </div>
+              <div class="grn-card-body-row">
+                <span style="color:var(--text-muted);">Linked POs:</span>
+                <span style="font-weight:600;">${grn.poList.length > 0 ? grn.poList.join(', ') : 'None'}</span>
+              </div>
+              <div class="grn-card-body-row">
+                <span style="color:var(--text-muted);">Received Qty:</span>
+                <span style="font-weight:600;">${grn.totalQuantity} items</span>
+              </div>
+              <div class="grn-card-body-row">
+                <span style="color:var(--text-muted);">Total Value:</span>
+                <span style="font-weight:700; color:var(--text);">${amountStr}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grn-card-footer">
+            <span>By: ${grn.createdBy}</span>
+            <div class="action-cell">
+              <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="toggleRowMenu(event, ${idx})">
+                Actions <i data-lucide="chevron-down" style="width:12px; height:12px; display:inline; margin-left:4px;"></i>
+              </button>
+              <div class="action-menu-dropdown" id="dropdown-${idx}">
+                <button onclick="navigateWithQuery('${grn.grnNumber}', 'view')"><i data-lucide="eye" style="width:14px; height:14px;"></i> View GRN Details</button>
+                ${grn.stage === 'Draft' || grn.stage === 'Submitted' ? `<button onclick="navigateWithQuery('${grn.grnNumber}', 'edit')"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Modify GRN</button>` : ''}
+                ${isDirectApproved ? `<button onclick="createPurchaseOrderForDirectGRN(${idx})"><i data-lucide="file-plus" style="width:14px; height:14px;"></i> Create Purchase Order</button>` : ''}
+                <button onclick="duplicateGRN(${idx})"><i data-lucide="copy" style="width:14px; height:14px;"></i> Duplicate GRN</button>
+                <button onclick="printGRN('${grn.grnNumber}')"><i data-lucide="printer" style="width:14px; height:14px;"></i> Print PDF Receipt</button>
+                ${grn.stage === 'Completed' && grn.receiptType !== 'Returnable Receipt' && grn.receiptType !== 'Sample Receipt' ? `<button onclick="createInvoice('${grn.grnNumber}')"><i data-lucide="receipt" style="width:14px; height:14px;"></i> Create Purchase Invoice</button>` : ''}
+                ${grn.stage !== 'Draft' && grn.stage !== 'Cancelled' ? `<button onclick="undoStage(${idx})"><i data-lucide="undo-2" style="width:14px; height:14px;"></i> Undo Stage</button>` : ''}
+                <hr>
+                ${grn.stage !== 'Completed' && grn.stage !== 'Cancelled' ? `<button onclick="cancelGRN(${idx})" style="color:var(--warning);"><i data-lucide="slash" style="width:14px; height:14px;"></i> Cancel Receipt</button>` : ''}
+                ${grn.stage === 'Draft' ? `<button onclick="deleteGRN(${idx})" style="color:var(--danger)"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete Draft</button>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Grouping helper
+    function groupRecordsByField(records, field) {
+      return records.reduce((groups, grn) => {
+        const val = grn[field] || "Unassigned";
+        if (!groups[val]) groups[val] = [];
+        groups[val].push(grn);
+        return groups;
+      }, {});
+    }
+
+    // --- Action Methods ---
+    function toggleRowMenu(event, index) {
+      event.stopPropagation();
+      closeAllActionMenus();
+      const dropdown = document.getElementById(`dropdown-${index}`);
+      dropdown.style.display = "block";
+      document.getElementById("dropdown-backdrop").style.display = "block";
+    }
+
+    function closeAllActionMenus() {
+      document.querySelectorAll(".action-menu-dropdown").forEach(d => d.style.display = "none");
+      document.getElementById("dropdown-backdrop").style.display = "none";
+    }
+
+    function closeAllToolbars() {
+      document.getElementById("column-select-menu").style.display = "none";
+      document.getElementById("groupby-dropdown-menu").style.display = "none";
+    }
+
+    document.addEventListener("click", () => {
+      closeAllToolbars();
+    });
+
+    function navigateWithQuery(grnNo, mode) {
+      window.location.href = `grn-entry.html?id=${grnNo}&mode=${mode}`;
+    }
+
+    function printGRN(grnNo) {
+      showToast(`Generating PDF print preview for ${grnNo}...`, "success");
+      alert(`=== Goods Receipt Note Document ===\nNumber: ${grnNo}\nSent to default printer successfully.`);
+    }
+
+    function createInvoice(grnNo) {
+      showToast(`Creating Purchase Invoice from ${grnNo}...`, "success");
+      alert(`Success: Navigating to Purchase Invoice page with ${grnNo} pre-selected.`);
+    }
+
+    function undoStage(index) {
+      const grn = grns[index];
+      const stages = ["Draft", "Submitted", "Verified", "Completed"];
+      const currIdx = stages.indexOf(grn.stage);
+      
+      if (currIdx <= 0) {
+        alert("Cannot undo stage further.");
+        return;
+      }
+
+      const prevStage = stages[currIdx - 1];
+      if (confirm(`Are you sure you want to rollback stage of ${grn.grnNumber} from ${grn.stage} to ${prevStage}?`)) {
+        grn.stage = prevStage;
+        grn.updatedAt = new Date().toISOString().slice(0, 16).replace('T', ' ');
+        grn.timeline.push({
+          stage: prevStage,
+          setAt: grn.updatedAt,
+          setBy: "Sarah Manager",
+          remarks: `Rollback from ${stages[currIdx]} requested.`
+        });
+        localStorage.setItem("happy_erp_grns", JSON.stringify(grns));
+        applyFilters();
+        showToast(`Rollback stage to ${prevStage}`, "warning");
+      }
+    }
+
+    function duplicateGRN(index) {
+      const source = grns[index];
+      const year = new Date().getFullYear();
+      const nextNo = `GRN-${year}-${String(grns.length + 1).padStart(6, '0')}`;
+      
+      const copy = JSON.parse(JSON.stringify(source));
+      copy.grnNumber = nextNo;
+      copy.grnDate = new Date().toISOString().split('T')[0];
+      copy.stage = "Draft";
+      copy.createdBy = "James Executive";
+      copy.updatedAt = copy.grnDate + " 10:00";
+      copy.timeline = [
+        { stage: "Draft", setAt: copy.updatedAt, setBy: "James Executive", remarks: `Duplicated from ${source.grnNumber}` }
+      ];
+      
+      grns.unshift(copy);
+      localStorage.setItem("happy_erp_grns", JSON.stringify(grns));
+      applyFilters();
+      showToast(`Duplicated into new draft ${nextNo}`, "success");
+      
+      if (confirm(`Duplicate draft ${nextNo} created. Open in edit mode now?`)) {
+        window.location.href = `grn-entry.html?id=${nextNo}&mode=edit`;
+      }
+    }
+
+    function cancelGRN(index) {
+      const grn = grns[index];
+      if (confirm(`Are you sure you want to cancel receipt ${grn.grnNumber}? This will reverse stock ledger balances.`)) {
+        grn.stage = "Cancelled";
+        grn.updatedAt = new Date().toISOString().slice(0, 16).replace('T', ' ');
+        grn.timeline.push({
+          stage: "Cancelled",
+          setAt: grn.updatedAt,
+          setBy: "Sarah Manager",
+          remarks: "Material cancelled or returned."
+        });
+        localStorage.setItem("happy_erp_grns", JSON.stringify(grns));
+        applyFilters();
+        showToast(`${grn.grnNumber} CANCELLED`, "danger");
+      }
+    }
+
+    function deleteGRN(index) {
+      const grn = grns[index];
+      if (confirm(`Delete draft ${grn.grnNumber} permanently? This action is irreversible.`)) {
+        grns.splice(index, 1);
+        localStorage.setItem("happy_erp_grns", JSON.stringify(grns));
+        applyFilters();
+        showToast("Draft deleted successfully", "danger");
+      }
+    }
+
+    // --- Pagination Actions ---
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderUI();
+      }
+    }
+
+    function nextPage() {
+      const maxPage = Math.ceil(filteredRecords.length / pageSize);
+      if (currentPage < maxPage) {
+        currentPage++;
+        renderUI();
+      }
+    }
+
+    function changePageSize(size) {
+      pageSize = parseInt(size);
+      currentPage = 1;
+      renderUI();
+    }
+
+    // --- Export as CSV ---
+    function exportGRNList() {
+      if (filteredRecords.length === 0) {
+        alert("No records to export.");
+        return;
+      }
+      
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "GRN Number,GRN Date,Vendor,PO Count,Total Quantity,Total Amount,Stage,Created By,Last Updated\n";
+      
+      filteredRecords.forEach(r => {
+        csvContent += `${r.grnNumber},${r.grnDate},"${r.vendorName}",${r.poCount},${r.totalQuantity},${r.totalAmount},${r.stage},${r.createdBy},${r.updatedAt}\n`;
+      });
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `grn-list_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("Filtered list exported to CSV", "success");
+    }
+
+    // --- Share Filter Link ---
+    function shareCurrentView() {
+      const search = document.getElementById("list-search").value;
+      const vendor = document.getElementById("filter-vendor").value;
+      const stage = document.getElementById("filter-stage").value;
+      
+      const params = new URLSearchParams();
+      if (search) params.set("q", search);
+      if (vendor) params.set("vendor", vendor);
+      if (stage) params.set("stage", stage);
+      
+      const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+      
+      navigator.clipboard.writeText(url).then(() => {
+        showToast("Filter share link copied to clipboard!", "success");
+      }).catch(err => {
+        alert(`Copy link manually:\n${url}`);
+      });
+    }
+
+    function parseUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get("q");
+      const vendor = params.get("vendor");
+      const stage = params.get("stage");
+      
+      if (q) document.getElementById("list-search").value = q;
+      if (vendor) document.getElementById("filter-vendor").value = vendor;
+      if (stage) document.getElementById("filter-stage").value = stage;
+      
+      if (q || vendor || stage) {
+        document.getElementById("filter-drawer").style.display = "block";
+      }
+    }
+
+    // --- Full Screen Mode ---
+    function toggleFullScreen() {
+      const icon = document.getElementById("fullscreen-icon");
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().then(() => {
+          icon.setAttribute("data-lucide", "minimize-2");
+          lucide.createIcons();
+          showToast("Fullscreen enabled", "info");
+        }).catch(err => {
+          alert(`Error entering fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen().then(() => {
+          icon.setAttribute("data-lucide", "maximize-2");
+          lucide.createIcons();
+          showToast("Fullscreen disabled", "info");
+        });
+      }
+    }
+
+    // --- Toast Handler ---
+    function showToast(message, type = "primary") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      
+      let borderCol = "var(--primary)";
+      let iconName = "info";
+      if (type === "success") { borderCol = "var(--success)"; iconName = "check-circle"; }
+      else if (type === "warning") { borderCol = "var(--warning)"; iconName = "alert-triangle"; }
+      else if (type === "danger") { borderCol = "var(--danger)"; iconName = "trash-2"; }
+      
+      toast.style.borderLeftColor = borderCol;
+      toast.innerHTML = `<i data-lucide="${iconName}" style="color:${borderCol}"></i> <span>${message}</span>`;
+      
+      container.appendChild(toast);
+      lucide.createIcons();
+      
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(20px)";
+        toast.style.transition = "all 0.3s ease";
+        setTimeout(() => {
+          container.removeChild(toast);
+        }, 300);
+      }, 3000);
+    }
+
+    function createPurchaseOrderForDirectGRN(index) {
+      const grn = grns[index];
+      if (confirm(`Do you want to retroactively generate a Purchase Order for Direct Receipt ${grn.grnNumber} and link it?`)) {
+        const poNo = `PO-2026-${String(Math.floor(Math.random() * 900) + 100).padStart(3, '0')}`;
+        grn.poList = [poNo];
+        grn.poCount = 1;
+        grn.receiptSource = "PO Based"; // Now it has a PO reference!
+        grn.updatedAt = new Date().toISOString().slice(0, 16).replace('T', ' ');
+        grn.timeline.push({
+          stage: grn.stage,
+          setAt: grn.updatedAt,
+          setBy: "Sarah Manager",
+          remarks: `Retroactively generated and linked Purchase Order: ${poNo}`
+        });
+        
+        // Update PO number in products too
+        if (grn.products) {
+          grn.products.forEach(p => {
+            p.poNumber = poNo;
+          });
+        }
+        // Update PO number in inspections too
+        if (grn.inspections) {
+          grn.inspections.forEach(insp => {
+            insp.poNumber = poNo;
+          });
+        }
+
+        localStorage.setItem("happy_erp_grns", JSON.stringify(grns));
+        applyFilters();
+        showToast(`Linked generated ${poNo} successfully!`, "success");
+        alert(`Success: Generated Purchase Order ${poNo} and linked it to ${grn.grnNumber}.`);
+      }
+    }
+  </script>
+</body>
+</html>
