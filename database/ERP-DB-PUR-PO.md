@@ -41,8 +41,8 @@ Contains Purchase Order transaction data.
 | `buyer_user_id`        | String    | Yes      | -             | Foreign                     | m_party.`id`         | Employee who is responsible for this purchase                                   |
 | `buyer_user_name`      | String    | Yes      | -             | -                           | -                    | Responsible Employee Name                                                       |
 | `purchase_type`        | String    | -        | -             | -                           | -                    | Purchase Type: Local, Central, Export                                           |
-| `delivery_mode`        | String    |          |               |                             |                      | Delivery Type: Road, Rail, Air, Sea, Courier, Hand Delivery, Pipeline, Pickup   |
-| `delivery_charge_type` | String    | Yes      | -             | –                           | –                    | Who pays the delivery charges: Paid, To Pay, To Bill, Inclusive, Not Applicable |
+| `delivery_mode`        | String    |          |               |                             | s_category.`delivery_mode`                     | Delivery Type: Road, Rail, Air, Sea, Courier, Hand Delivery, Pipeline, Pickup   |
+| `delivery_charge_type` | String    | Yes      | -             | –                           | s_category.`delivery_charge`                    | Who pays the delivery charges: Paid, To Pay, To Bill, Inclusive, Not Applicable |
 | `attachments`          | Array Map | Yes      | –             | –                           | `Attachment` Map     | Branch Documents                                                                |
 | `stage`                | Map       | –        | –             | –                           | `Stage` Map          | Current Stage                                                                   |
 | `stage_logs`           | Array Map | Yes      | –             | –                           | `Stage` Map          | Workflow History                                                                |
