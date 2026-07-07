@@ -4,20 +4,20 @@ This document contains meta data.
 
 | Document Id | name            | short_name | parent_application_id | is_active |
 | ----------- | --------------- | ---------- | --------------------- | --------- |
-| MAS         | Masters         | MAS        | -                     | True      |
-| HR          | HRMS            | HR         | -                     | True      |
-| PUR         | Purchase        | PUR        | -                     | True      |
-| SAL         | Sales           | SAL        | -                     | True      |
-| PROD        | Production      | PROD       | -                     | True      |
-| JOBW        | Job Work        | JOBW       | -                     | True      |
-| INV         | Inventory       | INV        | -                     | True      |
 | ACCT        | Accounts        | ACCT       | -                     | True      |
 | BUDG        | Budgeting       | BUDG       | -                     | True      |
-| MIS         | Dashboard       | MIS        | -                     | True      |
 | CFG         | Configuration   | CFG        | -                     | True      |
+| HR          | HRMS            | HR         | -                     | True      |
+| INV         | Inventory       | INV        | -                     | True      |
+| JOBW        | Job Work        | JOBW       | -                     | True      |
+| MAS         | Masters         | MAS        | -                     | True      |
+| MIS         | Dashboard       | MIS        | -                     | True      |
+| PROD        | Production      | PROD       | -                     | True      |
+| PUR         | Purchase        | PUR        | -                     | True      |
+| SAL         | Sales           | SAL        | -                     | True      |
 | PRDM        | Product Master  | PROD       | MAS                   | True      |
-| PARTY       | Party Master    | PARTY      | MAS                   | True      |
-| USER        | User Management | USER       | CFG                   | True      |
-| TAX         | Taxation        | TAX        | CFG                   | True      |
 | ORG         | Business        | ORG        | CFG                   | True      |
 | SET         | Settings        | SET        | CFG                   | True      |
+| TAX         | Taxation        | TAX        | CFG                   | True      |
+| USER        | User Management | USER       | CFG                   | True      |
+| PARTY       | Party Master    | PARTY      | MAS                   | True      |
