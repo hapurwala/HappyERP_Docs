@@ -12,23 +12,28 @@ This document gives basic design details of following module.
 
 ## Roles
 
-| Role              | Purpose                                        |
-| :---------------- | :--------------------------------------------- |
-| Product Executive | Creates and manages brand records              |
-| Product Manager   | Reviews vendor brands and procurement mappings |
-| Sales Manager     | Uses brands for sales and reporting            |
-| System Admin      | Full access to brand configuration             |
-| Viewer            | Read-only access                               |
+| Role              | Purpose                            |
+| :---------------- | :--------------------------------- |
+| Product Executive | Creates and manages brand records  |
+| Product Manager   | Reviews and approves brand records |
+
+
+## Additional Roles
+
+| Role          | Purpose                             |
+| :------------ | :---------------------------------- |
+| System Admin  | Full access to brand configuration  |
+
 
 ---
 
 ## Workflow Stages
 
-| Stage     | Description                                      | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View To Roles                                              | System Action                    |
-| :-------- | :----------------------------------------------- | :-------------- | :----------- | :----------- | :----------- | :--------------------------------------------------------------- | :------------------------------- |
-| Draft     | Initial stage where brand is being created       | User            | Yes          | Yes          | No           | Product Executive, System Admin                                         | —                                 |
-| Submitted | Brand submitted for review and approval          | User            | No           | No           | Yes          | Product Manager, System Admin                                           | Notify Approval Roles            |
-| Approved  | Brand approved and available for product mapping | User            | Yes          | No           | No           | Product Executive, Product Manager, Sales Manager, System Admin, Viewer | Available for Product Assignment |
+| Stage     | Description                                      | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View To Roles                                             | System Action                    |
+| :-------- | :----------------------------------------------- | :-------------- | :----------- | :----------- | :----------- | :-------------------------------------------------------------- | :------------------------------- |
+| Draft     | Initial stage where brand is being created       | User            | Yes          | Yes          | No           | Product Executive, System Admin                                 | —                                |
+| Submitted | Brand submitted for review and approval          | User            | no           | No           | Yes          | Product Manager, System Admin                                   | Notify Approval Roles            |
+| Approved  | Brand approved and available for product mapping | User            | Yes          | No           | No           | Product Executive, Product Manager, Sales Manager, System Admin | Available for Product Assignment |
 
 ---
 
@@ -37,11 +42,12 @@ This document gives basic design details of following module.
 | Role              | Current Stage | Scope | Create | Modify | Delete | Cancel | Next Stage | Rollback Stage |
 | :---------------- | :------------ | :---- | :----- | :----- | :----- | :----- | :--------- | :------------- |
 | Product Executive | Draft         | Self  | Yes    | Yes    | Yes    | No     | Submit     | No             |
-| Product Manager   | Submitted     | Team  | No     | No     | No     | Yes    | Approve    | Draft          |
+| Product Manager   | Submitted     | Team  | No     | No     | No     | Yes    | Approve    | Yes            |
+| Product Manager   | Approved      | Team  | No     | No     | No     | No     | No         | No             |
 | System Admin      | Draft         | All   | Yes    | Yes    | Yes    | No     | Submit     | No             |
 | System Admin      | Submitted     | All   | No     | Yes    | No     | No     | Approve    | Draft          |
 | System Admin      | Approved      | All   | No     | Yes    | No     | No     | No         | No             |
-| Viewer            | Any           | All   | No     | No     | No     | No     | No         | No             |
+
 
 ---
 
@@ -65,7 +71,7 @@ This document gives basic design details of following module.
 |:--|:--|:--|
 |Product Count|Number of products linked to this brand|Number|
 |Current Stage|Current workflow stage|Badge|
-|Status|Active / Closed (system-derived from End Date)|Badge|
+
 
 ---
 
@@ -85,12 +91,10 @@ This document gives basic design details of following module.
 
 ## Reports
 
-| Report                       | Purpose                                                                   |
-| :--------------------------- | :------------------------------------------------------------------------ |
-| Brand Report                 | List of all brands (filterable by Status)                                 |
-| Brand Wise Sales Report      | Sales analysis by brand                                                   |
-| Brand Wise Purchase Report   | Purchase analysis by brand                                                |
-| Brand Usage Report           | Shows products, purchase, sales and inventory associated with each brand. |
+| Report                    | Purpose                   |
+| :------------------------ | :------------------------ |
+| Brand Report              | List of all brands        |
+| Brand Wise Product Report | Products grouped by Brand |
 
 ---
 
@@ -107,12 +111,12 @@ This document gives basic design details of following module.
 
 ## Validation Rules
 
-|Field|Rule|
-|:--|:--|
-|Brand Name|Must be unique across all Brands|
-|Short Name|Must be unique across all Brands|
-|Start Date / End Date|End Date cannot be earlier than Start Date|
-|Status|Status is system-derived from End Date (Active when End Date is empty or in the future, Closed once End Date has passed); it cannot be set directly|
+| Field                 | Rule                                                                                                                                                |
+| :-------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Brand Name            | Must be unique across all Brands                                                                                                                    |
+| Short Name            | Must be unique across all Brands                                                                                                                    |
+| Start Date / End Date | End Date cannot be earlier than Start Date                                                                                                          |
+
 
 ---
 
@@ -122,30 +126,29 @@ This document gives basic design details of following module.
 
 ### Document Structure
 
-|Field Name|Data Type|Description|
-|:--|:--|:--|
-|brandId|string|Unique Brand ID|
-|name|string|Brand Name|
-|shortName|string|Brand Code|
-|brandType|string|Own Brand / Vendor Brand|
-|description|string|Brand Description|
-|logo|string|Logo URL|
-|productCount|number|Linked Product Count|
-|stage|string|Current Workflow Stage (Draft / Submitted / Approved)|
-|status|string|Active / Closed (system-derived from endDate; not directly settable)|
-|startDate|timestamp|Activation Date|
-|endDate|timestamp|Closure Date|
-|remarks|string|Additional Notes|
-|createdBy|string|User ID who created the record|
-|createdByName|string|Creator Name Snapshot|
-|createdAt|timestamp|Record Creation Timestamp|
-|updatedBy|string|Last Updated User ID|
-|updatedByName|string|Last Updated User Name Snapshot|
-|updatedAt|timestamp|Last Modified Timestamp|
-|stageHistory|array<map>|Complete workflow audit history|
-|companyId|string|Company ID|
-|branchId|string|Branch ID|
-|isDeleted|boolean|Soft Delete Flag|
+| Field Name    | Data Type  | Description                                           |
+| :------------ | :--------- | :---------------------------------------------------- |
+| brandId       | string     | Unique Brand ID                                       |
+| name          | string     | Brand Name                                            |
+| shortName     | string     | Brand Code                                            |
+| brandType     | string     | Own Brand / Vendor Brand                              |
+| description   | string     | Brand Description                                     |
+| logo          | string     | Logo URL                                              |
+| productCount  | number     | Linked Product Count                                  |
+| stage         | string     | Current Workflow Stage (Draft / Submitted / Approved) |
+| startDate     | timestamp  | Activation Date                                       |
+| endDate       | timestamp  | Closure Date                                          |
+| remarks       | string     | Additional Notes                                      |
+| createdBy     | string     | User ID who created the record                        |
+| createdByName | string     | Creator Name Snapshot                                 |
+| createdAt     | timestamp  | Record Creation Timestamp                             |
+| updatedBy     | string     | Last Updated User ID                                  |
+| updatedByName | string     | Last Updated User Name Snapshot                       |
+| updatedAt     | timestamp  | Last Modified Timestamp                               |
+| stageHistory  | array<map> | Complete workflow audit history                       |
+| companyId     | string     | Company ID                                            |
+| branchId      | string     | Branch ID                                             |
+| isDeleted     | boolean    | Soft Delete Flag                                      |
 
 ---
 

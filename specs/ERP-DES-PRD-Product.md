@@ -10,171 +10,233 @@ This document gives basic design details of following module.
 
 ## Roles
 
-|Role|Purpose|
-|:--|:--|
-|Product Executive|Creates and manages product master records|
-|Product Manager|Reviews and approves product master records|
+| Role              | Purpose                                              |
+| :---------------- | :--------------------------------------------------- |
+| Product Executive | Creates and manages product master records           |
+| Product Manager   | Reviews and approves product master records          |
+| System Admin      | Full system configuration and administrative control |
 
 ## Additional Roles
 
-|Role|Purpose|
-|:--|:--|
-|Purchase Manager|Uses products for procurement and vendor mapping|
-|Sales Manager|Uses products in quotations, sales orders and invoicing|
-|Inventory Manager|Manages stock, warehouses and inventory configuration|
-|Production Manager|Uses products for manufacturing, BOM and production planning|
-|Accounts Executive|Uses products for accounting and tax-related transactions|
-|Store Manager|Uses products during inward, outward and stock movement operations|
-|Auditor|Read-only access for audit and compliance|
-|System Admin|Full system configuration and administrative control|
+| Role               | Purpose                                                            |
+| :----------------- | :----------------------------------------------------------------- |
+| Sales Manager      | Uses products in quotations, sales orders and invoicing            |
+| Purchase Manager   | Uses products for procurement and vendor mapping                   |
+| Inventory Manager  | Manages stock, warehouses and inventory configuration              |
+| Production Manager | Uses products for manufacturing, BOM and production planning       |
+| Accounts Executive | Uses products for accounting and tax-related transactions          |
+| Store Manager      | Uses products during inward, outward and stock movement operations |
+| Auditor            | Read-only access for audit and compliance                          |
+
+
+---
+
+## Field Ownership Participation
+
+Product Master participates in Field Ownership Mode. Each of the four owned sections (Sale, Purchase, Production, Inventory) can be independently configured as **Direct Edit** (default — standard App Role modify permission applies) or **Data Change Request Required** (edits by the section-owning role are intercepted and routed through the DCR workflow).
+
+**Section Owners:**
+
+| Section                  | Owner              |
+| :----------------------- | :----------------- |
+| Sale Configuration       | Sales Manager      |
+| Purchase Configuration   | Purchase Manager   |
+| Production Configuration | Production Manager |
+| Inventory Configuration  | Inventory Manager  |
+
+**Primary Role for DCR review:** Product Executive (System Admin can also action).
+
 
 ---
 
 ## Workflow Stages
 
-| Stage     | Description                                              | Who Will Set It | Allow Modify | Allow Delete | Allow Cancel | Allow View To Roles                                                                                                       | System Action                                         |
-| :-------- | :------------------------------------------------------- | :-------------- | :----------- | :----------- | :----------- | :------------------------------------------------------------------------------------------------------------------------ | :---------------------------------------------------- |
-| Draft     | Initial stage where the product is being created         | User            | Yes          | Yes          | No           | Product Executive, System Admin                                                                                                  | —                                                     |
-| Submitted | Product submitted for review and approval                | User            | Yes          | No           | Yes          | Product Manager, System Admin                                                                                                    | Notify Approval Roles                                 |
-| Approved  | Product approved and available for business transactions | User            | Yes          | No           | No           | Product Executive, Product Manager, Inventory Manager, Sales Manager, Purchase Manager, Production Manager, System Admin, Viewer | Available for Sales, Purchase, Inventory & Production |
+Governs the lifecycle of a **Product record**.
 
+| Stage     | Description                                                          | Who Will Set It          | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles                                                                                                                                             | System Action                                                          |
+| :-------- | :------------------------------------------------------------------- | :----------------------- | :----------- | :----------- | :----------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------- |
+| Draft     | Initial stage where the product is being created and fully editable. | User (Product Executive) | Yes          | Yes          | No           | Product Executive, System Admin                                                                                                                                       | ---                                                                    |
+| Submitted | Product submitted for review by Product Manager.                     | User (Product Executive) | No           | No           | Yes          | Product Executive, Product Manager, System Admin                                                                                                                      | Notify Product Manager, Lock Editing                                   |
+| Approved  | Product approved and available for business transactions.            | User (Product Manager)   | Yes          | No           | No           | Product Executive, Product Manager, Sales Manager, Purchase Manager, Inventory Manager, Production Manager, Accounts Executive, Store Manager, Auditor, Viewer, Admin | Publish to Sales, Purchase, Inventory & Production; Create Audit Entry |
+
+---
+
+## DCR Workflow Stages
+
+Governs the lifecycle of a **Data Change Request record** — a separate state machine that runs in parallel with the Product workflow, and only applies when a section is configured as **Data Change Request Required** under Field Ownership Mode. 
+
+| Stage         | Description                                                                                                                     | Who Will Set It                         | Allow Modify | Allow Delete | Allow Cancel | Allow View/Share To Roles                  | System Action                                                      |
+| :------------ | :------------------------------------------------------------------------------------------------------------------------------ | :-------------------------------------- | :----------- | :----------- | :----------- | :----------------------------------------- | :----------------------------------------------------------------- |
+| DCR Draft     | Section-owning role has staged a field change on an Approved product but not yet submitted; or a rejected DCR pending revision. | User (Section-Owning Role)              | Yes          | Yes          | No           | Requester, System Admin                    | ---                                                                |
+| DCR Submitted | DCR submitted for Product Executive review.                                                                                     | User (Section-Owning Role)              | Yes          | No           | Yes          | Product Executive, Requester, System Admin | Notify Product Executive; lock field on record                     |
+| DCR Approved  | Product Executive approved; field updated on the Approved product.                                                              | User (Product Executive / System Admin) | No           | No           | No           | Product Executive, Requester, System Admin | Apply field change; append to `fieldChangeLog`; notify requester   |
+| DCR Rejected  | Product Executive rejected.  DCR auto-rolls back to `DCR Draft` for requester revision.                                         | User (Product Executive / System Admin) | No           | No           | No           | Product Executive, Requester, System Admin | Capture rejection reason; roll back to DCR Draft; notify requester |
+|               |                                                                                                                                 |                                         |              |              |              |                                            |                                                                    |
+
+> [!Note]
+> **Flow:**
+> - Happy path: `DCR Draft` → `DCR Submitted` → `DCR Approved` 
+> - Rejection path: `DCR Draft` → `DCR Submitted` → `DCR Rejected` → `DCR Draft` *(requester revises and resubmits)*
+>
+> `DCR Approved` is the only terminal state. `DCR Rejected` is transient — the DCR immediately rolls back to `DCR Draft` with the rejection reason captured for the requester's revision.
 ---
 
 ## Workflow - Role Matrix
 
-|Role|Current Stage|Scope|Create|Modify|Delete|Cancel|Next Stage|Rollback Stage|
-|:--|:--|:--|:--|:--|:--|:--|:--|:--|
-|Product Executive|Draft|Self|Yes|Yes|Yes|No|Submit|No|
-|Product Manager|Submitted|Team|No|No|No|Yes|Approve|Draft|
-|System Admin|Draft|All|Yes|Yes|Yes|No|Submit|No|
-|System Admin|Submitted|All|No|Yes|No|No|Approve|Draft|
-|System Admin|Approved|All|No|Yes|No|No|No|No|
-|Viewer|Any|All|No|No|No|No|No|No|
+| Role                | Current Stage | Scope | Create | Modify                       | Delete | Cancel | Next Stage                  | Rollback Stage |
+| :------------------ | :------------ | :---- | :----- | :--------------------------- | :----- | :----- | :-------------------------- | :------------- |
+| Product Executive   | Draft         | Self  | Yes    | Yes                          | Yes    | No     | Submit                      | No             |
+| Product Manager     | Submitted     | Team  | No     | No                           | No     | Yes    | Approve / Reject → Draft    | Yes            |
+| Product Manager     | Approved      | Team  | No     | No                           | No     | No     | No                          | No             |
+| Sales Manager       | Approved      | Team  | No     | Yes (Sale Config only)       | No     | No     | -                           | No             |
+| Purchase Manager    | Approved      | Team  | No     | Yes (Purchase Config only)   | No     | No     | -                           | No             |
+| Production Manager  | Approved      | Team  | No     | Yes (Production Config only) | No     | No     | -                           | No             |
+| Inventory Manager   | Approved      | Team  | No     | Yes (Inventory Config only)  | No     | No     | -                           | No             |
+| Accounts Executive  | Approved      | All   | No     | No                           | No     | No     | -                           | No             |
+| Store Manager       | Approved      | All   | No     | No                           | No     | No     | -                           | No             |
+| Auditor             | Any           | All   | No     | No                           | No     | No     | -                           | No             |
+| System Admin        | Any           | All   | Yes    | Yes                          | Yes    | Yes    | Any Transition              | Yes            |
+| Section-Owning Role | DCR Draft     | Self  | Yes    | Yes                          | Yes    | No     | Submit                      | No             |
+| Section-Owning Role | DCR Submitted | Self  | No     | No                           | No     | Yes    | -                           | Yes (to Draft) |
+| Product Executive   | DCR Submitted | Team  | No     | No                           | No     | No     | DCR Approved / DCR Rejected | No             |
+| Product Executive   | DCR Approved  | Team  | No     | No                           | No     | No     | -                           | No             |
+| Product Executive   | DCR Rejected  | Team  | No     | No                           | No     | No     | -                           | No             |
+
+> [!Note]
+> Additional roles' **Modify** capability on their owned section is subject to **Field Ownership Mode**:
+> - Section = **Direct Edit** → modify applies immediately (Modified By/On updated).
+> - Section = **Data Change Request Required** → modify is intercepted; user must raise a DCR.
 
 ---
 
 ## Header Fields
 
-| Field         | Description                       | Type      | Required |
-| :------------ | :-------------------------------- | :-------- | :------- |
-| Product Name  | Name of Product                   | Text      | Yes      |
-| Short Name    | Product Code / Short Name         | Text      | Yes      |
-| Product Group | Product classification            | Dropdown  | Yes      |
-| Brand         | Product Brand                     | Dropdown  | No       |
-| UoM           | Unit of Measurement               | Dropdown  | Yes      |
-| HSN Code      | GST HSN Code                      | Text      | No       |
-| Description   | Product description               | Text Area | No       |
-| Operational Status | Operational status of the product | Dropdown  | Yes      |
-| Start Date    | Product activation date           | Date      | Yes      |
-| End Date      | Product closure date              | Date      | No       |
-| Remarks       | Internal remarks                  | Text Area | No       |
+| Field         | Description               | Type      | Required |
+| :------------ | :------------------------ | :-------- | :------- |
+| Product Name  | Name of Product           | Text      | Yes      |
+| Short Name    | Product Code / Short Name | Text      | Yes      |
+| Product Group | Product classification    | Dropdown  | Yes      |
+| Brand         | Product Brand             | Dropdown  | No       |
+| UoM           | Unit of Measurement       | Dropdown  | Yes      |
+| HSN Code      | GST HSN Code              | Text      | No\*     |
+| Description   | Product description       | Text Area | No       |
+| Start Date    | Product activation date   | Date      | Yes      |
+| End Date      | Product deactivation date | Date      | No       |
+| Remarks       | Internal remarks          | Text Area | No       |
+
+> [!Note]
+> `HSN Code (No\*)` — becomes **Required** when `Sale Enabled = Yes` (GST compliance).
 
 ---
 
-## Product Summary
+## Sale Configuration
 
-| Field         | Description                       | Type  |
-| :------------ | :-------------------------------- | :---- |
-| Brand         | Associated Brand                  | Text  |
-| Product Group | Product Classification            | Text  |
-| UoM           | Unit of Measurement               | Text  |
-| Current Stage | Current Workflow Stage            | Badge |
-| Operational Status | Active / Inactive / Phasing Out / Discontinued  | Badge |
+| Field                   | Description                                                      | Type    | Required |
+| :---------------------- | :--------------------------------------------------------------- | :------ | :------- |
+| Sale Enabled            | Indicates whether this product is available for sale             | Boolean | Yes      |
+| Minimum Sale Quantity   | Minimum quantity required in a single sale order                 | Number  | No       |
+| Maximum Sale Quantity   | Maximum quantity allowed in a single sale order                  | Number  | No       |
+| Sale Delivery Lead Time | Minimum number of days required to deliver this product for sale | Number  | No       |
 
----
+## Purchase Configuration
 
-## Functions
+| Field                       | Description                                                            | Type    | Required |
+| :-------------------------- | :--------------------------------------------------------------------- | :------ | :------- |
+| Purchase Enabled            | Indicates whether this product is available for purchase               | Boolean | Yes      |
+| Minimum Purchase Quantity   | Minimum quantity required in a single purchase order                   | Number  | No       |
+| Maximum Purchase Quantity   | Maximum quantity allowed in a single purchase order                    | Number  | No       |
+| Purchase Delivery Lead Time | Minimum number of days required to receive this product after purchase | Number  | No       |
 
-| Field                       | Description                                                            | Type    |
-| :-------------------------- | :--------------------------------------------------------------------- | :------ |
-| Sale Enabled                | Indicates whether this Product is available for sale                   | Boolean |
-| Minimum Sale Quantity       | Minimum quantity required in a single sale order                       | Number  |
-| Maximum Sale Quantity       | Maximum quantity allowed in a single sale order                        | Number  |
-| Sale Delivery Lead Time     | Minimum number of days required to deliver this Product for sale       | Number  |
-| Purchase Enabled            | Indicates whether this Product is available for purchase               | Boolean |
-| Minimum Purchase Quantity   | Minimum quantity required in a single purchase order                   | Number  |
-| Maximum Purchase Quantity   | Maximum quantity allowed in a single purchase order                    | Number  |
-| Purchase Delivery Lead Time | Minimum number of days required to receive this Product after purchase | Number  |
-| Production Enabled          | Indicates whether this Product is produced/manufactured by the company | Boolean |
+## Production Configuration
 
----
+| Field              | Description                                                              | Type    | Required |
+| :----------------- | :----------------------------------------------------------------------- | :------ | :------- |
+| Production Enabled | Indicates whether this product is produced / manufactured by the company | Boolean | Yes      |
 
 ## Inventory Configuration
 
-|Field|Description|Type|
-|:--|:--|:--|
-|Goods Type|Goods / Service|Dropdown|
-|Maintain Stock|Stock Tracking|Boolean|
-|Maintain Batch|Batch Tracking|Boolean|
-|Maintain Expiry|Expiry Tracking|Boolean|
-|Minimum Stock Quantity|Minimum Stock Level|Number|
-|Maximum Stock Quantity|Maximum Stock Level|Number|
-|Reorder Stock Quantity|Reorder Level|Number|
+| Field                  | Description                               | Type    | Required |
+| :--------------------- | :---------------------------------------- | :------ | :------- |
+| Is Goods               | True if physical good, False if service   | Boolean | Yes      |
+| Maintain Stock         | Enable stock tracking for this product    | Boolean | Yes      |
+| Maintain Batch         | Enable batch-level tracking               | Boolean | No       |
+| Maintain Expiry        | Enable expiry date tracking per batch     | Boolean | No       |
+| Minimum Stock Quantity | Minimum stock level before alert          | Number  | No       |
+| Maximum Stock Quantity | Maximum stock level allowed               | Number  | No       |
+| Reorder Stock Quantity | Stock level at which reorder is triggered | Number  | No       |
 
 ---
 
 ## Packs
 
-|Field|Description|Type|
-|:--|:--|:--|
-|Pack Name|Product Pack Name|Text|
-|Pack Code|Product Pack Code|Text|
-|UoM|Unit of Measurement|Dropdown|
-|Qty in Pack|Quantity in Pack|Number|
-|Remarks|Additional Notes|Text Area|
+| Field       | Description         | Type      | Required |
+| :---------- | :------------------ | :-------- | :------- |
+| Pack Name   | Product Pack Name   | Text      | Yes      |
+| Pack Code   | Product Pack Code   | Text      | Yes      |
+| UoM         | Unit of Measurement | Dropdown  | Yes      |
+| Qty in Pack | Quantity in Pack    | Number    | Yes      |
+| Remarks     | Additional Notes    | Text Area | No       |
 
 ---
 
 ## Media & Attachments
 
-|Field|Description|Type|
-|:--|:--|:--|
-|Primary Image|Primary Product Image|Image Upload|
-|Product Media|Additional Product Images|Image Upload|
-|Attachments|Supporting Documents|File Upload|
+| Field         | Description               | Type         |
+| :------------ | :------------------------ | :----------- |
+| Primary Image | Primary Product Image     | Image Upload |
+| Product Media | Additional Product Images | Image Upload |
+| Attachments   | Supporting Documents      | File Upload  |
 
-|Property|Value|
-|---|---|
-|Supported Formats|PNG, JPG, JPEG|
-|Maximum File Size|2 MB|
-
----
-
-## Reports
-
-| Report                    | Purpose                                                              |
-| :------------------------ | :------------------------------------------------------------------- |
-| Product Report            | List of all products                                                 |
-| Product Group Report      | Products grouped by Product Group                                    |
-| Brand Wise Product Report | Products grouped by Brand                                            |
-| Product Sales Report      | Sales analysis by product                                            |
-| Product Purchase Report   | Purchase analysis by product                                         |
-| Product Usage Report      | Shows product usage across sales, purchase, inventory and production |
-
----
-
-## System Information
-
-|Field|Description|Type|
-|:--|:--|:--|
-|Created By|User who created the product|User|
-|Created On|Record creation date and time|DateTime|
-|Modified By|Last user who modified the product|User|
-|Modified On|Last modification date and time|DateTime|
+| Property                   | Images         | Attachments          |
+| :------------------------- | :------------- | :------------------- |
+| Supported Formats          | PNG, JPG, JPEG | PDF, DOCX, XLSX, CSV |
+| Maximum File Size per File | 2 MB           | 5 MB                 |
 
 ---
 
 ## Validation Rules
 
-|Field|Rule|
-|:--|:--|
-|Product Name|Must be unique across all Products|
-|Short Name|Must be unique across all Products|
-|Sale Quantity|Minimum Sale Quantity cannot exceed Maximum Sale Quantity|
-|Purchase Quantity|Minimum Purchase Quantity cannot exceed Maximum Purchase Quantity|
-|Stock Quantity|Minimum Stock Quantity cannot exceed Maximum Stock Quantity; Reorder Stock Quantity cannot exceed Maximum Stock Quantity|
-|Start Date / End Date|End Date cannot be earlier than Start Date|
-|Pack Code|Must be unique within a Product|
+| Field / Constraint     | Rule                                                                                          |
+| :--------------------- | :-------------------------------------------------------------------------------------------- |
+| Product Name           | Must be unique across all  products                                                |
+| Short Name             | Must be unique across all  products                                                |
+| Start Date / End Date  | End Date cannot be earlier than Start Date                                                    |
+| Start Date             | Cannot be modified after product moves to `Approved` (locked for audit)                       |
+| Sale Quantity          | Minimum Sale Quantity cannot exceed Maximum Sale Quantity                                     |
+| Purchase Quantity      | Minimum Purchase Quantity cannot exceed Maximum Purchase Quantity                             |
+| Stock Quantity         | Minimum Stock Quantity cannot exceed Maximum Stock Quantity                                   |
+| Reorder Stock Quantity | Reorder Stock Quantity cannot exceed Maximum Stock Quantity; must be ≥ Minimum Stock Quantity |
+| Pack Code              | Must be unique within a product                                                               |
+| Is Goods = False       | Maintain Stock, Maintain Batch, Maintain Expiry must be `No` — locked and disabled on form    |
+| Maintain Batch         | Can only be `Yes` if Maintain Stock = `Yes`                                                   |
+| Maintain Expiry        | Can only be `Yes` if Maintain Batch = `Yes`                                                   |
+| HSN Code               | Required if Sale Enabled = `Yes` (GST compliance)                                             |
+| UoM change             | Blocked if any Pack rows exist that depend on the UoM; must clear Packs first                 |
+| Product Group change   | Allowed with confirmation; adds an entry to `fieldChangeLog`                                  |
+| End Date backdating    | Cannot be set to a date earlier than the latest transaction referencing this product          |
+
+---
+
+## Reports
+
+| Report                   | Purpose                                                                             |
+| :----------------------- | :---------------------------------------------------------------------------------- |
+| Product List             | All products with stage, group, brand, active status, usage                         |
+| Pending Approval Report  | Products currently in `Submitted` stage                                             |
+| Inactive Products Report | Products past their End Date (Closed)                                               |
+| Product Field Change Log | Full audit of every field change on every product, with mode-at-time-of-change      |
+
+
+---
+
+## System Information
+
+| Field       | Description                        | Type     |
+| :---------- | :--------------------------------- | :------- |
+| Created By  | User who created the product       | User     |
+| Created On  | Record creation date and time      | DateTime |
+| Modified By | Last user who modified the product | User     |
+| Modified On | Last modification date and time    | DateTime |
 
 ---
 
@@ -184,68 +246,51 @@ This document gives basic design details of following module.
 
 ### Document Structure
 
-| Field Name                | Data Type  | Description                                                      |
-| :------------------------ | :--------- | :--------------------------------------------------------------- |
-| productId                 | string     | Unique Product ID                                                |
-| name                      | string     | Product Name                                                     |
-| shortName                 | string     | Product Code                                                     |
-| productGroupId            | string     | Product Group                                                    |
-| brandId                   | string     | Brand                                                            |
-| uomId                     | string     | Unit of Measurement                                              |
-| hsnCode                   | string     | GST HSN Code                                                     |
-| description               | string     | Product Description                                              |
-| primaryImage              | string     | Primary Image URL                                                |
-| media                     | array<map> | Product Media                                                    |
-| packs                     | array<map> | Product Packs                                                    |
-| isSale                    | boolean    | Sale Enabled                                                     |
-| saleMinOrderQty           | number     | Minimum Sale Quantity                                            |
-| saleMaxOrderQty           | number     | Maximum Sale Quantity                                            |
-| saleMinDeliveryPeriod     | number     | Sale Delivery Lead Time                                          |
-| isPurchase                | boolean    | Purchase Enabled                                                 |
-| purchaseMinOrderQty       | number     | Minimum Purchase Quantity                                        |
-| purchaseMaxOrderQty       | number     | Maximum Purchase Quantity                                        |
-| purchaseMinDeliveryPeriod | number     | Purchase Delivery Lead Time                                      |
-| isProduce                 | boolean    | Production Enabled                                               |
-| isGoodsType               | boolean    | Goods / Service                                                  |
-| maintainStock             | boolean    | Maintain Stock                                                   |
-| maintainBatch             | boolean    | Batch Tracking                                                   |
-| maintainExpiry            | boolean    | Expiry Tracking                                                  |
-| minStockQty               | number     | Minimum Stock Quantity                                           |
-| maxStockQty               | number     | Maximum Stock Quantity                                           |
-| reorderStockQty           | number     | Reorder Quantity                                                 |
-| stage                     | string     | Current Workflow Stage (Draft / Submitted / Approved)            |
-| status                    | string     | Operational Status (Active / Inactive / Phasing Out / Discontinued) |
-| startDate                 | timestamp  | Activation Date                                                  |
-| endDate                   | timestamp  | Closure Date                                                     |
-| remarks                   | string     | Additional Notes                                                 |
-| createdBy                 | string     | User ID who created the record                                   |
-| createdByName             | string     | Creator Name Snapshot                                            |
-| createdAt                 | timestamp  | Record Creation Timestamp                                        |
-| updatedBy                 | string     | Last Updated User ID                                             |
-| updatedByName             | string     | Last Updated User Name Snapshot                                  |
-| updatedAt                 | timestamp  | Last Modified Timestamp                                          |
-| stageHistory              | array<map> | Complete workflow audit history                                  |
-| companyId                 | string     | Company ID                                                       |
-| branchId                  | string     | Branch ID                                                        |
-| isDeleted                 | boolean    | Soft Delete Flag                                                 |
+| Field Name                | Data Type  | Description                                                              |
+| :------------------------ | :--------- | :----------------------------------------------------------------------- |
+| productId                 | string     | Unique Product ID                                                        |
+| name                      | string     | Product Name                                                             |
+| shortName                 | string     | Product Code / Short Name                                                |
+| productGroupId            | string     | Product Group reference                                                  |
+| brandId                   | string     | Brand reference                                                          |
+| uomId                     | string     | Unit of Measurement reference                                            |
+| hsnCode                   | string     | GST HSN Code                                                             |
+| description               | string     | Product Description                                                      |
+| primaryImage              | string     | Primary Image URL                                                        |
+| media                     | array<map> | Additional product images                                                |
+| attachments               | array<map> | Supporting documents                                                     |
+| packs                     | array<map> | Product Packs                                                            |
+| isSale                    | boolean    | Sale Enabled                                                             |
+| saleMinOrderQty           | number     | Minimum Sale Quantity                                                    |
+| saleMaxOrderQty           | number     | Maximum Sale Quantity                                                    |
+| saleMinDeliveryPeriod     | number     | Sale Delivery Lead Time (days)                                           |
+| isPurchase                | boolean    | Purchase Enabled                                                         |
+| purchaseMinOrderQty       | number     | Minimum Purchase Quantity                                                |
+| purchaseMaxOrderQty       | number     | Maximum Purchase Quantity                                                |
+| purchaseMinDeliveryPeriod | number     | Purchase Delivery Lead Time (days)                                       |
+| isProduce                 | boolean    | Production Enabled                                                       |
+| isGoods                   | boolean    | True = physical good, False = service                                    |
+| maintainStock             | boolean    | Stock tracking enabled                                                   |
+| maintainBatch             | boolean    | Batch tracking enabled                                                   |
+| maintainExpiry            | boolean    | Expiry tracking enabled                                                  |
+| minStockQty               | number     | Minimum Stock Quantity                                                   |
+| maxStockQty               | number     | Maximum Stock Quantity                                                   |
+| reorderStockQty           | number     | Reorder Stock Quantity                                                   |
+| stage                     | string     | Current Workflow Stage — `Draft` \| `Submitted` \| `Approved` |
+| startDate                 | timestamp  | Product activation date                                                  |
+| endDate                   | timestamp  | Product deactivation date                                                |
+| remarks                   | string     | Internal remarks                                                         |
+| createdBy                 | string     | User ID of creator                                                       |
+| createdByName             | string     | Creator name snapshot                                                    |
+| createdAt                 | timestamp  | Record creation timestamp                                                |
+| updatedBy                 | string     | User ID of last modifier                                                 |
+| updatedByName             | string     | Last modifier name snapshot                                              |
+| updatedAt                 | timestamp  | Last modification timestamp                                              |
+| stageHistory              | array<map> | Complete workflow stage audit history                                    |
+| fieldChangeLog            | array<map> | Per-field change audit (see structure below)                             |
+| companyId                 | string     | Company ID                                                               |
+| isDeleted                 | boolean    | Soft delete flag                                                         |
 
----
-
-### `packs` Structure
-
-```json
-[
-  {
-    "packName": "Box of 10",
-    "packCode": "BOX10",
-    "uomId": "uomId1",
-    "qtyInPack": 10,
-    "remarks": "Standard retail pack"
-  }
-]
-```
-
----
 
 ### `stageHistory` Structure
 
@@ -276,16 +321,16 @@ This document gives basic design details of following module.
 ```
 
 ---
+
 ## Workflow Timeline
 
 Component to use: `StageHistoryViewer`
 
 Data Source: `stageHistory` array (see `stageHistory` Structure above)
 
-| Name/Label | Data Source              | Component | Tooltip   |
-| :--------- | :------------------------ | :-------- | :-------- |
-| Stage      | stage                     | Text      | -         |
-| Set At     | actionAt                  | Text      | -         |
-| Set By     | actionBy / actionByName   | Avatar    | User name |
-| Remarks    | remarks                   | Text      | -         |
-
+| Name/Label | Data Source             | Component | Tooltip   |
+| :--------- | :---------------------- | :-------- | :-------- |
+| Stage      | stage                   | Text      | -         |
+| Set At     | actionAt                | Text      | -         |
+| Set By     | actionBy / actionByName | Avatar    | User name |
+| Remarks    | remarks                 | Text      | -         |
