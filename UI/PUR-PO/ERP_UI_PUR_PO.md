@@ -2,6 +2,12 @@
 
 This document gives UI details of all pages used in Purchase Order module.
 
+# Related Reference files
+
+specs file : [ERP-DES-PUR-PO](/specs/ERP-DES-PUR-PO.md)
+
+---
+
 # Pages
 
 | S. No. | Name                  | Type  | Purpose                                                                                                         |
@@ -20,54 +26,64 @@ This page shows list of POs in tabular format. The POs appear in the list will d
 Summary cards are the widgets showing summary of the data on specific criteria. The numbers shown will depend upon current user's permission and applied filters. User has an option to select which cards he/she wants to see. Following are some example of cards:
 
 | S. No. | Description        | Examples                                                                                |
-| ------ | ------------------ | --------------------------------------------------------------------------------------- |
-| 1.     | Total POs          |                                                                                         |
+| ------ | ------------------- | ---------------------------------------------------------------------------------------- |
+| 1.     | Total POs          | -                                                                                        |
 | 2.     | Stage wise cards   | - Pending Approval<br/>- Ordered<br/>- Partial Received<br/>- Completed<br/>- Cancelled |
 | 3.     | Period wise cards  | - Today<br/>- This week<br/>- Last week<br/>- This month                                |
 | 4.     | Vendor wise Cards  | - Highest Value POs (3 cards)                                                           |
-| 5.     | Product wise Cards | - Highest Value POs (3 cards)                                                           |
+| 5.     | Product wise Cards | - Highest Value POs (3 cards)                                                           |
+
+---
 
 ## 1.2. PO List Data Table
 
-#### 1.2a. DataTable (PO List) - Columns
+**Component Type:** DataTable
 
-| Name            | Content                       | Type     | On Click                 | Card Placement | Tooltip / On Hover                                      |
-|:--------------- |:----------------------------- |:-------- |:------------------------ | -------------- |:------------------------------------------------------- |
-| PO Number       | Unique Purchase Order Number  | Text     | Open PO View / Edit Page |                | View Purchase Order Details                             |
-| PO Date         | Purchase Order Creation Date  | Date     | –                        |                | Purchase Order Date                                     |
-| Vendor          | Vendor Name                   | Text     | Open Vendor Profile      |                | View Vendor Details                                     |
-| Total Amount    | Total PO Amount Including Tax | Currency | –                        |                | Total Purchase Order Value Breakup                      |
-| Stage           | Current Workflow Stage        | Status   | Open Workflow Timeline   |                | Current PO Status with updatedBy, updatedAt and remarks |
-| Delivery Status | Delivery Progress Status      | Status   | Open Delivery Details    |                | View Delivery Progress                                  |
-| Payment Status  | Payment Progress Status       | Status   | Open Payment Summary     |                | View Payment Progress                                   |
-| Created By      | User Who Created PO           | User     | Open User Profile        |                | Created By User                                         |
-| Updated At      | Last Updated Date & Time      | DateTime | –                        |                | Last Modification Date                                  |
+### 1.2a. DataTable (PO List) - Columns
+
+| Header           | Data Source       | Format       | On Click                 | Card Placement | Tooltip / On Hover                                       | Inline Edit Component |
+| ----------------- | ------------------- | ------------- | --------------------------- | ----------------- | -------------------------------------------------------------- | ------------------------ |
+| PO Number        | t_purchase_order.`po_number`         | String       | Open PO View / Edit Page  | Title             | -                                                                | -                        |
+| PO Date          | t_purchase_order.`po_date`           | Date         | -                           | Body              | -                                                                | -                        |
+| Vendor           | t_purchase_order.`vendor_id`         | String       | Open Vendor Profile        | Body              | -                                                                | -                        |
+| Total Amount     | t_purchase_order.`total_amount`      | Currency     | -                           | Body              | Total Purchase Order Value Breakup                              | -                        |
+| Stage            | t_purchase_order.stage.`name`        | Stage Badge  | Open Workflow Timeline     | Body              | Current PO Status with updatedBy, updatedAt and remarks         | -                        |
+| Delivery Status  | t_purchase_order.`delivery_status`   | Status Badge | Open Delivery Details      | Body              | -                                                                | -                        |
+| Payment Status   | t_purchase_order.`payment_status`    | Status Badge | Open Payment Summary       | Body              | -                                                                | -                        |
+| Created By       | t_purchase_order.`created_by`        | String       | Open User Profile          | Body              | -                                                                | -                        |
+| Updated At       | t_purchase_order.`updated_at`        | DateTime     | -                           | Body              | -                                                                | -                        |
+
+---
 
 ### 1.2b. DataTable (PO List) - Toolbar Config
 
-| Feature          | Settings                    | On Click                                                                               |
-|:---------------- |:--------------------------- |:-------------------------------------------------------------------------------------- |
-| Search           | Yes                         | Search PO records based on the entered keyword(s).                                     |
-| View Toggle      | Yes                         | Switch between available DataTable view layouts.                                       |
-| Column Selection | Yes                         | Open column selector to show or hide DataTable columns.                                |
-| Group by         | Yes                         | Group DataTable records based on the selected column.                                  |
-| Filter           | Yes                         | Open filter panel to apply additional filtering criteria.                              |
-| Export           | Yes<br/>Filename: `po-list` | Export the displayed DataTable records using the configured filename `po-list`.        |
-| Share            | Yes                         | Generate and share the current DataTable view, including applied filters and settings. |
-| Full Screen      | Yes                         | Toggle the DataTable between normal and full-screen view.                              |
-| Add              | Yes<br/>Page to open: `po`  | Open the `po` page in create mode to add a new Purchase Order.                         |
+| Feature          | Settings                       | On Click                                                |
+| ----------------- | -------------------------------- | ---------------------------------------------------------- |
+| Search           | Yes                              | -                                                            |
+| View Toggle      | Yes                              | -                                                            |
+| Column Selection | Yes                              | -                                                            |
+| Group By         | Yes                              | -                                                            |
+| Filter           | Yes                              | -                                                            |
+| Export           | Yes<br/>Filename: `po-list`     | Export displayed records using filename `po-list`.          |
+| Share            | Yes                              | -                                                            |
+| Full Screen      | Yes                              | -                                                            |
+| Add              | Yes                              | Page to Open: `po`                                           |
 
-### 1.2c. DataTable (PO List) - Config
+---
+
+### 1.2c. DataTable (PO List) - Table Config
 
 | Feature        | Settings              |
-|:-------------- |:--------------------- |
-| Row Selection  | No                    |
-| Bulk Actions   | No                    |
-| Sticky Header  | Yes                   |
-| Column Resize  | Yes                   |
-| Column Pinning | Yes                   |
-| Sorting        | Yes                   |
-| Pagination     | Yes<br/>Page Size: 20 |
+| --------------- | ---------------------- |
+| Row Selection   | No                     |
+| Bulk Actions    | No                     |
+| Sticky Header   | Yes                    |
+| Column Resize   | Yes                    |
+| Column Pinning  | Yes                    |
+| Sorting         | Yes                    |
+| Pagination      | Yes<br/>Page Size: 20  |
+
+---
 
 ### 1.2d. DataTable (PO List) - RowAction Menu
 
@@ -103,21 +119,24 @@ Summary cards are the widgets showing summary of the data on specific criteria. 
 
 Fields in the main form are grouped in different sections.
 
+## Main Form Sections
+
 ```
 2.1. Left: Main Form
 - General Information
 - Product Details
 - Delivery Schedule
 - Payment Terms
-- Attachment/Media
+- Attachments
 
-2.2. Right: Summary and Timeline
-- Summary panel
-- Workflow timeline
-- Activity log 
+2.2. Right: Summary, Timeline and System Information
+- Summary
+- Workflow Timeline
+- Post Order Summary
+- System Information
 ```
 
-## 2.1. Left Part
+---
 
 ### 2.1.1. Section (General Information)
 
@@ -145,6 +164,7 @@ This section displays list of all products given in current PO.
 |:------------------------------ |:--------------------------------------------------------------- |:--------- |:------------------------------------------------------- |:-------- |:--------- |:---------------------------------------------- |:-------------------- |:------------------------ |:----------------------------------------------------------- |
 | Product                        | product_id                                                      | Select    | Single Select, Searchable, Async Lookup                 | Yes      | No        | Product Must Be Active                         | Load Product Details | Product Selection        | Select Product                                              |
 | Variety                        | variety_id                                                      | Select    | Single Select, Filtered By Product                      | No       | No        | -                                              | Load Variety Details | Product Variety          | Select Product Variety                                      |
+| Pack           | pack_id           | String   | -        | -                  | -                                              | Select<br/>Filtered By Product<br/>Validation: Must Belong To Selected Product<br/>On Change: Update Quantity Conversion              |  
 | Quantity                       | quantity + uom_id                                               | Input     | Suffix: uom_short_name; Decimal Allowed, Min=0          | Yes      | No        | Quantity Must Be Greater Than Zero             | Recalculate Amounts  | Ordered Quantity         | -                                                           |
 | Rate                           | rate                                                            | Input     | Decimal Currency Input                                  | Yes      | No        | Rate Must Be Greater Than Zero                 | Recalculate Amounts  | Purchase Rate            | -                                                           |
 | Discount                       | discount                                                        | Input     | Fixed Amount Or Percentage Or Unit                      | No       | No        | Discount Cannot Exceed Line Amount             | Recalculate Amounts  | Line Discount            | -                                                           |
@@ -164,20 +184,20 @@ This section displays list of all products given in current PO.
 | Filter           | No                                 | N/A                                                                    |
 | Export           | No                                 | N/A                                                                    |
 | Share            | No                                 | N/A                                                                    |
-| Full Screen      | Yes                                | Toggle the DataTable between normal and full-screen view.              |
-| Add              | Yes<br/>Page to open: `po_product` | Open the `po_product` page in create mode to add a new product record. |
+| Full Screen      | Yes      | -                        |
+| Add              | Yes      | Page to Open: `po_product` |
 
 ### 2.1.2c. DataTable (Product Details) - Config
 
 | Feature        | Settings              |
-|:-------------- |:--------------------- |
-| Row Selection  | No                    |
-| Bulk Actions   | No                    |
-| Sticky Header  | Yes                   |
-| Column Resize  | Yes                   |
-| Column Pinning | Yes                   |
-| Sorting        | Yes                   |
-| Pagination     | Yes<br/>Page Size: 20 |
+| --------------- | ---------------------- |
+| Row Selection   | No                     |
+| Bulk Actions    | No                     |
+| Sticky Header   | Yes                    |
+| Column Resize   | Yes                    |
+| Column Pinning  | Yes                    |
+| Sorting         | Yes                    |
+| Pagination      | Yes<br/>Page Size: 20  |
 
 ### 2.1.2d. DataTable (Product Details) - RowAction Menu
 
@@ -185,9 +205,9 @@ This section displays list of all products given in current PO.
 | ---------------- | ----------------------------------------------------------- | --------------------------------------------------------- | ------------------ | ------- |
 | Modify           | Open page: `po_product`                                     | - Modify permission<br/>- Modify allowed on stage         | pencil             | –       |
 | Set as <Stage_1> | Set stage to Stage_1                                        | Allowed stage based on current stage                      | arrow-right-circle | –       |
-| Set as <Stage_2> | Set stage to Stage_2                                        | –                                                         | arrow-right-circle |         |
+| Set as <Stage_2> | Set stage to Stage_2                                        | – Allowed stage based on current stage                                                            | arrow-right-circle |         |
 | Undo Stage       | Move back to last stage                                     | - Permission to rollback from current status              | undo-2             | –       |
-| Duplicate        | Create a copy of the PO. Stage will be set to `Draft`.      | - Add Permission                                          |                    | -       |
+| Duplicate        | Create a copy of the PO. Stage will be set to `Draft`.      | - Add Permission                                          | copy                   | -       |
 | Cancel           | - Show confirmation message<br/>- On Yes, mark as cancelled | - Cancel permission<br/>- Cancel allowed on current stage | share-2            | -       |
 | Delete           | - Show confirmation message<br/>- On Yes, delete brand      | - Delete permission<br/>- Delete allowed on current stage | trash-2            | –       |
 
@@ -401,25 +421,38 @@ This section displays list of all products given in current PO.
 
 ---
 
-## 2.2. Right Side Widgets
+### 2.1.5 Attachments
 
-### 2.2.1. Summary
+| Name       | Data Source                                                     | Component       | Component Specific Information            | Required | Read Only | Validations              | On Change      | Description               | Tooltip |
+| ----------- | -------------------------------------------------------------------- | ------------------ | ------------------------------------------- | -------- | --------- | --------------------------- | ----------------- | ------------------------------ | ------- |
+| Preview    | -                                                                | AppFileViewer     | PDF, Image, DOC Preview                   | No       | Yes       | -                        | Open Preview   | Preview Uploaded Document | -       |
+| File Name  | t_purchase_order.attachments().`file_name`  | AppTextDisplay    | Auto Generated From Uploaded File         | Yes      | Yes       | Cannot Be Blank          | Auto Populate  | Uploaded File Name        | -       |
+| File Type  | t_purchase_order.attachments().`file_type`  | AppBadge          | Auto Detected (PDF, JPG, PNG, XLSX, DOCX) | Yes      | Yes       | Supported File Type Only | Auto Detect    | Uploaded File Type        | -       |
+| Actions    | -                                                                | AppActionMenu     | Preview, Download, Delete                 | No       | No        | Permission Based Actions | Execute Action | Attachment Actions        | -       |
+
+---
+
+## 2.2 Right Section
+
+### 2.2.1 Summary
 
 Component to use: `Summary Card`
 
-| Name           | Content                              | On Click | Tooltip / On Hover     |
-|:-------------- |:------------------------------------ |:-------- |:---------------------- |
-| Total Items    | count(distinct product_pack_id)      |          | -                      |
-| Total Quantity | sum(quantity)                        |          | -                      |
-| Product Value  | sum(product_value)                   |          | -                      |
-| Tax Breakup    | sum(tax_amount) for individual taxes |          | -                      |
-| Discount       | discount                             |          | -                      |
-| Total PO Value | Product Value + Tax - Discount       |          | -                      |
-| Advance Amount | advance_amount                       |          | -                      |
-| Balance To Pay | Total PO Value - Advance Amount      |          | -                      |
-| Delivery Date  | min(delivery_date)                   |          | Earliest Delivery Date |
+| Name           | Data Source                          | Format   | On Click | Tooltip / On Hover     |
+| --------------- | --------------------------------------- | --------- | ---------- | -------------------------- |
+| Total Items    | count(distinct product_pack_id)      | Number   | -        | -                        |
+| Total Quantity | sum(quantity)                        | Number   | -        | -                        |
+| Product Value  | sum(product_value)                   | Currency | -        | -                        |
+| Tax Breakup    | sum(tax_amount) for individual taxes | Currency | -        | -                        |
+| Discount       | discount                             | Currency | -        | -                        |
+| Total PO Value | Product Value + Tax - Discount       | Currency | -        | -                        |
+| Advance Amount | advance_amount                       | Currency | -        | -                        |
+| Balance To Pay | Total PO Value - Advance Amount      | Currency | -        | -                        |
+| Delivery Date  | min(delivery_date)                   | Date     | -        | Earliest Delivery Date  |
 
-### 2.2.2. Workflow Timeline
+---
+
+### 2.2.2 Workflow Timeline
 
 Component to use: `StageHistoryViewer`
 
@@ -431,15 +464,28 @@ Component to use: `StageHistoryViewer`
 | Remarks    | remarks     | Text                                             | -         |
 | Attachment | url         | Pin icon. On click show attachment in Zoom mode. | -         |
 
-### 2.2.3. Post Order Summary
+### 2.2.3 Post Order Summary
 
 Component to use: `Summary Card`
 
-| Name                    | Content               | On Click | Tooltip / On Hover |
-|:----------------------- |:--------------------- |:-------- |:------------------ |
-| Total Quantity Received | sum(grn.quantity)     |          | -                  |
-| Product Value Invoiced  | sum(pi.product_value) |          | -                  |
-| Total Payment Made      | sum(payment.amount)   |          | -                  |
+| Name                    | Data Source            | Format   | On Click | Tooltip / On Hover |
+| ------------------------- | -------------------------- | --------- | ---------- | --------------------- |
+| Total Quantity Received | sum(grn.quantity)       | Number   | -        | -                   |
+| Product Value Invoiced  | sum(pi.product_value)   | Currency | -        | -                   |
+| Total Payment Made      | sum(payment.amount)     | Currency | -        | -                   |
+
+---
+
+### 2.2.4 System Information
+
+| Name        | Data Source       | Component | Component Specific Information | Required | Read Only | Validations | On Change | Description                                                | Tooltip |
+| ------------ | -------------------- | ----------- | ---------------------------------- | -------- | --------- | -------------- | --------- | ---------------------------------------------------------- | ------- |
+| Created By  | System Generated   | Text      | -                                | No       | Yes       | -            | -         | User who created the Purchase Order                       | -       |
+| Created On  | System Generated   | Date Time | DD/MM/YYYY HH:mm                | No       | Yes       | -            | -         | Date and Time when the Purchase Order was created          | -       |
+| Modified By | System Generated   | Text      | -                                | No       | Yes       | -            | -         | User who last modified the Purchase Order                 | -       |
+| Modified On | System Generated   | Date Time | DD/MM/YYYY HH:mm                | No       | Yes       | -            | -         | Date and Time when the Purchase Order was last modified    | -       |
+
+---
 
 # Recommended Tech Stack
 
