@@ -25,8 +25,6 @@ This document contains database design details of Purchase Invoice module. The d
 
 Contains Purchase Invoice transaction data.
 
----
-
 ## General Information
 
 | Name                    | Type      | Optional | Default Value | Key                         | Reference            | Remarks                                  |
@@ -39,11 +37,10 @@ Contains Purchase Invoice transaction data.
 | `number_series_id`      | String    | –        | –             | Foreign                     | m_number_series.`id` | Number Series Used                       |
 | `number`                | String    | –        | –             | Unique within Number Series | –                    | Purchase Invoice Number                  |
 | `formatted_number`      | String    | –        | –             | –                           | –                    | PI Number With Prefix And Suffix         |
-| `vendor_invoice_number` | String    | Yes      | –             | –                           | –                    | Vendor Invoice Number                    |
-| `vendor_invoice_date`   | Timestamp | Yes      | –             | –                           | –                    | Vendor Invoice Date                      |
 | `party_id`              | String    | –        | –             | Foreign                     | m_party.`id`         | Vendor Id                                |
 | `party_display_name`    | String    | –        | –             | –                           | –                    | Vendor Display Name                      |
-| `party_invoice_ref`     | String    | Yes      | –             | –                           | –                    | Vendor Reference Number                  |
+| `vendor_invoice_number` | String    | Yes      | –             | –                           | –                    | Vendor Invoice Number                    |
+| `vendor_invoice_date`   | Timestamp | Yes      | –             | –                           | –                    | Vendor Invoice Date                      |
 | `agent_party_id`        | String    | Yes      | –             | Foreign                     | m_party.`id`         | Agent Id                                 |
 | `agent_display_name`    | String    | Yes      | –             | –                           | –                    | Agent Display Name                       |
 | `currency_id`           | String    | –        | –             | Foreign                     | m_currency.`id`      | Currency                                 |
@@ -58,8 +55,6 @@ Contains Purchase Invoice transaction data.
 | `stage`                 | Map       | –        | –             | –                           | `Stage` Map          | Current Workflow Stage                   |
 | `stage_logs`            | Array Map | Yes      | –             | –                           | `Stage` Map          | Workflow History                         |
 | `notes`                 | Array Map | Yes      | –             | –                           | `Note` Map           | User Notes                               |
-
----
 
 ## Reference Documents
 
