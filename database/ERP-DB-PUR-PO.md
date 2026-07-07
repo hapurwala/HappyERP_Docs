@@ -20,33 +20,33 @@ Contains Purchase Order transaction data.
 
 ### General Information
 
-| Name                   | Type      | Optional | Default Value | Key                         | Reference            | Remarks                                                                         |
-| ---------------------- | --------- | -------- | ------------- | --------------------------- | -------------------- | ------------------------------------------------------------------------------- |
-| `id`                   | String    | –        | –             | Primary                     | –                    | Document Id                                                                     |
-| `date`                 | Timestamp | –        | Current Date  | –                           | –                    | Purchase Order Date                                                             |
-| `financial_year`       | Int64     | -        | -             | -                           | -                    | Financial Year                                                                  |
-| `organisation_id`      | String    | -        | -             | Foreign                     | m_organisation.`id`  | Source Organisation Id                                                          |
-| `branch_id`            | String    | -        | -             | Foreign                     | m_branch.`id`        | Source Branch Id                                                                |
-| `purpose_class`        | String    | -        | -             | -                           | -                    | Purchase Order, Job Order etc.                                                  |
-| `number_series_id`     | String    | -        | -             | Foreign                     | m_number_series.`id` | Number Series used                                                              |
-| `number`               | String    | –        | –             | Unique within Number Series | –                    | Purchase Order Number                                                           |
-| `formatted_number`     | String    | -        | -             | -                           | -                    | PO Number with prefix and suffix as per Number Series                           |
-| `party_id`             | String    | –        | –             | Foreign                     | m_party.`id`         | Vendor Id                                                                       |
-| `party_display_name`   | String    | –        | –             | –                           | –                    | Vendor's Display Name                                                           |
-| `party_quotation_ref`  | String    | Yes      | -             | -                           | -                    | Quotation No or any other reference                                             |
-| `agent_party_id`       | String    | –        | –             | Foreign                     | m_party.`id`         | Agent Id                                                                        |
-| `agent_display_name`   | String    | –        | –             | –                           | –                    | Agent's Display Name                                                            |
-| `currency_id`          | String    | –        | –             | Foreign                     | m_currency.`id`      | Currency                                                                        |
-| `currency_short_name`  | String    | –        | –             | –                           | –                    | Currency Short Name                                                             |
-| `buyer_user_id`        | String    | Yes      | -             | Foreign                     | m_party.`id`         | Employee who is responsible for this purchase                                   |
-| `buyer_user_name`      | String    | Yes      | -             | -                           | -                    | Responsible Employee Name                                                       |
-| `purchase_type`        | String    | -        | -             | -                           | -                    | Purchase Type: Local, Central, Export                                           |
-| `delivery_mode`        | String    |          |               |                             | s_category.`delivery_mode`                     | Delivery Type: Road, Rail, Air, Sea, Courier, Hand Delivery, Pipeline, Pickup   |
-| `delivery_charge_type` | String    | Yes      | -             | –                           | s_category.`delivery_charge`                    | Who pays the delivery charges: Paid, To Pay, To Bill, Inclusive, Not Applicable |
-| `attachments`          | Array Map | Yes      | –             | –                           | `Attachment` Map     | Branch Documents                                                                |
-| `stage`                | Map       | –        | –             | –                           | `Stage` Map          | Current Stage                                                                   |
-| `stage_logs`           | Array Map | Yes      | –             | –                           | `Stage` Map          | Workflow History                                                                |
-| `notes`                | Array Map | -        | -             | -                           | `Note` Map           | It is an array of Note map                                                      |
+| Name                   | Type      | Optional | Default Value | Key                         | Reference                    | Remarks                                                                         |
+| ---------------------- | --------- | -------- | ------------- | --------------------------- | ---------------------------- | ------------------------------------------------------------------------------- |
+| `id`                   | String    | –        | –             | Primary                     | –                            | Document Id                                                                     |
+| `date`                 | Timestamp | –        | Current Date  | –                           | –                            | Purchase Order Date                                                             |
+| `financial_year`       | Int64     | -        | -             | -                           | -                            | Financial Year                                                                  |
+| `organisation_id`      | String    | -        | -             | Foreign                     | m_organisation.`id`          | Source Organisation Id                                                          |
+| `branch_id`            | String    | -        | -             | Foreign                     | m_branch.`id`                | Source Branch Id                                                                |
+| `purpose_class`        | String    | -        | -             | -                           | -                            | Purchase Order, Job Order etc.                                                  |
+| `number_series_id`     | String    | -        | -             | Foreign                     | m_number_series.`id`         | Number Series used                                                              |
+| `number`               | String    | –        | –             | Unique within Number Series | –                            | Purchase Order Number                                                           |
+| `formatted_number`     | String    | -        | -             | -                           | -                            | PO Number with prefix and suffix as per Number Series                           |
+| `party_id`             | String    | –        | –             | Foreign                     | m_party.`id`                 | Vendor Id                                                                       |
+| `party_display_name`   | String    | –        | –             | –                           | –                            | Vendor's Display Name                                                           |
+| `party_quotation_ref`  | String    | Yes      | -             | -                           | -                            | Quotation No or any other reference                                             |
+| `agent_party_id`       | String    | –        | –             | Foreign                     | m_party.`id`                 | Agent Id                                                                        |
+| `agent_display_name`   | String    | –        | –             | –                           | –                            | Agent's Display Name                                                            |
+| `currency_id`          | String    | –        | –             | Foreign                     | m_currency.`id`              | Currency                                                                        |
+| `currency_short_name`  | String    | –        | –             | –                           | –                            | Currency Short Name                                                             |
+| `buyer_user_id`        | String    | Yes      | -             | Foreign                     | m_party.`id`                 | Employee who is responsible for this purchase                                   |
+| `buyer_user_name`      | String    | Yes      | -             | -                           | -                            | Responsible Employee Name                                                       |
+| `purchase_type`        | String    | -        | -             | -                           | -                            | Purchase Type: Local, Central, Export                                           |
+| `delivery_mode`        | String    |          |               |                             | s_category.`delivery_mode`   | Delivery Type: Road, Rail, Air, Sea, Courier, Hand Delivery, Pipeline, Pickup   |
+| `delivery_charge_type` | String    | Yes      | -             | –                           | s_category.`delivery_charge` | Who pays the delivery charges: Paid, To Pay, To Bill, Inclusive, Not Applicable |
+| `attachments`          | Array Map | Yes      | –             | –                           | `Attachment` Map             | Branch Documents                                                                |
+| `stage`                | Map       | –        | –             | –                           | `Stage` Map                  | Current Stage                                                                   |
+| `stage_logs`           | Array Map | Yes      | –             | –                           | `Stage` Map                  | Workflow History                                                                |
+| `notes`                | Array Map | -        | -             | -                           | `Note` Map                   | It is an array of Note map                                                      |
 
 ### Product Details
 
