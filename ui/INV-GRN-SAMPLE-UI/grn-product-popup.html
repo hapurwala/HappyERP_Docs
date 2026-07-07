@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HappyERP - Add/Modify GRN Product Detail Popup Sandbox</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Shared Style -->
+  <link rel="stylesheet" href="grn-style.css">
+  <style>
+    .component-box {
+      max-width: 800px;
+      margin: 40px auto;
+    }
+    
+    .playground-sidebar {
+      background-color: var(--input-bg);
+      border-left: 1px solid var(--border);
+      padding: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="grn-list.html" class="logo-container">
+      <i data-lucide="package-check" style="color:var(--primary); width:28px; height:28px;"></i>
+      <span class="logo-text">Happy<span>ERP</span></span>
+    </a>
+    <div class="header-title-module">GRN Product Popup Modal Sandbox</div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="toggleTheme()" id="theme-btn">
+        <i data-lucide="sun"></i><span>Light Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Layout -->
+  <div id="app-container" style="flex-direction: column; overflow-y: auto;">
+    
+    <div class="grid-container-entry" style="max-width: 1200px; margin: 20px auto; width:100%;">
+      
+      <!-- Left Column: The Modal Component Mockup -->
+      <div>
+        <div style="margin-bottom:16px;">
+          <h2 style="font-family:'Outfit';">S.No 3: Add/Modify GRN Product Component</h2>
+          <p style="color:var(--text-muted); font-size:0.875rem;">This interactive sandbox demonstrates the Popup modal behaviour, fields, calculations and validation rules.</p>
+        </div>
+
+        <!-- The Modal Content Rendered Inline (As a standalone Card) -->
+        <div class="card" style="border: 2px solid var(--primary); box-shadow: 0 0 20px var(--primary-glow);">
+          <div class="section-title" style="margin-top:0;">
+            <span class="section-title-label"><i data-lucide="edit-3" style="color:var(--primary);"></i> Add/Modify GRN Product Details</span>
+            <span class="badge badge-submitted" id="modal-product-status">BATCH MANAGED</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <!-- Row 1: Product Selection Info -->
+            <div class="grid-container-3">
+              <div class="form-group">
+                <label>Product Reference</label>
+                <input type="text" class="form-control" id="prod-name" value="Steel Pipes 2-inch" disabled>
+              </div>
+              <div class="form-group">
+                <label>Variety Attribute</label>
+                <input type="text" class="form-control" id="prod-variety" value="Grade-A" disabled>
+              </div>
+              <div class="form-group">
+                <label>Packaging Info</label>
+                <input type="text" class="form-control" id="prod-pack" value="Bundle of 10" disabled>
+              </div>
+            </div>
+
+            <!-- Row 2: PO reference Details -->
+            <div class="grid-container-3">
+              <div class="form-group">
+                <label>Linked PO Reference</label>
+                <input type="text" class="form-control" id="prod-po" value="PO-2026-001" disabled>
+              </div>
+              <div class="form-group">
+                <label>Purchase Rate</label>
+                <input type="text" class="form-control" id="prod-rate" value="₹1,200.00" disabled>
+              </div>
+              <div class="form-group">
+                <label>UOM (Unit of Measure)</label>
+                <input type="text" class="form-control" id="prod-uom" value="PCS" disabled>
+              </div>
+            </div>
+
+            <!-- Row 3: Ordered / Received metrics -->
+            <div class="grid-container-3">
+              <div class="form-group">
+                <label>PO Ordered Qty</label>
+                <input type="number" class="form-control" id="prod-ordered" value="100" disabled>
+              </div>
+              <div class="form-group">
+                <label>Previously Received Qty</label>
+                <input type="number" class="form-control" id="prod-prev" value="0" disabled>
+              </div>
+              <div class="form-group" style="background-color:rgba(99,102,241,0.05); padding:4px; border-radius:6px;">
+                <label style="color:var(--primary); font-weight:700;">Remaining Pending Qty</label>
+                <input type="number" class="form-control" id="prod-pending" value="100" style="font-weight:700; color:var(--primary);" disabled>
+              </div>
+            </div>
+
+            <!-- Row 4: Editable Received Values -->
+            <div class="grid-container-3" style="background-color:rgba(120,120,120,0.03); padding:16px; border-radius:12px; border:1px solid var(--border);">
+              <div class="form-group">
+                <label style="color:var(--text); font-weight:700;">Current Received Qty <span style="color:var(--danger)">*</span></label>
+                <input type="number" class="form-control" id="prod-rec" value="100" oninput="calculateModalTotals()">
+              </div>
+              <div class="form-group">
+                <label>Excess Received Qty</label>
+                <input type="number" class="form-control" id="prod-excess" value="0" oninput="calculateModalTotals()">
+              </div>
+              <div class="form-group">
+                <label>Calculated Receipt Value</label>
+                <input type="text" class="form-control" id="prod-val" value="₹120,000.00" style="font-weight:700; color:var(--success);" disabled>
+              </div>
+            </div>
+
+            <!-- Traceability metadata -->
+            <div class="grid-container-3">
+              <div class="form-group">
+                <label>Traceability Required</label>
+                <div style="display:flex; gap:12px; font-size:0.875rem; margin-top:8px;">
+                  <span id="label-batch-managed" class="badge badge-completed">Batch Managed</span>
+                  <span id="label-expiry-managed" class="badge badge-draft">Expiry Managed: No</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Remarks -->
+            <div class="form-group">
+              <label>Product Specific Remarks / Discrepancies</label>
+              <textarea class="form-control" id="prod-remarks" rows="2" placeholder="Write any product remarks, damage observations, etc..."></textarea>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid var(--border); padding-top:18px;">
+              <button class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+              <button class="btn btn-primary" onclick="simulateSaveProduct()"><i data-lucide="check"></i> Save & Generate JSON</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Right Column: Interactive Tester panel -->
+      <div class="right-sidebar">
+        
+        <!-- Scenarios Selection -->
+        <div class="card">
+          <div class="section-title">
+            <span class="section-title-label"><i data-lucide="play-circle"></i> Load Test Scenarios</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <button class="btn btn-secondary" style="width:100%; text-align:left; justify-content:flex-start;" onclick="loadProductCase('regular')">
+              <i data-lucide="package" style="color:var(--text-muted)"></i> 1. Regular Product (Fasteners)
+            </button>
+            <button class="btn btn-secondary" style="width:100%; text-align:left; justify-content:flex-start;" onclick="loadProductCase('batch')">
+              <i data-lucide="qr-code" style="color:var(--primary)"></i> 2. Batch-Managed (Steel Pipes)
+            </button>
+            <button class="btn btn-secondary" style="width:100%; text-align:left; justify-content:flex-start;" onclick="loadProductCase('pharma')">
+              <i data-lucide="activity" style="color:var(--warning)"></i> 3. Expiry-Managed (Aspirin)
+            </button>
+            <button class="btn btn-secondary" style="width:100%; text-align:left; justify-content:flex-start;" onclick="loadProductCase('sample')">
+              <i data-lucide="gift" style="color:var(--success)"></i> 4. Sample Receipt (Free Rice)
+            </button>
+          </div>
+        </div>
+
+        <!-- Simulator Controls -->
+        <div class="card" style="border:1px dashed var(--primary); background:rgba(99, 102, 241, 0.04); margin-top:16px;">
+          <div class="section-title" style="border-bottom:none; margin-bottom:12px;">
+            <span class="section-title-label" style="color:var(--primary); font-size:0.9rem;"><i data-lucide="play-circle"></i> Simulator Controls</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="sim-permission-excess" onchange="toggleExcessPermission(this.checked)" style="cursor:pointer; width:16px; height:16px;">
+            <label for="sim-permission-excess" style="font-size:0.75rem; font-weight:700; cursor:pointer; text-transform:none; letter-spacing:0; color:var(--text); margin-bottom:0;">Permit Excess Receipt</label>
+          </div>
+        </div>
+
+        <!-- Validations check panel -->
+        <div class="card">
+          <div class="section-title">
+            <span class="section-title-label"><i data-lucide="alert-circle"></i> Edge-Case Triggers</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <button class="btn btn-danger" style="width:100%;" onclick="triggerOverReceiveTest()">
+              Trigger Over-Receive Qty Check
+            </button>
+            <p style="font-size:0.75rem; color:var(--text-muted); line-height:1.3;">
+              Attempts to receive 150 units when pending is 100. Shows validation dialog and auto-resets received quantity.
+            </p>
+            <button class="btn btn-success" style="width:100%; margin-top:8px;" onclick="triggerExcessReceiveTest()">
+              Trigger Permitted Excess Receipt
+            </button>
+            <p style="font-size:0.75rem; color:var(--text-muted); line-height:1.3;">
+              Sets Excess Qty to 20 units. Calculates total received (120) and computes value correctly.
+            </p>
+          </div>
+        </div>
+
+        <!-- Output JSON box -->
+        <div class="card">
+          <div class="section-title">
+            <span class="section-title-label"><i data-lucide="braces"></i> Saved JSON Output</span>
+          </div>
+          <pre id="json-output" style="font-family:'Courier New', Courier, monospace; font-size:0.75rem; background-color:var(--console-bg); color:var(--console-text); padding:12px; border-radius:8px; overflow-x:auto; min-height:100px;">Click "Save" to output JSON object...</pre>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Live Logger Console -->
+    <div id="test-logs-drawer" style="position:static; margin-top:auto;">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <i data-lucide="terminal" style="width:14px; height:14px;"></i> Live Component Action Logs
+        </div>
+        <button class="btn btn-ghost" style="padding:2px 8px; font-size:0.65rem;" onclick="clearConsole()"><i data-lucide="trash-2"></i> Clear</button>
+      </div>
+      <div class="log-list" id="console-logs-list">
+        <!-- Javascript prints logs here -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JS Logic -->
+  <script>
+    // --- Mock Cases ---
+    const CASES = {
+      regular: {
+        name: "Hex Bolt Fasteners",
+        variety: "M12 Zinc",
+        pack: "Box of 100",
+        po: "PO-2026-002",
+        rate: 900,
+        currency: "₹",
+        uom: "BOX",
+        ordered: 50,
+        prev: 30,
+        pending: 20,
+        rec: 20,
+        excess: 0,
+        batchManaged: false,
+        expiryManaged: false,
+        remarks: "Normal packaging inspection passed."
+      },
+      batch: {
+        name: "Steel Pipes 2-inch",
+        variety: "Grade-A",
+        pack: "Bundle of 10",
+        po: "PO-2026-001",
+        rate: 1200,
+        currency: "₹",
+        uom: "PCS",
+        ordered: 100,
+        prev: 0,
+        pending: 100,
+        rec: 100,
+        excess: 0,
+        batchManaged: true,
+        expiryManaged: false,
+        remarks: "No visible rust observed."
+      },
+      pharma: {
+        name: "Aspirin Active Ingredient",
+        variety: "Pharma Grade",
+        pack: "Drum 25kg",
+        po: "PO-2026-003",
+        rate: 50,
+        currency: "$",
+        uom: "KGS",
+        ordered: 500,
+        prev: 0,
+        pending: 500,
+        rec: 500,
+        excess: 0,
+        batchManaged: true,
+        expiryManaged: true,
+        remarks: "Maintain cold chain logs."
+      },
+      sample: {
+        name: "Premium Basmati Rice (Sample)",
+        variety: "Basmati",
+        pack: "Bag 50kg",
+        po: "N/A (Direct)",
+        rate: 50,
+        currency: "₹",
+        uom: "KGS",
+        ordered: 0,
+        prev: 0,
+        pending: 10,
+        rec: 10,
+        excess: 0,
+        batchManaged: true,
+        expiryManaged: true,
+        remarks: "Free Sample for Quality Evaluation",
+        isSample: true
+      }
+    };
+
+    let activeCase = null;
+    let userHasExcessPermission = false;
+
+    function toggleExcessPermission(checked) {
+      userHasExcessPermission = checked;
+      logAction(`Simulator: Excess Receipt Permission set to ${checked ? "GRANTED" : "REVOKED"}`, checked ? "success" : "warning");
+      calculateModalTotals(false);
+    }
+
+    window.addEventListener("load", () => {
+      loadTheme();
+      loadProductCase("batch"); // Load default
+      lucide.createIcons();
+    });
+
+    function loadTheme() {
+      const savedTheme = localStorage.getItem("theme") || "dark";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      updateThemeButton(savedTheme);
+    }
+
+    function updateThemeButton(theme) {
+      const btn = document.getElementById("theme-btn");
+      if (btn) {
+        if (theme === "light") {
+          btn.innerHTML = '<i data-lucide="moon"></i><span>Dark Mode</span>';
+        } else {
+          btn.innerHTML = '<i data-lucide="sun"></i><span>Light Mode</span>';
+        }
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      updateThemeButton(next);
+      lucide.createIcons();
+    }
+
+    // --- Logger Console ---
+    function logAction(message, type = "info") {
+      const list = document.getElementById("console-logs-list");
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+      
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+      entry.innerHTML = `<span class="log-time">[${timeStr}]</span><span class="log-text ${type}">${message}</span>`;
+      
+      list.appendChild(entry);
+      list.scrollTop = list.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById("console-logs-list").innerHTML = "";
+    }
+
+    // --- Load Case Behavior ---
+    function loadProductCase(key) {
+      const data = CASES[key];
+      activeCase = JSON.parse(JSON.stringify(data)); // deep copy
+
+      document.getElementById("prod-name").value = activeCase.name;
+      document.getElementById("prod-variety").value = activeCase.variety;
+      document.getElementById("prod-pack").value = activeCase.pack;
+      document.getElementById("prod-po").value = activeCase.po;
+      
+      let rateStr = activeCase.currency + activeCase.rate.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      document.getElementById("prod-rate").value = rateStr;
+      
+      document.getElementById("prod-uom").value = activeCase.uom;
+      document.getElementById("prod-ordered").value = activeCase.ordered;
+      document.getElementById("prod-prev").value = activeCase.prev;
+      document.getElementById("prod-pending").value = activeCase.pending;
+      document.getElementById("prod-rec").value = activeCase.rec;
+      document.getElementById("prod-excess").value = activeCase.excess;
+      document.getElementById("prod-remarks").value = activeCase.remarks;
+
+      // Badges
+      const statusBadge = document.getElementById("modal-product-status");
+      const labelBatch = document.getElementById("label-batch-managed");
+      const labelExpiry = document.getElementById("label-expiry-managed");
+
+      if (activeCase.expiryManaged) {
+        statusBadge.textContent = "EXPIRY MANAGED";
+        statusBadge.className = "badge badge-verified";
+        labelBatch.className = "badge badge-completed";
+        labelBatch.textContent = "Batch Managed";
+        labelExpiry.className = "badge badge-completed";
+        labelExpiry.textContent = "Expiry Managed";
+      } else if (activeCase.batchManaged) {
+        statusBadge.textContent = "BATCH MANAGED";
+        statusBadge.className = "badge badge-submitted";
+        labelBatch.className = "badge badge-completed";
+        labelBatch.textContent = "Batch Managed";
+        labelExpiry.className = "badge badge-draft";
+        labelExpiry.textContent = "Expiry Managed: No";
+      } else {
+        statusBadge.textContent = "STANDARD ITEM";
+        statusBadge.className = "badge badge-draft";
+        labelBatch.className = "badge badge-draft";
+        labelBatch.textContent = "Batch Managed: No";
+        labelExpiry.className = "badge badge-draft";
+        labelExpiry.textContent = "Expiry Managed: No";
+      }
+
+      calculateModalTotals(false);
+      logAction(`Loaded case: ${activeCase.name} (${key.toUpperCase()})`, "info");
+    }
+
+    function calculateModalTotals(log = true) {
+      const rec = parseFloat(document.getElementById("prod-rec").value) || 0;
+      let excess = parseFloat(document.getElementById("prod-excess").value) || 0;
+      const rate = activeCase.isSample ? 0 : activeCase.rate;
+      const pending = activeCase.pending;
+
+      // Realtime validation limits
+      if (rec > pending) {
+        logAction(`Validation Trigger: Current Received (${rec}) exceeds PO pending limit (${pending}) for ${activeCase.name}`, "error");
+        alert(`Warning: Received quantity cannot exceed pending PO quantity (${pending}). Excess receipts should be recorded under the Excess Qty field.`);
+        document.getElementById("prod-rec").value = pending;
+        calculateModalTotals(false);
+        return;
+      }
+
+      // Excess permission check
+      if (excess > 0 && !userHasExcessPermission) {
+        logAction(`Validation Trigger: Excess receipt quantity (${excess}) entered without permission for ${activeCase.name}`, "error");
+        alert("Permission Denied: Receiving quantities in excess of the Purchase Order pending quantity requires 'Excess Receipt Permission'. Please request approval or enable permission.");
+        excess = 0;
+        document.getElementById("prod-excess").value = 0;
+      }
+
+      const totalReceived = rec + excess;
+      const totalValue = totalReceived * rate;
+      
+      let valStr = activeCase.isSample ? "₹0.00 (Sample)" : (activeCase.currency + totalValue.toLocaleString('en-IN', {minimumFractionDigits: 2}));
+      document.getElementById("prod-val").value = valStr;
+
+      if (log) {
+        logAction(`Rec Qty updated to ${rec}, Excess to ${excess}. Receipt Sum: ${totalReceived}. Value: ${valStr}`, "info");
+      }
+    }
+
+    function resetForm() {
+      document.getElementById("prod-rec").value = activeCase.pending;
+      document.getElementById("prod-excess").value = 0;
+      document.getElementById("prod-remarks").value = "";
+      calculateModalTotals(true);
+      logAction("Form fields reset to default case values", "warning");
+    }
+
+    // --- Interactive Tests ---
+    function triggerOverReceiveTest() {
+      logAction("Simulating user input: Qty = 150 (Pending is 100)...", "info");
+      document.getElementById("prod-rec").value = 150;
+      calculateModalTotals(true);
+    }
+
+    function triggerExcessReceiveTest() {
+      logAction("Simulating user input: Qty = 100, Excess Qty = 20...", "info");
+      document.getElementById("prod-rec").value = activeCase.pending;
+      document.getElementById("prod-excess").value = 20;
+      calculateModalTotals(true);
+    }
+
+    // --- Save output simulation ---
+    function simulateSaveProduct() {
+      const rec = parseFloat(document.getElementById("prod-rec").value) || 0;
+      const excess = parseFloat(document.getElementById("prod-excess").value) || 0;
+      const remarks = document.getElementById("prod-remarks").value;
+
+      const output = {
+        productId: activeCase.batchManaged ? (activeCase.expiryManaged ? "P-003" : "P-001") : "P-002",
+        name: activeCase.name,
+        variety: activeCase.variety,
+        pack: activeCase.pack,
+        poNumber: activeCase.po,
+        rate: activeCase.rate,
+        uom: activeCase.uom,
+        currentReceivedQuantity: rec,
+        excessQuantity: excess,
+        remarks: remarks,
+        timestamp: new Date().toISOString()
+      };
+
+      document.getElementById("json-output").textContent = JSON.stringify(output, null, 2);
+      logAction(`JSON Output generated for: ${output.name}. Callback fired to parent form.`, "success");
+    }
+  </script>
+</body>
+</html>

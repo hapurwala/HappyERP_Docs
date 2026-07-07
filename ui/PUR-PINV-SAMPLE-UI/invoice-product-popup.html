@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HappyERP - Add/Modify Invoice Product Sandbox</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Shared Style -->
+  <link rel="stylesheet" href="invoice-style.css">
+  <style>
+    /* Sandbox specific layout */
+    .sandbox-container {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      height: calc(100vh - 64px);
+      overflow: hidden;
+    }
+    @media (max-width: 900px) {
+      .sandbox-container {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow-y: auto;
+      }
+    }
+    .sandbox-sidebar {
+      border-right: 1px solid var(--border);
+      background-color: var(--card-bg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+    .sandbox-stage {
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent);
+    }
+    
+    /* Live calculation table inside modal */
+    .calc-summary-box {
+      background-color: var(--console-bg);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 16px;
+      font-size: 0.8rem;
+    }
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .calc-row:last-child {
+      margin-bottom: 0;
+      border-top: 1px solid var(--border);
+      padding-top: 6px;
+      margin-top: 6px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navbar -->
+  <header>
+    <div class="logo-container">
+      <div style="width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg, var(--primary), #a78bfa); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-family:'Outfit'; font-size:1.2rem; box-shadow:0 0 12px var(--primary-glow);">
+        H
+      </div>
+      <div class="logo-text">Happy<span>ERP</span></div>
+    </div>
+    
+    <div class="header-title-module">
+      <i data-lucide="package" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i>
+      Invoice Product Sandbox
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-ghost" id="theme-btn" onclick="toggleTheme()" title="Toggle Theme">
+        <i data-lucide="sun"></i>
+      </button>
+      <a href="invoice-list.html" class="btn btn-secondary" style="padding:8px 14px;">
+        <i data-lucide="layout-dashboard" style="width:16px; height:16px;"></i> Dashboard List
+      </a>
+    </div>
+  </header>
+
+  <!-- Sandbox Workspace -->
+  <div class="sandbox-container">
+    
+    <!-- Left Sidebar: Test Cases & JSON Output -->
+    <div class="sandbox-sidebar">
+      <div>
+        <h2 style="font-size:1.2rem; color:var(--text); margin-bottom:4px;">Component Sandbox</h2>
+        <p style="font-size:0.75rem; color:var(--text-muted);">Isolates the "Add/Modify Invoice Product" modal to verify formulas and validation parameters.</p>
+      </div>
+
+      <!-- Scenarios Card -->
+      <div class="card" style="padding:16px; border-radius:12px;">
+        <div class="section-title" style="margin-bottom:12px; border-bottom:none;">
+          <span class="section-title-label" style="font-size:0.8rem; color:var(--primary); font-weight:700;"><i data-lucide="play-circle"></i> Load Test Cases</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button class="btn btn-secondary" style="width:100%; text-align:left; justify-content:flex-start; font-size:0.8rem; padding:8px 12px;" onclick="loadProductCase('regular')">
+            <i data-lucide="package" style="color:var(--text-muted); width:14px; height:14px;"></i> 1. Regular Product (Hex Bolts)
+          </button>
+          <button class="btn btn-secondary" style="width:100%; text-align:left; justify-content:flex-start; font-size:0.8rem; padding:8px 12px;" onclick="loadProductCase('taxExempt')">
+            <i data-lucide="shield-off" style="color:var(--warning); width:14px; height:14px;"></i> 2. Exempt Product (Basmati Rice)
+          </button>
+          <button class="btn btn-secondary" style="width:100%; text-align:left; justify-content:flex-start; font-size:0.8rem; padding:8px 12px;" onclick="loadProductCase('discounted')">
+            <i data-lucide="percent" style="color:var(--success); width:14px; height:14px;"></i> 3. Discounted (Aluminium)
+          </button>
+          <button class="btn btn-secondary" style="width:100%; text-align:left; justify-content:flex-start; font-size:0.8rem; padding:8px 12px;" onclick="loadProductCase('direct')">
+            <i data-lucide="file-plus-2" style="color:var(--primary); width:14px; height:14px;"></i> 4. Direct Purchase (Additives)
+          </button>
+        </div>
+      </div>
+
+      <!-- JSON Output Card -->
+      <div class="card" style="padding:16px; border-radius:12px; display:flex; flex-direction:column; flex:1; min-height:220px;">
+        <div class="section-title" style="margin-bottom:8px; border-bottom:none;">
+          <span class="section-title-label" style="font-size:0.8rem; color:var(--primary); font-weight:700;"><i data-lucide="braces"></i> Saved JSON Schema</span>
+        </div>
+        <pre id="json-output" style="font-family:'Courier New', Courier, monospace; font-size:0.7rem; background-color:var(--console-bg); color:var(--console-text); padding:10px; border-radius:8px; overflow-x:auto; flex:1; max-height:300px; white-space:pre-wrap;">Click "Save Product Line" in the modal to output the JSON payload...</pre>
+      </div>
+    </div>
+
+    <!-- Right Stage: Modal Isolation Area & Logger -->
+    <div class="sandbox-stage">
+      
+      <!-- Component Card representing the Modal Form -->
+      <div class="card" style="width:600px; max-width:100%; box-shadow:0 15px 40px rgba(0,0,0,0.3); border-color:var(--border);">
+        <div class="section-title">
+          <span class="section-title-label"><i data-lucide="package-plus" style="color:var(--primary);"></i> Add/Modify Invoice Product Form</span>
+          <span class="badge badge-submitted" id="source-badge">DIRECT PURCHASE</span>
+        </div>
+        
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          
+          <!-- Source & Ref Row -->
+          <div class="grid-container-3">
+            <div class="form-group">
+              <label>Receipt Source</label>
+              <select class="form-control" id="prod-source" onchange="handleSourceChange(this.value)">
+                <option value="PO">Purchase Order (PO)</option>
+                <option value="GRN">Goods Receipt Note (GRN)</option>
+                <option value="Direct Purchase" selected>Direct Purchase</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Reference Number</label>
+              <input type="text" class="form-control" id="prod-ref-no" value="N/A">
+            </div>
+            <div class="form-group">
+              <label>Product Name *</label>
+              <input type="text" class="form-control" id="prod-name" placeholder="Enter Product Name">
+            </div>
+          </div>
+
+          <!-- Attributes Row -->
+          <div class="grid-container-3">
+            <div class="form-group">
+              <label>Variety / Grade</label>
+              <input type="text" class="form-control" id="prod-variety" placeholder="e.g. M12 Zinc">
+            </div>
+            <div class="form-group">
+              <label>Packaging Pack</label>
+              <input type="text" class="form-control" id="prod-pack" placeholder="e.g. Box of 100">
+            </div>
+            <div class="form-group">
+              <label>UOM *</label>
+              <input type="text" class="form-control" id="prod-uom" value="PCS">
+            </div>
+          </div>
+
+          <!-- Financial values Row -->
+          <div class="grid-container-3">
+            <div class="form-group">
+              <label>Invoice Quantity *</label>
+              <input type="number" class="form-control" id="prod-qty" value="10" step="any" oninput="calculateRealtimeNet()">
+            </div>
+            <div class="form-group">
+              <label>Purchase Rate (₹) *</label>
+              <input type="number" class="form-control" id="prod-rate" value="150.00" step="any" oninput="calculateRealtimeNet()">
+            </div>
+            <div class="form-group">
+              <label>Discount Type</label>
+              <select class="form-control" id="prod-disc-type" onchange="calculateRealtimeNet()">
+                <option value="None">No Discount</option>
+                <option value="Percent">Percent (%)</option>
+                <option value="Fixed">Fixed Value</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Discount Rate & Tax Row -->
+          <div class="grid-container-3">
+            <div class="form-group">
+              <label>Discount Rate</label>
+              <input type="number" class="form-control" id="prod-disc-rate" value="0" step="any" oninput="calculateRealtimeNet()">
+            </div>
+            <div class="form-group">
+              <label>Applied Tax Code</label>
+              <select class="form-control" id="prod-tax" onchange="calculateRealtimeNet()">
+                <option value="18%">GST 18%</option>
+                <option value="12%">GST 12%</option>
+                <option value="5%">GST 5%</option>
+                <option value="0%">Exempt (0%)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Remarks</label>
+              <input type="text" class="form-control" id="prod-remarks" placeholder="Line comments...">
+            </div>
+          </div>
+
+          <!-- Formula Breakdowns Box -->
+          <div class="calc-summary-box">
+            <div class="calc-row">
+              <span style="color:var(--text-muted);">Gross Amount (Qty × Rate):</span>
+              <span id="calc-gross" style="font-weight:600;">₹1,500.00</span>
+            </div>
+            <div class="calc-row">
+              <span style="color:var(--text-muted);">Discount Value Deduction:</span>
+              <span id="calc-discount" style="color:var(--danger); font-weight:600;">-₹0.00</span>
+            </div>
+            <div class="calc-row">
+              <span style="color:var(--text-muted);">Taxable Amount (Gross - Discount):</span>
+              <span id="calc-taxable" style="font-weight:600;">₹1,500.00</span>
+            </div>
+            <div class="calc-row">
+              <span style="color:var(--text-muted);">Calculated GST Tax:</span>
+              <span id="calc-tax" style="color:var(--success); font-weight:600;">+₹270.00</span>
+            </div>
+            <div class="calc-row">
+              <span style="font-size:0.875rem;">Final Net Value (Taxable + Tax):</span>
+              <span id="calc-net" style="font-size:0.95rem; color:var(--primary);">₹1,770.00</span>
+            </div>
+          </div>
+
+          <!-- Action row -->
+          <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid var(--border); padding-top:16px; margin-top:4px;">
+            <button class="btn btn-secondary" onclick="resetForm()">Reset Fields</button>
+            <button class="btn btn-primary" onclick="simulateSaveLine()"><i data-lucide="check" style="width:16px; height:16px;"></i> Save Product Line</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Embedded Console Logs Drawer -->
+      <div id="test-logs-drawer" style="width:100%; max-width:900px; margin-top:auto; border-radius:12px; border:1px solid var(--border); overflow:hidden;">
+        <div class="drawer-header">
+          <div class="drawer-title">
+            <i data-lucide="terminal" style="width:14px; height:14px; color:var(--primary);"></i> Live Sandbox Operations Logs
+          </div>
+          <button class="btn btn-ghost" style="padding:2px 8px; font-size:0.65rem;" onclick="clearConsole()"><i data-lucide="trash-2" style="width:12px; height:12px;"></i> Clear</button>
+        </div>
+        <div class="log-list" id="console-logs-list">
+          <!-- JS outputs console logs here -->
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- JS Logic -->
+  <script>
+    // --- Mock Cases ---
+    const CASES = {
+      regular: {
+        source: "PO",
+        refNo: "PO-2026-001",
+        name: "Hex Bolt Fasteners M12",
+        variety: "Zinc Plated",
+        pack: "Box of 100",
+        uom: "BOX",
+        qty: 50,
+        rate: 150.00,
+        discountType: "None",
+        discountRate: 0,
+        taxCode: "18%",
+        remarks: "Matched against PO quantities."
+      },
+      taxExempt: {
+        source: "GRN",
+        refNo: "GRN-2026-003",
+        name: "Premium Basmati Rice",
+        variety: "Super-Long Grain",
+        pack: "Bag 50kg",
+        uom: "KGS",
+        qty: 200,
+        rate: 85.00,
+        discountType: "None",
+        discountRate: 0,
+        taxCode: "0%",
+        remarks: "Exempt item, zero tariff applied."
+      },
+      discounted: {
+        source: "PO",
+        refNo: "PO-2026-003",
+        name: "Aluminium Plates 4x8",
+        variety: "Grade-6061",
+        pack: "Pallet of 10",
+        uom: "PCS",
+        qty: 30,
+        rate: 1250.00,
+        discountType: "Percent",
+        discountRate: 5,
+        taxCode: "12%",
+        remarks: "5% volume discount applied."
+      },
+      direct: {
+        source: "Direct Purchase",
+        refNo: "N/A",
+        name: "High-Performance Catalyst Additive",
+        variety: "Liquid Grade",
+        pack: "Canister 5L",
+        uom: "PCS",
+        qty: 5,
+        rate: 8000.00,
+        discountType: "Fixed",
+        discountRate: 1500,
+        taxCode: "18%",
+        remarks: "Ad-hoc purchase line. Requires manager auth."
+      }
+    };
+
+    let activeCase = null;
+
+    window.addEventListener("load", () => {
+      loadTheme();
+      loadProductCase("regular"); // default
+      lucide.createIcons();
+    });
+
+    function loadTheme() {
+      const theme = localStorage.getItem("theme") || "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      updateThemeButton(theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      updateThemeButton(next);
+      lucide.createIcons();
+      logAction(`Theme toggled to ${next.toUpperCase()} mode.`, "success");
+    }
+
+    function updateThemeButton(theme) {
+      const btn = document.getElementById("theme-btn");
+      if (theme === "light") {
+        btn.innerHTML = '<i data-lucide="moon"></i>';
+      } else {
+        btn.innerHTML = '<i data-lucide="sun"></i>';
+      }
+    }
+
+    // --- Load Case Behavior ---
+    function loadProductCase(key) {
+      activeCase = JSON.parse(JSON.stringify(CASES[key])); // deep copy
+
+      document.getElementById("prod-source").value = activeCase.source;
+      document.getElementById("prod-ref-no").value = activeCase.refNo;
+      document.getElementById("prod-name").value = activeCase.name;
+      document.getElementById("prod-variety").value = activeCase.variety;
+      document.getElementById("prod-pack").value = activeCase.pack;
+      document.getElementById("prod-uom").value = activeCase.uom;
+      document.getElementById("prod-qty").value = activeCase.qty;
+      document.getElementById("prod-rate").value = activeCase.rate;
+      document.getElementById("prod-disc-type").value = activeCase.discountType;
+      document.getElementById("prod-disc-rate").value = activeCase.discountRate;
+      document.getElementById("prod-tax").value = activeCase.taxCode;
+      document.getElementById("prod-remarks").value = activeCase.remarks;
+
+      const badge = document.getElementById("source-badge");
+      badge.textContent = activeCase.source.toUpperCase();
+      badge.className = `badge ${activeCase.source === 'Direct Purchase' ? 'badge-verified' : 'badge-submitted'}`;
+
+      calculateRealtimeNet(false);
+      logAction(`Loaded case parameters for: ${activeCase.name}`, "info");
+    }
+
+    function handleSourceChange(val) {
+      const badge = document.getElementById("source-badge");
+      badge.textContent = val.toUpperCase();
+      badge.className = `badge ${val === 'Direct Purchase' ? 'badge-verified' : 'badge-submitted'}`;
+      
+      if (val === "Direct Purchase") {
+        document.getElementById("prod-ref-no").value = "N/A";
+      } else {
+        document.getElementById("prod-ref-no").value = val === "PO" ? "PO-2026-001" : "GRN-2026-001";
+      }
+      logAction(`Receipt source swapped to: ${val}`, "info");
+      calculateRealtimeNet();
+    }
+
+    // --- Realtime Calculations & Mathematical Validations ---
+    function calculateRealtimeNet(log = true) {
+      const qty = parseFloat(document.getElementById("prod-qty").value) || 0;
+      const rate = parseFloat(document.getElementById("prod-rate").value) || 0;
+      
+      // Validations
+      if (qty < 0 || rate < 0) {
+        alert("Validation Error: Quantity and Rate cannot be negative values.");
+        document.getElementById("prod-qty").value = Math.abs(qty);
+        document.getElementById("prod-rate").value = Math.abs(rate);
+        calculateRealtimeNet(false);
+        return;
+      }
+
+      const gross = qty * rate;
+
+      const discType = document.getElementById("prod-disc-type").value;
+      let discRate = parseFloat(document.getElementById("prod-disc-rate").value) || 0;
+
+      if (discRate < 0) {
+        alert("Validation Error: Discount rate cannot be negative.");
+        document.getElementById("prod-disc-rate").value = 0;
+        discRate = 0;
+      }
+
+      let discount = 0;
+      if (discType === "Percent") {
+        if (discRate > 100) {
+          alert("Validation Error: Discount percentage cannot exceed 100%.");
+          document.getElementById("prod-disc-rate").value = 100;
+          discRate = 100;
+        }
+        discount = gross * (discRate / 100);
+      } else if (discType === "Fixed") {
+        if (discRate > gross) {
+          alert("Validation Error: Fixed discount amount cannot exceed gross product value.");
+          document.getElementById("prod-disc-rate").value = gross;
+          discRate = gross;
+        }
+        discount = discRate;
+      }
+
+      const taxable = gross - discount;
+      const taxCode = document.getElementById("prod-tax").value;
+      const taxRate = parseFloat(taxCode) || 0;
+      const tax = taxable * (taxRate / 100);
+
+      const net = taxable + tax;
+
+      // Update calculations box
+      document.getElementById("calc-gross").textContent = "₹" + gross.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      document.getElementById("calc-discount").textContent = "-₹" + discount.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      document.getElementById("calc-taxable").textContent = "₹" + taxable.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      document.getElementById("calc-tax").textContent = "+₹" + tax.toLocaleString('en-IN', {minimumFractionDigits: 2});
+      document.getElementById("calc-net").textContent = "₹" + net.toLocaleString('en-IN', {minimumFractionDigits: 2});
+
+      if (log) {
+        logAction(`Math Formula Triggered: (${qty} × ₹${rate.toFixed(2)}) - Discount(₹${discount.toFixed(2)}) + GST ${taxCode}(₹${tax.toFixed(2)}) = Net: ₹${net.toFixed(2)}`, "info");
+      }
+    }
+
+    function resetForm() {
+      loadProductCase("regular");
+      logAction("Form fields reset to default case.", "warning");
+    }
+
+    // --- Save output simulation ---
+    function simulateSaveLine() {
+      const qty = parseFloat(document.getElementById("prod-qty").value) || 0;
+      const rate = parseFloat(document.getElementById("prod-rate").value) || 0;
+      const name = document.getElementById("prod-name").value.trim();
+
+      if (!name) {
+        alert("Validation Error: Product name is mandatory.");
+        logAction("Save Blocked: Product name is empty.", "error");
+        return;
+      }
+
+      const gross = qty * rate;
+      const discType = document.getElementById("prod-disc-type").value;
+      const discRate = parseFloat(document.getElementById("prod-disc-rate").value) || 0;
+
+      let discount = 0;
+      if (discType === "Percent") discount = gross * (discRate / 100);
+      else if (discType === "Fixed") discount = discRate;
+
+      const taxable = gross - discount;
+      const taxCode = document.getElementById("prod-tax").value;
+      const taxRate = parseFloat(taxCode) || 0;
+      const tax = taxable * (taxRate / 100);
+      const net = taxable + tax;
+
+      const output = {
+        source: document.getElementById("prod-source").value,
+        referenceNumber: document.getElementById("prod-ref-no").value,
+        productName: name,
+        variety: document.getElementById("prod-variety").value || "Standard",
+        pack: document.getElementById("prod-pack").value || "BOX",
+        quantity: qty,
+        uom: document.getElementById("prod-uom").value || "PCS",
+        rate: rate,
+        grossAmount: gross,
+        discount: {
+          type: discType,
+          rate: discRate,
+          amount: discount
+        },
+        taxableValue: taxable,
+        tax: {
+          code: taxCode,
+          percentage: taxRate,
+          amount: tax
+        },
+        netAmount: net,
+        remarks: document.getElementById("prod-remarks").value,
+        timestamp: new Date().toISOString()
+      };
+
+      document.getElementById("json-output").textContent = JSON.stringify(output, null, 2);
+      logAction(`Success: JSON payload generated for: ${output.productName}. Fired callback: 'onProductSave(json)'.`, "success");
+    }
+
+    // --- Logger Console ---
+    function logAction(message, type = "info") {
+      const list = document.getElementById("console-logs-list");
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+      
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+      entry.innerHTML = `<span class="log-time">[${timeStr}]</span><span class="log-text ${type}">${message}</span>`;
+      
+      list.appendChild(entry);
+      list.scrollTop = list.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById("console-logs-list").innerHTML = "";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HappyERP - Purchase Invoice List</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Shared Style -->
+  <link rel="stylesheet" href="invoice-style.css">
+  <style>
+    /* Column Pinning & Table Specific styles */
+    .sticky-col {
+      position: sticky;
+      background-color: var(--card-bg);
+      z-index: 10;
+    }
+    .left-pinned {
+      left: 0;
+      border-right: 2px solid var(--border);
+    }
+    .right-pinned {
+      right: 0;
+      border-left: 2px solid var(--border);
+    }
+    th.left-pinned, th.right-pinned {
+      background-color: var(--table-header-bg);
+      z-index: 11;
+    }
+
+    /* Filter Drawer Panel */
+    .filter-panel {
+      position: fixed;
+      top: 0;
+      right: -380px;
+      width: 380px;
+      height: 100vh;
+      background-color: var(--bg);
+      border-left: 1px solid var(--border);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .filter-panel.open {
+      right: 0;
+    }
+    .filter-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--table-header-bg);
+    }
+    .filter-body {
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .filter-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background-color: var(--table-header-bg);
+    }
+
+    /* Column Selection Popover */
+    .column-popover {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 48px;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      z-index: 95;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      width: 220px;
+    }
+    .column-popover-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 0.8125rem;
+      cursor: pointer;
+    }
+    .column-popover-item input {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navbar -->
+  <header>
+    <a href="#" class="logo-container">
+      <div style="width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg, var(--primary), #a78bfa); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-family:'Outfit'; font-size:1.2rem; box-shadow:0 0 12px var(--primary-glow);">
+        H
+      </div>
+      <div class="logo-text">Happy<span>ERP</span></div>
+    </a>
+    
+    <div class="header-title-module">
+      <i data-lucide="receipt" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i>
+      Purchase Invoice Suite
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-ghost" id="theme-btn" onclick="toggleTheme()" title="Toggle Theme">
+        <i data-lucide="sun"></i>
+      </button>
+      <div style="display:flex; align-items:center; gap:8px; border-left:1px solid var(--border); padding-left:16px;">
+        <div style="width:32px; height:32px; border-radius:50%; background-color:var(--primary); display:flex; align-items:center; justify-content:center; color:white; font-size:0.8rem; font-weight:bold;">
+          PM
+        </div>
+        <span style="font-size:0.825rem; font-weight:600; color:var(--text-muted);">Purchase Manager</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- App Main Content -->
+  <div id="app-container">
+    <div id="main-content">
+      <div class="page">
+        
+        <!-- Header & Add Button -->
+        <div class="entry-header-row">
+          <div>
+            <h1 style="font-size:1.75rem; color:var(--text); margin-bottom:4px;">Purchase Invoices</h1>
+            <p style="font-size:0.85rem; color:var(--text-muted);">Track, verify, and approve vendor invoices against POs, GRNs, or direct purchases.</p>
+          </div>
+          <button class="btn btn-primary" onclick="createNewInvoice()">
+            <i data-lucide="plus-circle" style="width:16px; height:16px;"></i> Add Purchase Invoice
+          </button>
+        </div>
+
+        <!-- KPI Widgets -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(99, 102, 241, 0.1); color:var(--primary);">
+              <i data-lucide="file-text"></i>
+            </div>
+            <div class="kpi-info">
+              <h3 id="kpi-total-invoices">11</h3>
+              <p>Total Invoices</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(245, 158, 11, 0.1); color:var(--warning);">
+              <i data-lucide="clock"></i>
+            </div>
+            <div class="kpi-info">
+              <h3 id="kpi-pending-approvals">2</h3>
+              <p>Pending Approvals</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(16, 185, 129, 0.1); color:var(--success);">
+              <i data-lucide="wallet"></i>
+            </div>
+            <div class="kpi-info">
+              <h3 id="kpi-total-paid">₹19,20,000</h3>
+              <p>Total Amount Paid</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(239, 68, 68, 0.1); color:var(--danger);">
+              <i data-lucide="alert-triangle"></i>
+            </div>
+            <div class="kpi-info">
+              <h3 id="kpi-outstanding">₹15,40,000</h3>
+              <p>Outstanding Balance</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbar Config -->
+        <div class="toolbar-config">
+          <div class="search-filter-inputs">
+            <div class="search-container">
+              <i data-lucide="search" style="position:absolute; left:12px; top:12px; width:16px; height:16px; color:var(--text-muted);"></i>
+              <input type="text" class="form-control" style="padding-left:36px;" id="table-search" placeholder="Search Invoice No, Vendor, Reference..." oninput="handleSearch(this.value)">
+            </div>
+            <button class="btn btn-secondary" onclick="toggleFilterPanel(true)">
+              <i data-lucide="filter" style="width:16px; height:16px;"></i> Advanced Filters
+              <span id="active-filter-count" class="badge badge-submitted" style="padding:1px 6px; font-size:0.65rem; margin-left:4px; display:none;">0</span>
+            </button>
+            <button class="btn btn-ghost" onclick="resetAllFilters()" id="btn-reset-filters" style="display:none;" title="Clear All Filters">
+              <i data-lucide="x"></i> Clear
+            </button>
+          </div>
+          
+          <div style="display:flex; align-items:center; gap:10px; position:relative;">
+            <button class="btn btn-secondary" onclick="toggleColumnPopover()" title="Show/Hide Columns">
+              <i data-lucide="columns" style="width:16px; height:16px;"></i> Columns
+            </button>
+            
+            <!-- Column Popover -->
+            <div class="column-popover" id="col-popover">
+              <div style="font-weight:700; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:6px;">Select Columns</div>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-date')"> Invoice Date</label>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-vendor')"> Vendor</label>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-ref')"> Reference Type</label>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-qty')"> Total Quantity</label>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-amount')"> Net Amount</label>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-due')"> Due Date</label>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-creator')"> Created By</label>
+            </div>
+
+            <button class="btn btn-secondary" onclick="exportToCSV()" title="Export list to CSV">
+              <i data-lucide="download-cloud" style="width:16px; height:16px;"></i> Export
+            </button>
+            
+            <!-- Grid/Table View Toggle -->
+            <div style="border-left:1px solid var(--border); padding-left:10px; display:flex; gap:4px;">
+              <button class="btn btn-secondary" id="view-mode-table" style="padding:8px 12px; background-color:var(--border);" onclick="setViewMode('table')" title="Table View">
+                <i data-lucide="list" style="width:16px; height:16px;"></i>
+              </button>
+              <button class="btn btn-secondary" id="view-mode-grid" style="padding:8px 12px;" onclick="setViewMode('grid')" title="Grid Card View">
+                <i data-lucide="grid" style="width:16px; height:16px;"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table View Container -->
+        <div class="table-container" id="table-view-container">
+          <table>
+            <thead>
+              <tr>
+                <th class="sticky-col left-pinned">Invoice Number</th>
+                <th class="col-date">Invoice Date</th>
+                <th class="col-vendor">Vendor</th>
+                <th class="col-ref">Reference Type</th>
+                <th class="col-qty" style="text-align:right;">Total Quantity</th>
+                <th class="col-amount" style="text-align:right;">Net Amount</th>
+                <th class="col-due">Due Date</th>
+                <th>Stage</th>
+                <th class="col-creator">Created By</th>
+                <th class="sticky-col right-pinned" style="text-align:center; width:80px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="invoice-tbody">
+              <!-- JS renders rows here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Grid View Container -->
+        <div class="invoice-card-grid" id="grid-view-container" style="display:none;">
+          <!-- JS renders grid cards here -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); border:1px solid var(--card-border); padding:14px 20px; border-radius:12px;">
+          <span style="font-size:0.8rem; color:var(--text-muted);" id="pagination-info">Showing 1-11 of 11 invoices</span>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.75rem;" disabled><i data-lucide="chevron-left" style="width:14px; height:14px;"></i> Previous</button>
+            <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.75rem;" disabled>Next <i data-lucide="chevron-right" style="width:14px; height:14px;"></i></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Filters Drawer -->
+  <div class="modal-backdrop" id="filter-backdrop" onclick="toggleFilterPanel(false)">
+    <div class="filter-panel" id="filter-panel-card" onclick="event.stopPropagation()">
+      <div class="filter-header">
+        <h3 style="font-size:1.1rem; color:var(--text);"><i data-lucide="sliders-horizontal" style="width:16px; height:16px; vertical-align:middle; margin-right:6px; color:var(--primary);"></i> Advanced Filters</h3>
+        <button class="btn btn-ghost" style="padding:4px;" onclick="toggleFilterPanel(false)"><i data-lucide="x"></i></button>
+      </div>
+      
+      <div class="filter-body">
+        <div class="form-group">
+          <label>Date Range</label>
+          <select class="form-control" id="filter-date-range" onchange="applyFilters()">
+            <option value="all">All Dates</option>
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="this-month" selected>This Month</option>
+            <option value="last-month">Last Month</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Vendor</label>
+          <select class="form-control" id="filter-vendor" onchange="applyFilters()">
+            <option value="all">All Vendors</option>
+            <option value="Hindalco Industries">Hindalco Industries</option>
+            <option value="Tata Steel">Tata Steel</option>
+            <option value="Jindal Stainless">Jindal Stainless</option>
+            <option value="Reliance Industries">Reliance Industries</option>
+            <option value="Local Agro Farm">Local Agro Farm</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Reference Type</label>
+          <select class="form-control" id="filter-ref-type" onchange="applyFilters()">
+            <option value="all">All Types</option>
+            <option value="PO">Purchase Order (PO)</option>
+            <option value="GRN">Goods Receipt Note (GRN)</option>
+            <option value="Direct Purchase">Direct Purchase</option>
+            <option value="Mixed">Mixed Reference</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Workflow Stage</label>
+          <select class="form-control" id="filter-stage" onchange="applyFilters()">
+            <option value="all">All Stages</option>
+            <option value="Draft">Draft</option>
+            <option value="Submitted">Submitted</option>
+            <option value="Verified">Verified</option>
+            <option value="Approved">Approved</option>
+            <option value="Partially Paid">Partially Paid</option>
+            <option value="Paid">Paid</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Payment Status</label>
+          <select class="form-control" id="filter-payment" onchange="applyFilters()">
+            <option value="all">All Statuses</option>
+            <option value="Paid">Fully Paid</option>
+            <option value="Partial">Partially Paid</option>
+            <option value="Pending">Unpaid (Pending)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Created By</label>
+          <select class="form-control" id="filter-creator" onchange="applyFilters()">
+            <option value="all">All Users</option>
+            <option value="Admin">Admin</option>
+            <option value="Purchase Manager">Purchase Manager</option>
+            <option value="Inventory Clerk">Inventory Clerk</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-footer">
+        <button class="btn btn-secondary" onclick="resetAllFilters()">Reset</button>
+        <button class="btn btn-primary" onclick="toggleFilterPanel(false)">Apply Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Logger Console -->
+  <div id="test-logs-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <i data-lucide="terminal" style="width:14px; height:14px; color:var(--primary);"></i> Live Action Log & Validation Console
+      </div>
+      <button class="btn btn-ghost" style="padding:2px 8px; font-size:0.65rem;" onclick="clearConsole()"><i data-lucide="trash-2" style="width:12px; height:12px;"></i> Clear Logs</button>
+    </div>
+    <div class="log-list" id="console-logs-list">
+      <!-- Javascript prints logs here -->
+    </div>
+  </div>
+
+  <!-- Javascript Logic -->
+  <script>
+    // --- Mock Database of Invoices mapping directly to the 10 Scenarios ---
+    const INITIAL_INVOICES = [
+      {
+        invoiceNumber: "PINV-2026-000001",
+        invoiceDate: "2026-06-15",
+        vendor: "Hindalco Industries",
+        referenceType: "PO",
+        referenceNumbers: ["PO-2026-001"],
+        totalQuantity: 200,
+        netAmount: 250000,
+        paidAmount: 250000,
+        dueDate: "2026-07-15",
+        stage: "Paid",
+        createdBy: "Purchase Manager",
+        updatedAt: "2026-06-16 10:30",
+        scenario: "1. Invoice with Single PO",
+        paymentStatus: "Paid"
+      },
+      {
+        invoiceNumber: "PINV-2026-000002",
+        invoiceDate: "2026-06-18",
+        vendor: "Tata Steel",
+        referenceType: "GRN",
+        referenceNumbers: ["GRN-2026-001"],
+        totalQuantity: 400,
+        netAmount: 480000,
+        paidAmount: 480000,
+        dueDate: "2026-07-18",
+        stage: "Paid",
+        createdBy: "Inventory Clerk",
+        updatedAt: "2026-06-18 16:45",
+        scenario: "2. Invoice with GRN",
+        paymentStatus: "Paid"
+      },
+      {
+        invoiceNumber: "PINV-2026-000003",
+        invoiceDate: "2026-06-20",
+        vendor: "Jindal Stainless",
+        referenceType: "PO",
+        referenceNumbers: ["PO-2026-002"],
+        totalQuantity: 150,
+        netAmount: 150000,
+        paidAmount: 0,
+        dueDate: "2026-07-20",
+        stage: "Verified",
+        createdBy: "Purchase Manager",
+        updatedAt: "2026-06-20 11:15",
+        scenario: "3. Invoice without GRN",
+        paymentStatus: "Pending"
+      },
+      {
+        invoiceNumber: "PINV-2026-000004",
+        invoiceDate: "2026-06-22",
+        vendor: "Local Agro Farm",
+        referenceType: "Direct Purchase",
+        referenceNumbers: ["N/A"],
+        totalQuantity: 100,
+        netAmount: 85000,
+        paidAmount: 0,
+        dueDate: "2026-06-29",
+        stage: "Approved",
+        createdBy: "Purchase Manager",
+        updatedAt: "2026-06-22 09:30",
+        scenario: "4. Direct Purchase Invoice (No PO/GRN)",
+        paymentStatus: "Pending"
+      },
+      {
+        invoiceNumber: "PINV-2026-000005",
+        invoiceDate: "2026-06-23",
+        vendor: "Reliance Industries",
+        referenceType: "Mixed",
+        referenceNumbers: ["PO-2026-003", "Direct"],
+        totalQuantity: 320,
+        netAmount: 320000,
+        paidAmount: 0,
+        dueDate: "2026-07-23",
+        stage: "Submitted",
+        createdBy: "Inventory Clerk",
+        updatedAt: "2026-06-23 15:20",
+        scenario: "5. Mixed Invoice (PO + Direct)",
+        paymentStatus: "Pending"
+      },
+      {
+        invoiceNumber: "PINV-2026-000006",
+        invoiceDate: "2026-06-24",
+        vendor: "Hindalco Industries",
+        referenceType: "PO",
+        referenceNumbers: ["PO-2026-001", "PO-2026-004"],
+        totalQuantity: 500,
+        netAmount: 600000,
+        paidAmount: 0,
+        dueDate: "2026-07-24",
+        stage: "Approved",
+        createdBy: "Purchase Manager",
+        updatedAt: "2026-06-24 14:10",
+        scenario: "6. Multiple POs Linked",
+        paymentStatus: "Pending"
+      },
+      {
+        invoiceNumber: "PINV-2026-000007",
+        invoiceDate: "2026-06-24",
+        vendor: "Tata Steel",
+        referenceType: "GRN",
+        referenceNumbers: ["GRN-2026-001", "GRN-2026-002"],
+        totalQuantity: 800,
+        netAmount: 960000,
+        paidAmount: 960000,
+        dueDate: "2026-07-24",
+        stage: "Paid",
+        createdBy: "Inventory Clerk",
+        updatedAt: "2026-06-24 17:05",
+        scenario: "7. Multiple GRNs Linked",
+        paymentStatus: "Paid"
+      },
+      {
+        invoiceNumber: "PINV-2026-000008",
+        invoiceDate: "2026-06-25",
+        vendor: "Jindal Stainless",
+        referenceType: "GRN",
+        referenceNumbers: ["GRN-2026-003"],
+        totalQuantity: 60,
+        netAmount: 60000,
+        paidAmount: 0,
+        dueDate: "2026-07-25",
+        stage: "Verified",
+        createdBy: "Purchase Manager",
+        updatedAt: "2026-06-25 10:00",
+        scenario: "8. Partial Invoice (GRN ₹100k -> Inv ₹60k)",
+        paymentStatus: "Pending"
+      },
+      {
+        invoiceNumber: "PINV-2026-000009",
+        invoiceDate: "2026-06-25",
+        vendor: "Hindalco Industries",
+        referenceType: "PO",
+        referenceNumbers: ["PO-2026-001"],
+        totalQuantity: 100,
+        netAmount: 125000,
+        paidAmount: 125000,
+        dueDate: "2026-07-25",
+        stage: "Paid",
+        createdBy: "Purchase Manager",
+        updatedAt: "2026-06-25 11:30",
+        scenario: "9. Invoice #1 Against Same PO",
+        paymentStatus: "Paid"
+      },
+      {
+        invoiceNumber: "PINV-2026-000010",
+        invoiceDate: "2026-06-25",
+        vendor: "Hindalco Industries",
+        referenceType: "PO",
+        referenceNumbers: ["PO-2026-001"],
+        totalQuantity: 100,
+        netAmount: 125000,
+        paidAmount: 0,
+        dueDate: "2026-07-25",
+        stage: "Verified",
+        createdBy: "Purchase Manager",
+        updatedAt: "2026-06-25 12:00",
+        scenario: "9. Invoice #2 Against Same PO",
+        paymentStatus: "Pending"
+      },
+      {
+        invoiceNumber: "PINV-2026-000011",
+        invoiceDate: "2026-06-25",
+        vendor: "Tata Steel",
+        referenceType: "GRN",
+        referenceNumbers: ["GRN-2026-004"],
+        totalQuantity: 350,
+        netAmount: 430000,
+        paidAmount: 200000,
+        dueDate: "2026-07-10",
+        stage: "Partially Paid",
+        createdBy: "Purchase Manager",
+        updatedAt: "2026-06-25 14:40",
+        scenario: "10. Credit/Debit Adjustment Note Linked",
+        paymentStatus: "Partial"
+      }
+    ];
+
+    let invoices = [];
+    let currentViewMode = "table";
+    let activeSearchQuery = "";
+
+    window.addEventListener("load", () => {
+      loadTheme();
+      initializeDatabase();
+      renderInvoices();
+      calculateKPIs();
+      logAction("System initialized. Pre-loaded 11 Purchase Invoices across 10 business scenarios.", "info");
+      lucide.createIcons();
+      
+      // Close dropdowns on window click
+      window.addEventListener("click", () => {
+        closeAllDropdowns();
+      });
+    });
+
+    function loadTheme() {
+      const theme = localStorage.getItem("theme") || "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      updateThemeButton(theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      updateThemeButton(next);
+      lucide.createIcons();
+      logAction(`Theme toggled to ${next.toUpperCase()} mode.`, "success");
+    }
+
+    function updateThemeButton(theme) {
+      const btn = document.getElementById("theme-btn");
+      if (theme === "light") {
+        btn.innerHTML = '<i data-lucide="moon"></i>';
+      } else {
+        btn.innerHTML = '<i data-lucide="sun"></i>';
+      }
+    }
+
+    function initializeDatabase() {
+      const stored = localStorage.getItem("happy_erp_invoices");
+      if (stored) {
+        invoices = JSON.parse(stored);
+      } else {
+        invoices = [...INITIAL_INVOICES];
+        localStorage.setItem("happy_erp_invoices", JSON.stringify(invoices));
+      }
+    }
+
+    function saveDatabase() {
+      localStorage.setItem("happy_erp_invoices", JSON.stringify(invoices));
+      calculateKPIs();
+    }
+
+    // --- KPI calculations ---
+    function calculateKPIs() {
+      const total = invoices.length;
+      let pending = 0;
+      let totalPaid = 0;
+      let totalOutstanding = 0;
+
+      invoices.forEach(inv => {
+        if (inv.stage === "Submitted" || inv.stage === "Verified") {
+          pending++;
+        }
+        totalPaid += inv.paidAmount;
+        totalOutstanding += (inv.netAmount - inv.paidAmount);
+      });
+
+      document.getElementById("kpi-total-invoices").textContent = total;
+      document.getElementById("kpi-pending-approvals").textContent = pending;
+      document.getElementById("kpi-total-paid").textContent = "₹" + totalPaid.toLocaleString('en-IN');
+      document.getElementById("kpi-outstanding").textContent = "₹" + totalOutstanding.toLocaleString('en-IN');
+    }
+
+    // --- Render View Logic ---
+    function renderInvoices() {
+      const tbody = document.getElementById("invoice-tbody");
+      const gridContainer = document.getElementById("grid-view-container");
+      tbody.innerHTML = "";
+      gridContainer.innerHTML = "";
+
+      // Apply Filters & Search
+      const filtered = invoices.filter(inv => {
+        // Search Filter
+        const matchesSearch = inv.invoiceNumber.toLowerCase().includes(activeSearchQuery.toLowerCase()) ||
+                              inv.vendor.toLowerCase().includes(activeSearchQuery.toLowerCase()) ||
+                              inv.referenceNumbers.join(", ").toLowerCase().includes(activeSearchQuery.toLowerCase());
+
+        // Advanced Drawer Filters
+        const vendorVal = document.getElementById("filter-vendor").value;
+        const refVal = document.getElementById("filter-ref-type").value;
+        const stageVal = document.getElementById("filter-stage").value;
+        const paymentVal = document.getElementById("filter-payment").value;
+        const creatorVal = document.getElementById("filter-creator").value;
+
+        const matchesVendor = vendorVal === "all" || inv.vendor === vendorVal;
+        const matchesRef = refVal === "all" || inv.referenceType === refVal;
+        const matchesStage = stageVal === "all" || inv.stage === stageVal;
+        
+        let matchesPayment = true;
+        if (paymentVal !== "all") {
+          if (paymentVal === "Paid") matchesPayment = inv.paymentStatus === "Paid";
+          if (paymentVal === "Partial") matchesPayment = inv.paymentStatus === "Partial";
+          if (paymentVal === "Pending") matchesPayment = inv.paymentStatus === "Pending";
+        }
+        
+        const matchesCreator = creatorVal === "all" || inv.createdBy === creatorVal;
+
+        return matchesSearch && matchesVendor && matchesRef && matchesStage && matchesPayment && matchesCreator;
+      });
+
+      // Update paginator count
+      document.getElementById("pagination-info").textContent = `Showing 1-${filtered.length} of ${filtered.length} invoices`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:40px; color:var(--text-muted);"><i data-lucide="alert-circle" style="width:24px; height:24px; vertical-align:middle; margin-right:8px;"></i> No invoices found matching the current criteria.</td></tr>`;
+        gridContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-muted);"><i data-lucide="alert-circle" style="width:24px; height:24px; vertical-align:middle; margin-right:8px;"></i> No invoices found.</div>`;
+        lucide.createIcons();
+        return;
+      }
+
+      filtered.forEach((inv, idx) => {
+        const actualIdx = invoices.findIndex(i => i.invoiceNumber === inv.invoiceNumber);
+        
+        // 1. Table Render
+        const tr = document.createElement("tr");
+        const stageBadge = getStageBadgeClass(inv.stage);
+        const refBadge = getRefBadgeClass(inv.referenceType);
+        
+        tr.innerHTML = `
+          <td class="sticky-col left-pinned" style="font-weight:700;"><a href="invoice-entry.html?id=${inv.invoiceNumber}&mode=view" style="color:var(--primary); text-decoration:none;">${inv.invoiceNumber}</a></td>
+          <td class="col-date">${inv.invoiceDate}</td>
+          <td class="col-vendor" style="font-weight:500;">${inv.vendor}</td>
+          <td class="col-ref"><span class="ref-badge ${refBadge}">${inv.referenceType} (${inv.referenceNumbers.join(', ')})</span></td>
+          <td class="col-qty" style="text-align:right; font-weight:600;">${inv.totalQuantity}</td>
+          <td class="col-amount" style="text-align:right; font-weight:700; color:var(--text);">₹${inv.netAmount.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+          <td class="col-due" style="font-weight:500;">${inv.dueDate}</td>
+          <td><span class="badge ${stageBadge}">${inv.stage}</span></td>
+          <td class="col-creator" style="font-size:0.8rem; color:var(--text-muted);">${inv.createdBy}</td>
+          <td class="sticky-col right-pinned action-cell" style="text-align:center;">
+            <button class="btn btn-ghost" style="padding:4px 8px;" onclick="toggleRowActions(event, ${actualIdx})"><i data-lucide="more-horizontal" style="width:16px; height:16px;"></i></button>
+            <div class="action-menu-dropdown" id="action-dropdown-${actualIdx}">
+              <button onclick="navigateWithQuery('${inv.invoiceNumber}', 'view')"><i data-lucide="eye" style="width:14px; height:14px;"></i> View Details</button>
+              ${inv.stage === 'Draft' || inv.stage === 'Submitted' ? `<button onclick="navigateWithQuery('${inv.invoiceNumber}', 'edit')"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Modify Invoice</button>` : ''}
+              ${inv.stage === 'Approved' || inv.stage === 'Partially Paid' ? `<button onclick="createPayment(${actualIdx})"><i data-lucide="wallet" style="width:14px; height:14px;"></i> Create Vendor Payment</button>` : ''}
+              <button onclick="createReturn(${actualIdx})"><i data-lucide="rotate-ccw" style="width:14px; height:14px;"></i> Create Purchase Return</button>
+              <button onclick="duplicateInvoice(${actualIdx})"><i data-lucide="copy" style="width:14px; height:14px;"></i> Duplicate Invoice</button>
+              ${inv.stage !== 'Draft' && inv.stage !== 'Cancelled' ? `<button onclick="undoStage(${actualIdx})"><i data-lucide="undo-2" style="width:14px; height:14px;"></i> Undo Stage</button>` : ''}
+              <hr>
+              ${inv.stage !== 'Paid' && inv.stage !== 'Cancelled' ? `<button onclick="cancelInvoice(${actualIdx})" style="color:var(--warning);"><i data-lucide="slash" style="width:14px; height:14px;"></i> Cancel Invoice</button>` : ''}
+              ${inv.stage === 'Draft' ? `<button onclick="deleteInvoice(${actualIdx})" style="color:var(--danger);"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete Record</button>` : ''}
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        // 2. Grid Render
+        const card = document.createElement("div");
+        card.className = "card invoice-list-card";
+        card.innerHTML = `
+          <div class="invoice-card-header">
+            <div>
+              <span class="badge ${stageBadge}" style="margin-bottom:8px;">${inv.stage}</span>
+              <h4 style="font-size:1.1rem; font-weight:700;"><a href="invoice-entry.html?id=${inv.invoiceNumber}&mode=view" style="color:var(--text); text-decoration:none;">${inv.invoiceNumber}</a></h4>
+              <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Date: ${inv.invoiceDate}</p>
+            </div>
+            <span class="ref-badge ${refBadge}">${inv.referenceType}</span>
+          </div>
+          
+          <div style="border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:12px 0; margin:12px 0;">
+            <div class="invoice-card-body-row">
+              <span style="color:var(--text-muted);">Vendor</span>
+              <span style="font-weight:600; color:var(--text);">${inv.vendor}</span>
+            </div>
+            <div class="invoice-card-body-row">
+              <span style="color:var(--text-muted);">Refs</span>
+              <span style="font-size:0.75rem; font-weight:500;">${inv.referenceNumbers.join(', ')}</span>
+            </div>
+            <div class="invoice-card-body-row">
+              <span style="color:var(--text-muted);">Total Quantity</span>
+              <span style="font-weight:600;">${inv.totalQuantity}</span>
+            </div>
+            <div class="invoice-card-body-row">
+              <span style="color:var(--text-muted);">Net Amount</span>
+              <span style="font-weight:700; font-size:1rem; color:var(--primary);">₹${inv.netAmount.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted);">
+            <span>Due: <strong style="color:var(--text);">${inv.dueDate}</strong></span>
+            <div style="display:flex; gap:4px;">
+              <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.7rem;" onclick="navigateWithQuery('${inv.invoiceNumber}', 'view')">View</button>
+              <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.7rem;" onclick="toggleRowActions(event, ${actualIdx})"><i data-lucide="more-horizontal" style="width:12px; height:12px;"></i></button>
+            </div>
+          </div>
+        `;
+        gridContainer.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function getStageBadgeClass(stage) {
+      switch(stage) {
+        case "Draft": return "badge-draft";
+        case "Submitted": return "badge-submitted";
+        case "Verified": return "badge-verified";
+        case "Approved": return "badge-approved";
+        case "Partially Paid": return "badge-partially-paid";
+        case "Paid": return "badge-paid";
+        case "Cancelled": return "badge-cancelled";
+        case "Rejected": return "badge-rejected";
+        default: return "badge-draft";
+      }
+    }
+
+    function getRefBadgeClass(ref) {
+      switch(ref) {
+        case "PO": return "ref-po";
+        case "GRN": return "ref-grn";
+        case "Direct Purchase": return "ref-direct";
+        case "Mixed": return "ref-mixed";
+        default: return "ref-po";
+      }
+    }
+
+    // --- Action Menu Handling ---
+    function toggleRowActions(event, idx) {
+      event.stopPropagation();
+      const openMenu = document.getElementById(`action-dropdown-${idx}`);
+      const wasOpen = openMenu.style.display === "block";
+      
+      closeAllDropdowns();
+      
+      if (!wasOpen) {
+        openMenu.style.display = "block";
+      }
+    }
+
+    function closeAllDropdowns() {
+      const dropdowns = document.querySelectorAll(".action-menu-dropdown");
+      dropdowns.forEach(d => d.style.display = "none");
+      
+      const popover = document.getElementById("col-popover");
+      if (popover) popover.style.display = "none";
+    }
+
+    function navigateWithQuery(invoiceNumber, mode) {
+      window.location.href = `invoice-entry.html?id=${invoiceNumber}&mode=${mode}`;
+    }
+
+    function createNewInvoice() {
+      window.location.href = "invoice-entry.html?mode=create";
+    }
+
+    // --- Row Action Simulations ---
+    function createPayment(idx) {
+      const inv = invoices[idx];
+      logAction(`Redirecting to vendor payment ledger for ${inv.invoiceNumber}. Unpaid outstanding: ₹${(inv.netAmount - inv.paidAmount).toLocaleString('en-IN')}`, "info");
+      
+      // Simulate quick payment
+      const outstanding = inv.netAmount - inv.paidAmount;
+      if (outstanding <= 0) {
+        alert("This invoice is already fully paid.");
+        return;
+      }
+      
+      const payAmount = parseFloat(prompt(`Enter Payment Amount (Max Outstanding: ₹${outstanding}):`, outstanding));
+      if (isNaN(payAmount) || payAmount <= 0) return;
+
+      if (payAmount > outstanding) {
+        alert("Payment amount cannot exceed outstanding balance.");
+        return;
+      }
+
+      inv.paidAmount += payAmount;
+      if (inv.paidAmount === inv.netAmount) {
+        inv.stage = "Paid";
+        inv.paymentStatus = "Paid";
+      } else {
+        inv.stage = "Partially Paid";
+        inv.paymentStatus = "Partial";
+      }
+      inv.updatedAt = new Date().toISOString().replace('T', ' ').slice(0, 16);
+      
+      saveDatabase();
+      renderInvoices();
+      logAction(`Vendor Payment Processed: Posted ₹${payAmount.toLocaleString('en-IN')} against ${inv.invoiceNumber}. New Status: ${inv.stage}`, "success");
+    }
+
+    function createReturn(idx) {
+      const inv = invoices[idx];
+      logAction(`Purchase Return initialization requested for ${inv.invoiceNumber}. Linked Vendor: ${inv.vendor}`, "warning");
+      alert(`Purchase Return draft created for Vendor: ${inv.vendor} referencing Invoice ${inv.invoiceNumber}. Redirecting to Purchase Return entry...`);
+    }
+
+    function duplicateInvoice(idx) {
+      const source = invoices[idx];
+      const newNum = "PINV-2026-" + String(invoices.length + 1).padStart(6, '0');
+      const copy = {
+        ...JSON.parse(JSON.stringify(source)),
+        invoiceNumber: newNum,
+        invoiceDate: new Date().toISOString().split('T')[0],
+        paidAmount: 0,
+        stage: "Draft",
+        paymentStatus: "Pending",
+        createdBy: "Purchase Manager",
+        updatedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+        scenario: `Duplicate copy of ${source.invoiceNumber}`
+      };
+
+      invoices.push(copy);
+      saveDatabase();
+      renderInvoices();
+      logAction(`Invoice duplicated successfully! Created new Draft: ${newNum} from template ${source.invoiceNumber}`, "success");
+    }
+
+    function undoStage(idx) {
+      const inv = invoices[idx];
+      const prevStage = inv.stage;
+      
+      // Revert stages sequentially
+      if (inv.stage === "Paid") {
+        inv.stage = "Partially Paid";
+        inv.paymentStatus = "Partial";
+      } else if (inv.stage === "Partially Paid") {
+        inv.stage = "Approved";
+        inv.paymentStatus = "Pending";
+        inv.paidAmount = 0;
+      } else if (inv.stage === "Approved") {
+        inv.stage = "Verified";
+      } else if (inv.stage === "Verified") {
+        inv.stage = "Submitted";
+      } else if (inv.stage === "Submitted") {
+        inv.stage = "Draft";
+      }
+      
+      inv.updatedAt = new Date().toISOString().replace('T', ' ').slice(0, 16);
+      saveDatabase();
+      renderInvoices();
+      logAction(`Stage Rollback: Reverted ${inv.invoiceNumber} from ${prevStage} back to ${inv.stage}`, "warning");
+    }
+
+    function cancelInvoice(idx) {
+      const inv = invoices[idx];
+      if (confirm(`Are you sure you want to CANCEL Invoice ${inv.invoiceNumber}? This action is irreversible and cancels all linked accounts bookings.`)) {
+        const prev = inv.stage;
+        inv.stage = "Cancelled";
+        inv.paidAmount = 0;
+        inv.paymentStatus = "Pending";
+        inv.updatedAt = new Date().toISOString().replace('T', ' ').slice(0, 16);
+        saveDatabase();
+        renderInvoices();
+        logAction(`Workflow Terminal Trigger: Invoice ${inv.invoiceNumber} cancelled from stage ${prev}. Account reversal posted to general ledger.`, "error");
+      }
+    }
+
+    function deleteInvoice(idx) {
+      const inv = invoices[idx];
+      if (confirm(`Confirm deletion of Draft Invoice ${inv.invoiceNumber}? This removes the record permanently.`)) {
+        invoices.splice(idx, 1);
+        saveDatabase();
+        renderInvoices();
+        logAction(`Database Record Deleted: Removed draft invoice ${inv.invoiceNumber}`, "error");
+      }
+    }
+
+    // --- Search & Filter operations ---
+    function handleSearch(val) {
+      activeSearchQuery = val;
+      renderInvoices();
+    }
+
+    function toggleFilterPanel(open) {
+      const backdrop = document.getElementById("filter-backdrop");
+      const panel = document.getElementById("filter-panel-card");
+      if (open) {
+        backdrop.classList.add("open");
+        panel.classList.add("open");
+      } else {
+        backdrop.classList.remove("open");
+        panel.classList.remove("open");
+      }
+    }
+
+    function applyFilters() {
+      // Count active filters
+      let activeCount = 0;
+      if (document.getElementById("filter-date-range").value !== "all") activeCount++;
+      if (document.getElementById("filter-vendor").value !== "all") activeCount++;
+      if (document.getElementById("filter-ref-type").value !== "all") activeCount++;
+      if (document.getElementById("filter-stage").value !== "all") activeCount++;
+      if (document.getElementById("filter-payment").value !== "all") activeCount++;
+      if (document.getElementById("filter-creator").value !== "all") activeCount++;
+
+      const countBadge = document.getElementById("active-filter-count");
+      const resetBtn = document.getElementById("btn-reset-filters");
+
+      if (activeCount > 0) {
+        countBadge.textContent = activeCount;
+        countBadge.style.display = "inline-flex";
+        resetBtn.style.display = "inline-flex";
+        logAction(`Filters Applied: ${activeCount} active conditions set. Re-rendering datatable.`, "success");
+      } else {
+        countBadge.style.display = "none";
+        resetBtn.style.display = "none";
+      }
+
+      renderInvoices();
+    }
+
+    function resetAllFilters() {
+      document.getElementById("filter-date-range").value = "all";
+      document.getElementById("filter-vendor").value = "all";
+      document.getElementById("filter-ref-type").value = "all";
+      document.getElementById("filter-stage").value = "all";
+      document.getElementById("filter-payment").value = "all";
+      document.getElementById("filter-creator").value = "all";
+      
+      document.getElementById("active-filter-count").style.display = "none";
+      document.getElementById("btn-reset-filters").style.display = "none";
+      
+      logAction("All search filters cleared. Displaying entire list.", "info");
+      renderInvoices();
+      toggleFilterPanel(false);
+    }
+
+    // --- Column Visibility Control ---
+    function toggleColumnPopover() {
+      const popover = document.getElementById("col-popover");
+      event.stopPropagation();
+      popover.style.display = popover.style.display === "block" ? "none" : "block";
+    }
+
+    function toggleColVisibility(className) {
+      const cells = document.querySelectorAll(`.${className}`);
+      cells.forEach(c => {
+        c.style.display = c.style.display === "none" ? "" : "none";
+      });
+      logAction(`Toggle column visibility for: ${className.replace('col-', '')}`, "info");
+    }
+
+    // --- Layout View Toggle ---
+    function setViewMode(mode) {
+      currentViewMode = mode;
+      const tableBtn = document.getElementById("view-mode-table");
+      const gridBtn = document.getElementById("view-mode-grid");
+      const tableView = document.getElementById("table-view-container");
+      const gridView = document.getElementById("grid-view-container");
+
+      if (mode === "table") {
+        tableBtn.style.backgroundColor = "var(--border)";
+        gridBtn.style.backgroundColor = "";
+        tableView.style.display = "block";
+        gridView.style.display = "none";
+      } else {
+        tableBtn.style.backgroundColor = "";
+        gridBtn.style.backgroundColor = "var(--border)";
+        tableView.style.display = "none";
+        gridView.style.display = "grid";
+      }
+      logAction(`Switched dashboard layout to ${mode.toUpperCase()} view.`, "info");
+    }
+
+    // --- Export to CSV Simulation ---
+    function exportToCSV() {
+      let csv = "Invoice Number,Invoice Date,Vendor,Reference Type,Total Quantity,Net Amount,Due Date,Stage,Created By,Updated At\n";
+      invoices.forEach(inv => {
+        csv += `"${inv.invoiceNumber}","${inv.invoiceDate}","${inv.vendor}","${inv.referenceType}",${inv.totalQuantity},${inv.netAmount},"${inv.dueDate}","${inv.stage}","${inv.createdBy}","${inv.updatedAt}"\n`;
+      });
+
+      // Simple file download trigger
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "purchase-invoice-list.csv");
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      logAction("CSV Export Completed: Filename: purchase-invoice-list.csv", "success");
+    }
+
+    // --- Logger Console ---
+    function logAction(message, type = "info") {
+      const list = document.getElementById("console-logs-list");
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+      
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+      entry.innerHTML = `<span class="log-time">[${timeStr}]</span><span class="log-text ${type}">${message}</span>`;
+      
+      list.appendChild(entry);
+      list.scrollTop = list.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById("console-logs-list").innerHTML = "";
+    }
+  </script>
+</body>
+</html>
