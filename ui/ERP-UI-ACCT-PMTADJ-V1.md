@@ -1,4 +1,4 @@
-# HappyERP Payment Adjustment (PMTADJ) UI/UX Documentation
+# HappyERP Payment Adjustment (PMTADJ v1) UI/UX Documentation
 
 This document gives UI details of all pages used in Payment Adjustment module.
 
@@ -297,64 +297,6 @@ This section stores supporting documents related to Payment Adjustment.
 | Attachments | payment_adjustment.`attachments` | AttachmentViewer | Multiple Files Allowed         | No       | No        | Valid File Types | –         | Payment Adjustment Media | -       |
 
 ---
-
-### 2.1.4a. DataTable (Attachments) - Columns
-
-| Name        | Data Source | Type/Component | Component Specific Information | Required | Read Only | Validations | On Change | Description       | Tooltip                |
-|:----------- |:----------- |:-------------- |:------------------------------ |:-------- |:--------- |:----------- |:--------- |:----------------- |:---------------------- |
-| Preview     | file_url    | File Preview   | Image, PDF, Excel, Docs        | No       | Yes       | –           | –         | File Preview      | Preview Attachment     |
-| File Name   | file_name   | Text           | –                              | Yes      | Yes       | –           | –         | File Name         | Uploaded File Name     |
-| File Type   | file_type   | Badge          | PDF, JPG, PNG, XLSX            | Yes      | Yes       | –           | –         | File Type         | Attachment Type        |
-| Uploaded By | uploaded_by | User Lookup    | Auto Filled                    | Yes      | Yes       | –           | –         | Uploaded User     | User Who Uploaded File |
-| Actions     | –           | Action Menu    | Preview, Download, Delete      | No       | No        | –           | –         | Available Actions | Attachment Operations  |
-
----
-
-### 2.1.4b. DataTable (Attachments) - Toolbar Config
-
-| Feature          | Settings | On Click           |
-|:---------------- |:-------- |:------------------ |
-| Search           | No       | –                  |
-| View Toggle      | No       | –                  |
-| Column Selection | No       | –                  |
-| Group By         | No       | –                  |
-| Filter           | No       | –                  |
-| Export           | No       | –                  |
-| Share            | No       | –                  |
-| Full Screen      | Yes      | Toggle Full Screen |
-| Add              | Yes      | Upload Attachment  |
-
----
-
-### 2.1.4c. DataTable (Attachments) - Config
-
-| Feature        | Settings |
-|:-------------- |:-------- |
-| Row Selection  | No       |
-| Bulk Actions   | No       |
-| Sticky Header  | Yes      |
-| Column Resize  | Yes      |
-| Column Pinning | No       |
-| Sorting        | Yes      |
-| Pagination     | No       |
-
----
-
-### 2.1.4d. DataTable (Attachments) - RowAction Menu
-
-| Name     | Action              | Visibility Criteria | Icon     | Tooltip            |
-|:-------- |:------------------- |:------------------- |:-------- |:------------------ |
-| Preview  | Preview Attachment  | View Permission     | eye      | Preview Attachment |
-| Download | Download Attachment | View Permission     | download | Download File      |
-| Delete   | Delete Attachment   | Delete Permission   | trash-2  | Remove Attachment  |
-
----
-
-### 2.1.4e. DataTable (Attachments) - Filters Fields
-
-| Name | Component | Depends On | Possible Values | Default Values | Output | Tooltip |
-|:---- |:--------- |:---------- |:--------------- |:-------------- |:------ |:------- |
-| –    | –         | –          | –               | –              | –      | –       |
 
 ## 2.2. Right Side Widgets
 
