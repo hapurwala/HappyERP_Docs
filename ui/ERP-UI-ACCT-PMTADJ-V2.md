@@ -1,4 +1,4 @@
-# HappyERP Payment Adjustment (PMTADJ) UI/UX Documentation
+# HappyERP Payment Adjustment (PMTADJ v2) UI/UX Documentation
 
 This document gives UI details of all pages used in Payment Adjustment module.
 
