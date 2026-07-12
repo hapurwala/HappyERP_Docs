@@ -230,17 +230,17 @@ Component to use: Summary Card
 
 *This section is fixed/sticky so it remains visible as the user scrolls.*
 
-| Name               | Content                                            |
-| :----------------- | :------------------------------------------------- |
-| Total Items        | Count of unique products in the order              |
-| Total Packs        | Sum of no. of packs across all lines               |
-| Total Quantity     | Sum of quantity across all lines                   |
-| Subtotal           | Sum of line totals before discount and tax         |
-| Total Discount     | Sum of discounts across all lines                  |
-| Total Tax          | Sum of tax across all lines                        |
-| Net Amount         | Final order value                                  |
-| Round Off          | Round off amount                                   |
-| Min. Delivery Date | Minimum delivery date across all lines             |
+| Name               | Content                                    |
+| :----------------- | :----------------------------------------- |
+| Total Items        | Count of unique products in the order      |
+| Total Packs        | Sum of no. of packs across all lines       |
+| Total Quantity     | Sum of quantity across all lines           |
+| Subtotal           | Sum of line totals before discount and tax |
+| Total Discount     | Sum of discounts across all lines          |
+| Total Tax          | Sum of tax across all lines                |
+| Net Amount         | Final order value                          |
+| Round Off          | Round off amount                           |
+| Min. Delivery Date | Minimum delivery date across all lines     |
 
 ---
 
