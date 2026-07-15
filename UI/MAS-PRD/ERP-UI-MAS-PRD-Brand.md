@@ -114,13 +114,13 @@ Fields in the main form are grouped in different sections.
 ### 2.1.1 Basic Details
 
 | Name        | Data Source           | Component   | Component Specific Information   | Required | Read Only | Validations                  | On Change | Description                       | Tooltip |
-| ----------- | --------------------- | ----------- | --------------------------------- | -------- | --------- | ---------------------------- | --------- | --------------------------------- | ------- |
-| Name        | m_brand.`name`        | Text        | -                                 | Yes      | No        | - Length: 3-100<br/>- Unique | -         | Name of the Brand                 | -       |
-| Short Name  | m_brand.`short_name`  | Text        | -                                 | Yes      | No        | - Length: 2-25<br/>- Unique  | -         | Code/Short Name of the Brand      | -       |
-| Brand Type  | m_brand.`brand_type`  | Select      | Values: Own Brand / Vendor Brand  | Yes      | No        | -                            | -         | Classification of Brand           | -       |
-| Description | m_brand.`description` | RichTextBox | -                                 | No       | No        | Max 1000 Characters          | -         | Detailed Description of the Brand | -       |
-| Start Date  | m_brand.`start_date`  | DatePicker  | Single Date Picker                | Yes      | No        | -                            | Only Date | Brand Activation Date             | -       |
-| Remarks     | m_brand.`remarks`     | RichTextBox | Multi line                        | No       | No        | Max 255 Characters           | -         | Additional Notes                  | -       |
+| ----------- | --------------------- | ----------- | -------------------------------- | -------- | --------- | ---------------------------- | --------- | --------------------------------- | ------- |
+| Name        | m_brand.`name`        | Text        | -                                | Yes      | No        | - Length: 3-100<br/>- Unique | -         | Name of the Brand                 | -       |
+| Short Name  | m_brand.`short_name`  | Text        | -                                | Yes      | No        | - Length: 2-25<br/>- Unique  | -         | Code/Short Name of the Brand      | -       |
+| Brand Type  | m_brand.`brand_type`  | Select      | Values: Own Brand / Vendor Brand | Yes      | No        | -                            | -         | Classification of Brand           | -       |
+| Description | m_brand.`description` | RichTextBox | -                                | No       | No        | Max 1000 Characters          | -         | Detailed Description of the Brand | -       |
+| Start Date  | m_brand.`start_date`  | DatePicker  | Single Date Picker               | Yes      | No        | Start date                   | Only Date | Brand Activation Date             | -       |
+| Remarks     | m_brand.`remarks`     | RichTextBox | Multi line                       | No       | No        | Max 255 Characters           | -         | Additional Notes                  | -       |
 
 ---
 

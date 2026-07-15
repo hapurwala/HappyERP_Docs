@@ -34,7 +34,7 @@ This page displays a list of Product   in tabular format.
 | UoM           | s_prd_product_uom.`name`      | String      | –                     | Body           | –                | -                     |
 | Brand         | s_prd_product_brand.`name`    | String      | –                     | Body           | –                | -                     |
 | Usage         | s_prd_product.`usage`         | String      | –                     | Body           | –                | -                     |
-| Start         | s_prd_product.`start_date`    | Date        | –                     | Body           | –                | -                     |
+| Start Date    | s_prd_product.`start_date`    | Date        | –                     | Body           | –                | -                     |
 | Stage         | s_prd_product_stage.`name`    | Stage Badge | –                     | Body           | –                | -                     |
 
 ---

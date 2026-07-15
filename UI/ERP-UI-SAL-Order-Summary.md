@@ -34,17 +34,17 @@ Summary cards showing aggregated numbers for the current filtered view. All valu
 
 ### 1.2a. DataTable (Sales Order Summary) - Columns
 
-| Header        | Data Source   | Format                  | On Click | Card Placement | Tooltip / On Hover         | Inline Edit Component |
-| :------------ | :------------ | :---------------------- | :------- | :------------- | :------------------------- | :-------------------- |
-| Product Image | product_image | Image                   | –        | –              | Product image              | –                     |
-| Date          | order_date    | Date                    | –        | Title          | Sales order date           | –                     |
-| Order Number  | order_number  | String                  | Open Sales Order | Subtitle | Open this sales order  | –                     |
-| Party         | customer_name | String                  | –        | Details        | Customer placing the order | –                     |
-| Product       | product_name  | String                  | –        | Details        | Product name               | –                     |
-| Pack          | pack_name     | String                  | –        | Details        | Pack type                  | –                     |
-| Quantity      | quantity      | Integer (Comma: Y)      | –        | Details        | Ordered quantity           | –                     |
-| Rate          | rate          | Decimal (2dp, Comma: Y) | –        | Details        | Rate per unit              | –                     |
-| Value         | line_total    | Decimal (2dp, Comma: Y) | –        | Details        | Line total value           | –                     |
+| Header        | Data Source   | Format                  | On Click         | Card Placement | Tooltip / On Hover         | Inline Edit Component |
+| :------------ | :------------ | :---------------------- | :--------------- | :------------- | :------------------------- | :-------------------- |
+| Product Image | product_image | Image                   | –                | –              | Product image              | –                     |
+| Date          | order_date    | Date                    | –                | Title          | Sales order date           | –                     |
+| Order Number  | order_number  | String                  | Open Sales Order | Subtitle       | Open this sales order      | –                     |
+| Party         | customer_name | String                  | –                | Details        | Customer placing the order | –                     |
+| Product       | product_name  | String                  | –                | Details        | Product name               | –                     |
+| Pack          | pack_name     | String                  | –                | Details        | Pack type                  | –                     |
+| Quantity      | quantity      | Integer (Comma: Y)      | –                | Details        | Ordered quantity           | –                     |
+| Rate          | rate          | Decimal (2dp, Comma: Y) | –                | Details        | Rate per unit              | –                     |
+| Value         | line_total    | Decimal (2dp, Comma: Y) | –                | Details        | Line total value           | –                     |
 
 ---
 
