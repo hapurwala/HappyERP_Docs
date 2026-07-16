@@ -80,15 +80,6 @@ A consistent, professional and user friendly interface is the prime requirement 
 * Data entry popup
 * Data view page
 
-# Standard Validations
-
-Following is the list of validations that will be applicable on all pages in the software.
-
-| Validation | Characters | Length | Values | Remarks |
-|:---------- |:---------- |:------ |:------ |:------- |
-| Name       | All        | 3-100  | –      |         |
-| Short Name | All        | 1-25   | –      |         |
-
 # General Guidelines
 
 ## Common Features
@@ -122,7 +113,7 @@ All `.md` files will be named as : `ERP-<Type>-<App>-<Mod>-<Topic>.md`, where
   - `DES`: This document contains **design** related information of the module and its features
   - `UI`: This document contains **UI** details of the module and its features
   - `DB`: This document contains **DB** details like schema, indexes, triggers etc.
-  - `MD`: This document contains **meta data** that is shipped in-built with the software.
+  - `SD`: This document contains **system data** that is shipped in-built with the software.
 - ***App*** is the short name of the application e.g. `PUR` for Purchase. If any file is related to multiple applications or all application, use the code `GEN`.
 - ***Mod** (optional)* is the short name of the module under any application. If the file contains information for more than one modules of an Application then this part may be omitted from the filename.
 - ***Topic** (optional)* indicates additional information about the content of this file.
