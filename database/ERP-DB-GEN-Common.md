@@ -27,12 +27,11 @@ Wherever address is maintained, it is maintained in a Map. Address Map and its f
 | address.`type`           | String    | Yes      | –             | –       | –              | Name given to address |
 | address.`same_as_main`   | Boolean   | -        | False         | –       | –              | -                     |
 | address.`street`         | String    | Yes      | –             | –       | –              | -                     |
-| address.`city_id`        | String    | Yes      | –             | Foreign | m_city.`id`    | -                     |
 | address.`city`           | String    | Yes      | –             | –       | –              | -                     |
 | address.`pin`            | String    | Yes      | –             | –       | –              | -                     |
-| address.`state_id`       | String    | Yes      | –             | Foreign | m_state.`id`   | -                     |
+| address.`state_id`       | String    | Yes      | –             | Foreign | s_state.`id`   | -                     |
 | address.`state`          | String    | Yes      | –             | –       | –              | -                     |
-| address.`country_id`     | String    | Yes      | –             | Foreign | m_country.`id` | -                     |
+| address.`country_id`     | String    | Yes      | –             | Foreign | s_country.`id` | -                     |
 | address.`country`        | String    | Yes      | –             | –       | –              | -                     |
 | address.`landmark`       | String    | Yes      | –             | –       | –              | Landmark              |
 | address.`location`       | Geopoint  | Yes      | –             | –       | –              | -                     |
