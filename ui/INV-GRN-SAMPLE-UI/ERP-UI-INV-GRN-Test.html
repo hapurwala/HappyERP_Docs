@@ -2646,11 +2646,12 @@
           qtyInput.dispatchEvent(new Event('change'));
           await sleep(800);
 
-          if (parseFloat(qtyInput.value) === 100) {
+          const updatedQtyInput = document.getElementById("product-receipt-body").querySelector("input.inline-edit-input");
+          if (parseFloat(updatedQtyInput.value) === 100) {
             assertPass("Validation intercepted over-receiving correctly and reset qty to pending max (100).");
             return true;
           } else {
-            assertFail(`Validation failed: Qty accepted value ${qtyInput.value} which is greater than pending limit 100.`);
+            assertFail(`Validation failed: Qty accepted value ${updatedQtyInput.value} which is greater than pending limit 100.`);
             return false;
           }
         }

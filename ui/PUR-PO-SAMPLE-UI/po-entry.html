@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HappyERP - Purchase Order Details</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Shared Style -->
+  <link rel="stylesheet" href="po-style.css">
+  <style>
+    /* Entry Page Specific Custom Styles */
+    .entry-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+      gap: 16px;
+      overflow-x: auto;
+    }
+    .entry-tab-btn {
+      padding: 10px 4px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+    }
+    .entry-tab-btn.active {
+      color: var(--primary);
+    }
+    .entry-tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--primary);
+    }
+    .tab-content-pane {
+      display: none;
+    }
+    .tab-content-pane.active {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Modal dialog styling */
+    .modal-card {
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 550px;
+      max-width: 90%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    @keyframes modalFadeIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--table-header-bg);
+    }
+    .modal-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background-color: var(--table-header-bg);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navbar -->
+  <header>
+    <a href="po-list.html" class="logo-container">
+      <div style="width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg, var(--primary), #a78bfa); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-family:'Outfit'; font-size:1.2rem; box-shadow:0 0 12px var(--primary-glow);">
+        H
+      </div>
+      <div class="logo-text">Happy<span>ERP</span></div>
+    </a>
+    
+    <div class="header-title-module">
+      <i data-lucide="shopping-bag" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i>
+      Purchase Order Editor
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-ghost" id="theme-btn" onclick="toggleTheme()" title="Toggle Theme">
+        <i data-lucide="sun"></i>
+      </button>
+      
+      <!-- Role Simulation Switcher -->
+      <select class="form-control" style="width:160px; font-size:0.75rem; padding:4px 8px; height:auto;" id="sim-role-selector" onchange="switchSimUserRole(this.value)">
+        <option value="Purchase Executive">Purchase Executive</option>
+        <option value="Purchase Manager" selected>Purchase Manager</option>
+        <option value="Procurement Head">Procurement Head</option>
+      </select>
+
+      <a href="po-list.html" class="btn btn-secondary" style="padding:8px 14px;">
+        <i data-lucide="arrow-left" style="width:16px; height:16px;"></i> Back to List
+      </a>
+    </div>
+  </header>
+
+  <!-- App Main Content -->
+  <div id="app-container">
+    <div id="main-content">
+      
+      <!-- Grid Container: Left (Form tabs), Right (Summary + Timeline) -->
+      <div class="grid-container-entry">
+        
+        <!-- Left Side: Main Form Panels -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+          
+          <!-- General Info Card -->
+          <div class="card">
+            <div class="section-title">
+              <span class="section-title-label"><i data-lucide="info" style="color:var(--primary);"></i> General Information</span>
+              <span class="badge badge-draft" id="po-stage-badge">DRAFT</span>
+            </div>
+            
+            <div class="grid-container-3">
+              <div class="form-group">
+                <label>PO Number</label>
+                <input type="text" class="form-control" id="po-number" disabled>
+              </div>
+              
+              <div class="form-group">
+                <label>PO Date *</label>
+                <input type="date" class="form-control" id="po-date" onchange="validatePODate(this.value)">
+              </div>
+
+              <div class="form-group">
+                <label>Organisation *</label>
+                <select class="form-control" id="po-organisation" onchange="handleOrgChange(this.value)">
+                  <option value="">Select Organisation...</option>
+                  <option value="Org-01" selected>Acme Corp</option>
+                  <option value="Org-02">Global Bio Group</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Branch / Warehouse *</label>
+                <select class="form-control" id="po-branch">
+                  <option value="Branch-01" selected>WH-01 Main</option>
+                  <option value="Branch-02">WH-02 Chemicals</option>
+                  <option value="Branch-03">WH-03 Raw Materials</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Vendor *</label>
+                <select class="form-control" id="po-vendor" onchange="handleVendorChange(this.value)">
+                  <option value="">Select Vendor...</option>
+                  <option value="Acme Industrial Solutions">Acme Industrial Solutions</option>
+                  <option value="Global Bio-Chemicals Ltd">Global Bio-Chemicals Ltd</option>
+                  <option value="Hindalco Industries">Hindalco Industries</option>
+                  <option value="Tata Steel">Tata Steel</option>
+                  <option value="Reliance Industries">Reliance Industries</option>
+                  <option value="Local Agro Farm">Local Agro Farm</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Currency *</label>
+                <select class="form-control" id="po-currency" onchange="handleCurrencyChange(this.value)">
+                  <option value="INR" selected>INR (₹)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                </select>
+              </div>
+
+              <div class="form-group" id="exchange-rate-group" style="display:none;">
+                <label>Exchange Rate *</label>
+                <input type="number" class="form-control" id="po-exchange-rate" value="1.00" step="0.01">
+              </div>
+
+              <div class="form-group">
+                <label>Freight Charge Type *</label>
+                <select class="form-control" id="po-freight-type">
+                  <option value="Company Paid" selected>Company Paid</option>
+                  <option value="Vendor Paid">Vendor Paid</option>
+                  <option value="Included In Rate">Included In Rate</option>
+                  <option value="Third Party">Third Party</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0; margin-top:8px;">
+              <label>General Remarks</label>
+              <textarea class="form-control" id="po-remarks" rows="2" placeholder="Add additional remarks or notes regarding this purchase..."></textarea>
+            </div>
+          </div>
+
+          <!-- Section Tabs -->
+          <div>
+            <div class="entry-tabs">
+              <button class="entry-tab-btn active" id="tab-btn-products" onclick="switchEntryTab('tab-products')">Products Details (<span id="prod-count-badge">0</span>)</button>
+              <button class="entry-tab-btn" id="tab-btn-delivery" onclick="switchEntryTab('tab-delivery')">Delivery Schedule</button>
+              <button class="entry-tab-btn" id="tab-btn-payments" onclick="switchEntryTab('tab-payments')">Payment Terms</button>
+              <button class="entry-tab-btn" id="tab-btn-attachments" onclick="switchEntryTab('tab-attachments')">Attachments</button>
+            </div>
+
+            <!-- Tab Content Pane: Products -->
+            <div class="tab-content-pane active" id="tab-products">
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Variety</th>
+                      <th>Pack</th>
+                      <th style="text-align:right; width:80px;">Qty</th>
+                      <th>UOM</th>
+                      <th style="text-align:right; width:110px;">Rate</th>
+                      <th style="text-align:right; width:110px;">Discount</th>
+                      <th style="text-align:right; width:90px;">Tax %</th>
+                      <th style="text-align:right; width:110px;">Net Total</th>
+                      <th style="text-align:center; width:90px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="product-rows">
+                    <!-- Dynamic Product Rows -->
+                  </tbody>
+                </table>
+              </div>
+              <button class="btn btn-secondary" style="align-self:flex-start;" onclick="openProductModal('add')" id="btn-add-product">
+                <i data-lucide="plus" style="width:14px; height:14px;"></i> Add Product Line
+              </button>
+            </div>
+
+            <!-- Tab Content Pane: Delivery Schedule -->
+            <div class="tab-content-pane" id="tab-delivery">
+              <div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:8px; border:1px solid var(--border); font-size:0.8rem; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span style="color:var(--text-muted);">Please configure expected deliveries split. Total schedule quantities must sum to total ordered product quantities.</span>
+                <span id="delivery-balance-indicator" style="font-weight:700;">Balance Qty: 0 / 0</span>
+              </div>
+              
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Product Pack</th>
+                      <th>Deliver To Location</th>
+                      <th style="text-align:right; width:100px;">Qty</th>
+                      <th>Expected Date</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Received</th>
+                      <th>Pending</th>
+                      <th style="text-align:center; width:90px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="delivery-rows">
+                    <!-- Dynamic Delivery Rows -->
+                  </tbody>
+                </table>
+              </div>
+              <button class="btn btn-secondary" style="align-self:flex-start;" onclick="openDeliveryModal()" id="btn-add-delivery">
+                <i data-lucide="plus" style="width:14px; height:14px;"></i> Add Delivery Schedule
+              </button>
+            </div>
+
+            <!-- Tab Content Pane: Payment Terms -->
+            <div class="tab-content-pane" id="tab-payments">
+              <div class="grid-container-3" style="margin-bottom:20px;">
+                <div class="form-group">
+                  <label>Payment Modes *</label>
+                  <select class="form-control" id="pay-mode">
+                    <option value="Cash">Cash</option>
+                    <option value="Bank Transfer" selected>Bank Transfer</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Cheque">Cheque</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Base Date *</label>
+                  <select class="form-control" id="pay-base-date" onchange="recalculatePaymentSchedule()">
+                    <option value="Order Date" selected>Order Date</option>
+                    <option value="Invoice Date">Invoice Date</option>
+                    <option value="Delivery Date">Delivery Date</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Credit Period (Days) *</label>
+                  <input type="number" class="form-control" id="pay-credit-days" value="30" min="0" onchange="recalculatePaymentSchedule()">
+                </div>
+              </div>
+
+              <div style="border: 1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="pay-tds-applicable" onchange="toggleTDSSection(this.checked)" style="width:16px; height:16px; cursor:pointer;">
+                    <label for="pay-tds-applicable" style="margin-bottom:0; font-weight:700; cursor:pointer;">TDS (Tax Deducted at Source) Applicable</label>
+                  </div>
+                </div>
+                
+                <div class="grid-container-3" id="tds-fields-row" style="display:none;">
+                  <div class="form-group">
+                    <label>TDS Category</label>
+                    <select class="form-control" id="pay-tds-category" onchange="handleTDSChange(this.value)">
+                      <option value="">Select TDS category...</option>
+                      <option value="194C">Section 194C (Contractors - 1%)</option>
+                      <option value="194J">Section 194J (Professional - 10%)</option>
+                      <option value="194Q">Section 194Q (Goods Purchase - 0.1%)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>TDS Rate (%)</label>
+                    <input type="number" class="form-control" id="pay-tds-rate" disabled value="0">
+                  </div>
+                  <div class="form-group">
+                    <label>TDS Amount (Calculated)</label>
+                    <input type="text" class="form-control" id="pay-tds-amount" disabled value="₹0.00">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Installments schedule table -->
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h4 style="font-size:0.9rem; color:var(--text); margin-bottom:0;"><i data-lucide="calendar-days" style="width:16px; height:16px; vertical-align:middle; margin-right:4px; color:var(--primary);"></i> Installments Payment Schedule</h4>
+                <span id="installment-balance-indicator" style="font-size:0.75rem; font-weight:700;">Remaining Allocation: 100%</span>
+              </div>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Base Date Reference</th>
+                      <th style="width:120px;">Days Within</th>
+                      <th>Expected Due Date</th>
+                      <th style="width:120px; text-align:right;">Percent %</th>
+                      <th style="text-align:right; width:150px;">Amount</th>
+                      <th style="text-align:center; width:80px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="payment-schedule-rows">
+                    <!-- Dynamic Payment Installments -->
+                  </tbody>
+                </table>
+              </div>
+              <button class="btn btn-secondary" style="align-self:flex-start;" onclick="addInstallmentRow()" id="btn-add-installment">
+                <i data-lucide="plus" style="width:14px; height:14px;"></i> Add Installment
+              </button>
+            </div>
+
+            <!-- Tab Content Pane: Attachments -->
+            <div class="tab-content-pane" id="tab-attachments">
+              <div class="attachment-upload-zone" id="drop-zone">
+                <i data-lucide="upload-cloud" style="width:48px; height:48px; color:var(--primary); margin-bottom:12px;"></i>
+                <h4>Drag & Drop Supporting Files Here</h4>
+                <p style="color:var(--text-muted); font-size:0.8rem; margin:6px 0 16px 0;">Accepted formats: PDF, PNG, JPG (Max 5MB each). Supporting document verification.</p>
+                <input type="file" id="attachment-file-input" style="display:none;" multiple onchange="handleFileSelect(this.files)">
+                <button class="btn btn-secondary" onclick="document.getElementById('attachment-file-input').click()">Browse Local Storage</button>
+              </div>
+
+              <h4 style="font-size:0.9rem; color:var(--text); margin-bottom:8px;">Uploaded Documents list</h4>
+              <div style="display:flex; flex-direction:column; gap:8px;" id="attachments-list">
+                <div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:20px; border:1px dashed var(--border); border-radius:8px;">No attachments uploaded.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Side: Calculations, Timeline, Lifecycle buttons -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+          
+          <!-- Summary Calculations Widget -->
+          <div class="card card-summary">
+            <h3 style="margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:8px; color:var(--text); font-size:1.05rem;">
+              <i data-lucide="calculator" style="color:var(--primary); width:18px; height:18px; vertical-align:middle; margin-right:4px;"></i> Order Summary
+            </h3>
+            
+            <div class="summary-row">
+              <span>Gross Product Value</span>
+              <span id="sum-gross-val">₹0.00</span>
+            </div>
+            
+            <div class="summary-row">
+              <span>Less Total Discount</span>
+              <span id="sum-discount-val" style="color:var(--danger);">-₹0.00</span>
+            </div>
+            
+            <div class="summary-row" style="border-top:1px dashed var(--border); padding-top:8px; margin-top:4px;">
+              <span>Taxable Subtotal</span>
+              <span id="sum-taxable-val" style="font-weight:600;">₹0.00</span>
+            </div>
+            
+            <div class="summary-row">
+              <span>Tax / GST Additions</span>
+              <span id="sum-tax-val">₹0.00</span>
+            </div>
+            
+            <!-- Additional Discount & Adjustment inputs -->
+            <div class="summary-row" style="align-items:center; margin-top:4px;">
+              <span>Add. Discount (PO Level)</span>
+              <input type="number" class="form-control" style="width:110px; text-align:right; padding:4px 8px; height:28px;" id="sum-add-discount" value="0" min="0" onchange="calculateAllTotals()">
+            </div>
+            
+            <div class="summary-row" style="align-items:center;">
+              <span>Adjustment Rounding</span>
+              <input type="number" class="form-control" style="width:110px; text-align:right; padding:4px 8px; height:28px;" id="sum-adjustment" value="0" onchange="calculateAllTotals()">
+            </div>
+            
+            <div class="summary-row" style="margin-top:6px;">
+              <span style="font-size:0.75rem; color:var(--text-muted);">Total Ordered Weight:</span>
+              <span style="font-size:0.75rem;" id="sum-weight-display">0.00 KGS</span>
+            </div>
+
+            <div class="summary-row total-net-row">
+              <span>Final Net Value</span>
+              <span id="sum-net-val">₹0.00</span>
+            </div>
+          </div>
+
+          <!-- Workflow Stage Actions & Timeline -->
+          <div class="card">
+            <h3 style="margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:8px; color:var(--text); font-size:1.05rem;">
+              <i data-lucide="git-pull-request" style="color:var(--primary); width:18px; height:18px; vertical-align:middle; margin-right:4px;"></i> Workflow Lifecycle
+            </h3>
+            
+            <!-- Stage logs list -->
+            <div class="timeline" id="workflow-timeline">
+              <!-- Logs updated by JS -->
+            </div>
+
+            <!-- Workflow buttons -->
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px; border-top:1px solid var(--border); padding-top:16px;" id="workflow-action-buttons">
+              <!-- Rendered dynamically based on stage & role -->
+            </div>
+          </div>
+
+          <!-- System Information -->
+          <div class="card" style="font-size:0.75rem; display:flex; flex-direction:column; gap:8px;">
+            <div style="font-weight:700; color:var(--text-muted); text-transform:uppercase; border-bottom:1px solid var(--border); padding-bottom:6px; margin-bottom:4px;">System Audit</div>
+            <div><span>Created By:</span> <strong id="audit-created-by" style="color:var(--text); margin-left:4px;">-</strong></div>
+            <div><span>Updated At:</span> <strong id="audit-updated-at" style="color:var(--text); margin-left:4px;">-</strong></div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCT POPUP DIALOG MODAL -->
+  <div class="modal-backdrop" id="product-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="product-modal-title" style="font-size:1.1rem; color:var(--text);">Add Product Line Item</h3>
+        <button class="btn btn-ghost" style="padding:4px;" onclick="closeProductModal()"><i data-lucide="x"></i></button>
+      </div>
+      
+      <div class="modal-body">
+        <input type="hidden" id="modal-prod-index">
+        
+        <div class="form-group">
+          <label>Product *</label>
+          <select class="form-control" id="modal-product" onchange="handleModalProductChange(this.value)">
+            <option value="">Select Product...</option>
+            <option value="Steel Pipes 2-inch">Steel Pipes 2-inch</option>
+            <option value="Hex Bolt Fasteners">Hex Bolt Fasteners</option>
+            <option value="Aluminium Plates 4x8">Aluminium Plates 4x8</option>
+            <option value="Aspirin Active Ingredient">Aspirin Active Ingredient</option>
+            <option value="Steel Rods 10mm">Steel Rods 10mm</option>
+            <option value="Copper Wire 5mm">Copper Wire 5mm</option>
+            <option value="Hydrochloric Acid 35%">Hydrochloric Acid 35%</option>
+            <option value="Zinc Ingots">Zinc Ingots</option>
+          </select>
+        </div>
+
+        <div class="grid-container-2">
+          <div class="form-group">
+            <label>Variety</label>
+            <select class="form-control" id="modal-variety">
+              <option value="">Standard / None</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Product Pack</label>
+            <select class="form-control" id="modal-pack">
+              <option value="">Bulk / Standard</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-container-2">
+          <div class="form-group">
+            <label>Quantity *</label>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="number" class="form-control" id="modal-qty" value="1" min="0.01" step="any" onchange="calculateModalLine()">
+              <span id="modal-uom-badge" style="font-weight:700; font-size:0.8rem; color:var(--text-muted);">PCS</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Purchase Rate *</label>
+            <input type="number" class="form-control" id="modal-rate" value="0.00" min="0" step="any" onchange="calculateModalLine()">
+          </div>
+        </div>
+
+        <div class="grid-container-2">
+          <div class="form-group">
+            <label>Discount Basis</label>
+            <select class="form-control" id="modal-discount-basis" onchange="calculateModalLine()">
+              <option value="Fixed">Fixed Amount</option>
+              <option value="Percent">Percentage %</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Discount Value</label>
+            <input type="number" class="form-control" id="modal-discount-val" value="0" min="0" onchange="calculateModalLine()">
+          </div>
+        </div>
+
+        <div class="grid-container-2">
+          <div class="form-group">
+            <label>GST Tax rate *</label>
+            <select class="form-control" id="modal-tax-rate" onchange="calculateModalLine()">
+              <option value="0">0% Exempt</option>
+              <option value="5">5% GST</option>
+              <option value="12">12% GST</option>
+              <option value="18" selected>18% GST</option>
+              <option value="28">28% GST</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Weight (KGS per unit)</label>
+            <input type="number" class="form-control" id="modal-unit-weight" value="1.0" min="0" step="any">
+          </div>
+        </div>
+
+        <!-- Inline Totals Box -->
+        <div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:8px; border:1px solid var(--border); font-size:0.8rem; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; justify-content:space-between;"><span>Gross Amount:</span><span id="modal-line-gross" style="font-weight:600;">₹0.00</span></div>
+          <div style="display:flex; justify-content:space-between;"><span>Discount:</span><span id="modal-line-disc" style="font-weight:600; color:var(--danger);">-₹0.00</span></div>
+          <div style="display:flex; justify-content:space-between;"><span>GST Value:</span><span id="modal-line-tax" style="font-weight:600;">₹0.00</span></div>
+          <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:6px; font-weight:700; color:var(--primary); font-size:0.9rem;">
+            <span>Line Total:</span><span id="modal-line-net">₹0.00</span>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Item Remarks</label>
+          <input type="text" class="form-control" id="modal-remarks" placeholder="Any specific requirements for this item...">
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeProductModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProductLine()">Save Line Item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELIVERY POPUP MODAL -->
+  <div class="modal-backdrop" id="delivery-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="delivery-modal-title" style="font-size:1.1rem; color:var(--text);">Add Delivery Schedule</h3>
+        <button class="btn btn-ghost" style="padding:4px;" onclick="closeDeliveryModal()"><i data-lucide="x"></i></button>
+      </div>
+      
+      <div class="modal-body">
+        <input type="hidden" id="modal-del-index">
+        
+        <div class="form-group">
+          <label>Select Product Pack *</label>
+          <select class="form-control" id="modal-del-product">
+            <!-- Loaded by JS -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Deliver To (Warehouse Location) *</label>
+          <select class="form-control" id="modal-del-location">
+            <option value="WH-01 Main">WH-01 Main</option>
+            <option value="WH-02 Chemicals">WH-02 Chemicals</option>
+            <option value="WH-03 Raw Materials">WH-03 Raw Materials</option>
+            <option value="Vendor Location">Vendor Location (Direct Drop)</option>
+          </select>
+        </div>
+
+        <div class="grid-container-2">
+          <div class="form-group">
+            <label>Quantity *</label>
+            <input type="number" class="form-control" id="modal-del-qty" value="1" min="0.01" step="any">
+          </div>
+          <div class="form-group">
+            <label>Expected Arrival Date *</label>
+            <input type="date" class="form-control" id="modal-del-date">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Delivery Priority</label>
+          <select class="form-control" id="modal-del-priority">
+            <option value="Low">Low</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Remarks</label>
+          <input type="text" class="form-control" id="modal-del-remarks" placeholder="Any shipping instruction...">
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeDeliveryModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveDeliveryRow()">Save Delivery Split</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" style="position:fixed; bottom:24px; right:24px; z-index:1100; display:flex; flex-direction:column; gap:10px;"></div>
+
+  <!-- JS Implementation -->
+  <script>
+    // --- Mock master directories ---
+    const PRODUCT_VARIETIES = {
+      "Steel Pipes 2-inch": ["Grade-A", "Grade-B"],
+      "Hex Bolt Fasteners": ["M12 Zinc", "M16 Black"],
+      "Aluminium Plates 4x8": ["Grade-6061", "Grade-5052"],
+      "Aspirin Active Ingredient": ["Pharma Grade", "Lab Grade"],
+      "Steel Rods 10mm": ["Standard"],
+      "Copper Wire 5mm": ["High Conductive"],
+      "Hydrochloric Acid 35%": ["Industrial", "Purified"],
+      "Zinc Ingots": ["High Purity"]
+    };
+
+    const PRODUCT_PACKS = {
+      "Steel Pipes 2-inch": "Bundle of 10",
+      "Hex Bolt Fasteners": "Box of 100",
+      "Aluminium Plates 4x8": "Pallet of 10",
+      "Aspirin Active Ingredient": "Drum 25kg",
+      "Steel Rods 10mm": "Bundle of 20",
+      "Copper Wire 5mm": "Spool 100m",
+      "Hydrochloric Acid 35%": "Canister 50L",
+      "Zinc Ingots": "Pallet 1 Ton"
+    };
+
+    const PRODUCT_UOMS = {
+      "Steel Pipes 2-inch": "PCS",
+      "Hex Bolt Fasteners": "BOX",
+      "Aluminium Plates 4x8": "PCS",
+      "Aspirin Active Ingredient": "KGS",
+      "Steel Rods 10mm": "PCS",
+      "Copper Wire 5mm": "MTR",
+      "Hydrochloric Acid 35%": "LTR",
+      "Zinc Ingots": "TON"
+    };
+
+    const VENDOR_CURRENCIES = {
+      "Acme Industrial Solutions": "INR",
+      "Global Bio-Chemicals Ltd": "INR",
+      "Hindalco Industries": "INR",
+      "Tata Steel": "INR",
+      "Reliance Industries": "INR",
+      "Local Agro Farm": "INR"
+    };
+
+    // --- State variables ---
+    let pos = [];
+    let currentPO = null;
+    let mode = "add"; // add, edit, view
+    let currentUserRole = "Purchase Manager";
+
+    // Drag and drop attachment mock files
+    let mockAttachments = [];
+
+    // --- Load Hook ---
+    window.addEventListener("load", () => {
+      initDatabase();
+      loadTheme();
+      parseURLParams();
+      recalculatePaymentSchedule();
+      lucide.createIcons();
+    });
+
+    function initDatabase() {
+      const stored = localStorage.getItem("happyerp_pos");
+      if (stored) {
+        pos = JSON.parse(stored);
+      }
+    }
+
+    function saveDatabase() {
+      localStorage.setItem("happyerp_pos", JSON.stringify(pos));
+    }
+
+    function loadTheme() {
+      const theme = localStorage.getItem("theme") || "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      updateThemeButton(theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      updateThemeButton(next);
+      lucide.createIcons();
+      showToast(`Theme toggled to ${next.toUpperCase()}`, "info");
+    }
+
+    function updateThemeButton(theme) {
+      const btn = document.getElementById("theme-btn");
+      if (theme === "light") {
+        btn.innerHTML = '<i data-lucide="moon"></i>';
+      } else {
+        btn.innerHTML = '<i data-lucide="sun"></i>';
+      }
+    }
+
+    function parseURLParams() {
+      const params = new URLSearchParams(window.location.search);
+      mode = params.get("mode") || "add";
+      const id = params.get("id");
+
+      if (mode === "add") {
+        // Initialize new PO
+        const prefix = "PO-2026-";
+        const nextNum = pos.length + 1;
+        const poNum = prefix + String(nextNum).padStart(6, '0');
+        
+        currentPO = {
+          id: poNum,
+          po_number: poNum,
+          po_date: new Date().toISOString().split('T')[0],
+          organisation_id: "Org-01",
+          branch_id: "Branch-01",
+          vendor_id: "",
+          vendor_display_name: "",
+          currency_short_name: "INR",
+          exchange_rate: 1.0,
+          freight_type: "Company Paid",
+          stage: "Draft",
+          created_by: "James Executive",
+          updated_at: new Date().toISOString().replace('T', ' ').substring(0, 16),
+          total_quantity: 0,
+          total_net_value: 0,
+          total_weight: 0,
+          expected_delivery_date: "",
+          delivery_status: "Pending",
+          payment_status: "Pending",
+          products: [],
+          delivery_schedule: [],
+          payment_terms: {
+            payment_mode: "Bank Transfer",
+            base_date: "Order Date",
+            credit_days: 30,
+            tds_applicable: false,
+            tds_category_id: "",
+            tds_percentage: 0,
+            tds_value: 0,
+            payment: []
+          },
+          timeline: [
+            { stage: "Draft", setAt: new Date().toISOString().replace('T', ' ').substring(0, 16), setBy: "James Executive", remarks: "Created new Purchase Order." }
+          ]
+        };
+
+        document.getElementById("po-number").value = poNum;
+        document.getElementById("po-date").value = currentPO.po_date;
+        document.getElementById("po-organisation").value = "Org-01";
+        document.getElementById("po-branch").value = "Branch-01";
+        
+        loadCurrentPOData();
+        setFieldsState(true); // Edit Mode
+      } else {
+        // Load Existing
+        currentPO = pos.find(p => p.id === id);
+        if (!currentPO) {
+          showToast("Purchase Order not found!", "error");
+          setTimeout(() => window.location.href = "po-list.html", 1500);
+          return;
+        }
+
+        // Setup UI inputs
+        document.getElementById("po-number").value = currentPO.po_number;
+        document.getElementById("po-date").value = currentPO.po_date;
+        document.getElementById("po-organisation").value = currentPO.organisation_id || "Org-01";
+        document.getElementById("po-branch").value = currentPO.branch_id || "Branch-01";
+        document.getElementById("po-vendor").value = currentPO.vendor_id;
+        document.getElementById("po-currency").value = currentPO.currency_short_name || "INR";
+        document.getElementById("po-exchange-rate").value = currentPO.exchange_rate || 1.0;
+        document.getElementById("po-freight-type").value = currentPO.freight_type || "Company Paid";
+        document.getElementById("po-remarks").value = currentPO.remarks || "";
+
+        // Payments
+        if (currentPO.payment_terms) {
+          document.getElementById("pay-mode").value = currentPO.payment_terms.payment_mode || "Bank Transfer";
+          document.getElementById("pay-base-date").value = currentPO.payment_terms.base_date || "Order Date";
+          document.getElementById("pay-credit-days").value = currentPO.payment_terms.credit_days || 30;
+          document.getElementById("pay-tds-applicable").checked = currentPO.payment_terms.tds_applicable || false;
+          toggleTDSSection(currentPO.payment_terms.tds_applicable);
+          if (currentPO.payment_terms.tds_applicable) {
+            document.getElementById("pay-tds-category").value = currentPO.payment_terms.tds_category_id || "";
+            document.getElementById("pay-tds-rate").value = currentPO.payment_terms.tds_percentage || 0;
+            document.getElementById("pay-tds-amount").value = "₹" + (currentPO.payment_terms.tds_value || 0).toFixed(2);
+          }
+        }
+
+        // Currency Exchange visibility
+        handleCurrencyChange(currentPO.currency_short_name);
+
+        loadCurrentPOData();
+
+        if (mode === "view" || (currentPO.stage !== "Draft" && currentPO.stage !== "Submitted")) {
+          setFieldsState(false); // Read Only Mode
+        } else {
+          setFieldsState(true); // Edit Mode
+        }
+      }
+
+      switchSimUserRole(currentUserRole);
+    }
+
+    function setFieldsState(editable) {
+      const inputs = [
+        "po-date", "po-organisation", "po-branch", "po-vendor", 
+        "po-currency", "po-exchange-rate", "po-freight-type", "po-remarks",
+        "pay-mode", "pay-base-date", "pay-credit-days", "pay-tds-applicable", "pay-tds-category"
+      ];
+      
+      inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = !editable;
+      });
+
+      document.getElementById("btn-add-product").style.display = editable ? "inline-flex" : "none";
+      document.getElementById("btn-add-delivery").style.display = editable ? "inline-flex" : "none";
+      document.getElementById("btn-add-installment").style.display = editable ? "inline-flex" : "none";
+      document.getElementById("sum-add-discount").disabled = !editable;
+      document.getElementById("sum-adjustment").disabled = !editable;
+    }
+
+    // --- Switch Simulation User Role ---
+    function switchSimUserRole(role) {
+      currentUserRole = role;
+      document.getElementById("user-role-display").textContent = role;
+      document.getElementById("sim-role-selector").value = role;
+      renderWorkflowButtons();
+    }
+
+    // --- Load Current PO Tables ---
+    function loadCurrentPOData() {
+      // Set Stage badge
+      const badge = document.getElementById("po-stage-badge");
+      badge.textContent = currentPO.stage.toUpperCase();
+      badge.className = `badge ${getBadgeClass(currentPO.stage)}`;
+
+      // Load products
+      renderProductTable();
+
+      // Load delivery
+      renderDeliveryTable();
+
+      // Load payment installments
+      renderPaymentInstallmentsTable();
+
+      // Load timeline
+      renderTimeline();
+
+      // Load summary fields
+      calculateAllTotals();
+    }
+
+    function getBadgeClass(stage) {
+      switch(stage) {
+        case 'Draft': return 'badge-draft';
+        case 'Submitted': return 'badge-submitted';
+        case 'Approved': return 'badge-approved';
+        case 'Ordered': return 'badge-ordered';
+        case 'Partial Received': return 'badge-partial';
+        case 'Fully Received': return 'badge-completed';
+        case 'Completed': return 'badge-completed';
+        case 'Cancelled': return 'badge-cancelled';
+        case 'Rejected': return 'badge-rejected';
+        default: return 'badge-draft';
+      }
+    }
+
+    // --- Tabs Navigation ---
+    function switchEntryTab(tabId) {
+      document.querySelectorAll(".entry-tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".tab-content-pane").forEach(pane => pane.classList.remove("active"));
+
+      const targetBtn = document.getElementById(`tab-btn-${tabId.split('-')[1]}`);
+      if (targetBtn) targetBtn.classList.add("active");
+      
+      const pane = document.getElementById(tabId);
+      if (pane) pane.classList.add("active");
+    }
+
+    // --- Organistation & Vendor Handlers ---
+    function handleOrgChange(val) {
+      if (!val) return;
+      showToast(`Selected Organization ${val}. Branch listings updated.`, "info");
+    }
+
+    function handleVendorChange(val) {
+      if (!val) return;
+      currentPO.vendor_id = val;
+      currentPO.vendor_display_name = val;
+      
+      const currency = VENDOR_CURRENCIES[val] || "INR";
+      document.getElementById("po-currency").value = currency;
+      handleCurrencyChange(currency);
+      showToast(`Vendor ${val} selected. Base Currency: ${currency}`, "info");
+    }
+
+    function handleCurrencyChange(currency) {
+      currentPO.currency_short_name = currency;
+      const exGroup = document.getElementById("exchange-rate-group");
+      if (currency !== "INR") {
+        exGroup.style.display = "block";
+        document.getElementById("po-exchange-rate").value = currency === "USD" ? "83.50" : "90.20";
+      } else {
+        exGroup.style.display = "none";
+        document.getElementById("po-exchange-rate").value = "1.00";
+      }
+      calculateAllTotals();
+    }
+
+    function validatePODate(dateVal) {
+      const today = new Date().toISOString().split('T')[0];
+      if (dateVal > today) {
+        showToast("Purchase Order date cannot be a future date!", "error");
+        document.getElementById("po-date").value = today;
+      }
+    }
+
+    // --- Product Modal & Operations ---
+    function renderProductTable() {
+      const tbody = document.getElementById("product-rows");
+      tbody.innerHTML = "";
+
+      document.getElementById("prod-count-badge").textContent = currentPO.products.length;
+
+      if (currentPO.products.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:20px;">No product items added. Click 'Add Product Line' to add items.</td></tr>`;
+        return;
+      }
+
+      currentPO.products.forEach((p, idx) => {
+        const tr = document.createElement("tr");
+        const editable = (currentPO.stage === "Draft" || currentPO.stage === "Submitted") && mode !== "view";
+        
+        tr.innerHTML = `
+          <td style="font-weight:600; color:var(--text);">${p.product_name}</td>
+          <td>${p.variety_display_name || '-'}</td>
+          <td>${p.product_pack_name || 'Bulk'}</td>
+          <td style="text-align:right;">${p.quantity}</td>
+          <td>${p.uom_short_name}</td>
+          <td style="text-align:right;">₹${p.rate.toFixed(2)}</td>
+          <td style="text-align:right;">₹${p.discount_value.toFixed(2)}</td>
+          <td style="text-align:right;">${p.tax_rate_percent}%</td>
+          <td style="text-align:right; font-weight:700; color:var(--primary);">₹${p.net_value.toFixed(2)}</td>
+          <td style="text-align:center;">
+            ${editable ? `
+              <button class="btn btn-ghost" style="padding:4px;" onclick="openProductModal('edit', ${idx})" title="Edit line item"><i data-lucide="pencil" style="width:14px; height:14px;"></i></button>
+              <button class="btn btn-ghost" style="padding:4px; color:var(--danger);" onclick="deleteProductLine(${idx})" title="Delete line item"><i data-lucide="trash-2" style="width:14px; height:14px;"></i></button>
+            ` : `<span style="font-size:0.75rem; color:var(--text-muted);">Locked</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function openProductModal(actionMode, index = -1) {
+      if (!currentPO.vendor_id) {
+        showToast("Please select a vendor before adding products!", "warning");
+        return;
+      }
+      
+      document.getElementById("modal-prod-index").value = index;
+      document.getElementById("product-modal").classList.add("open");
+
+      if (actionMode === 'add') {
+        document.getElementById("product-modal-title").textContent = "Add Product Line Item";
+        document.getElementById("modal-product").value = "";
+        document.getElementById("modal-variety").innerHTML = '<option value="">Standard / None</option>';
+        document.getElementById("modal-pack").innerHTML = '<option value="">Bulk / Standard</option>';
+        document.getElementById("modal-qty").value = 1;
+        document.getElementById("modal-rate").value = 0;
+        document.getElementById("modal-discount-basis").value = "Fixed";
+        document.getElementById("modal-discount-val").value = 0;
+        document.getElementById("modal-tax-rate").value = "18";
+        document.getElementById("modal-unit-weight").value = 1.0;
+        document.getElementById("modal-remarks").value = "";
+      } else {
+        document.getElementById("product-modal-title").textContent = "Edit Product Line Item";
+        const p = currentPO.products[index];
+        document.getElementById("modal-product").value = p.product_name;
+        handleModalProductChange(p.product_name);
+        document.getElementById("modal-variety").value = p.variety_display_name;
+        document.getElementById("modal-pack").value = p.product_pack_name;
+        document.getElementById("modal-qty").value = p.quantity;
+        document.getElementById("modal-rate").value = p.rate;
+        document.getElementById("modal-discount-basis").value = p.discount_basis || "Fixed";
+        document.getElementById("modal-discount-val").value = p.discount_rate || 0;
+        document.getElementById("modal-tax-rate").value = p.tax_rate_percent || 18;
+        document.getElementById("modal-unit-weight").value = p.unit_weight || 1.0;
+        document.getElementById("modal-remarks").value = p.remarks || "";
+      }
+      calculateModalLine();
+    }
+
+    function closeProductModal() {
+      document.getElementById("product-modal").classList.remove("open");
+    }
+
+    function handleModalProductChange(prodName) {
+      const uomBadge = document.getElementById("modal-uom-badge");
+      const varSelect = document.getElementById("modal-variety");
+      const packSelect = document.getElementById("modal-pack");
+
+      if (!prodName) {
+        uomBadge.textContent = "PCS";
+        varSelect.innerHTML = '<option value="">Standard / None</option>';
+        packSelect.innerHTML = '<option value="">Bulk / Standard</option>';
+        return;
+      }
+
+      uomBadge.textContent = PRODUCT_UOMS[prodName] || "PCS";
+      
+      // Load varieties
+      let varOptions = '<option value="">Standard / None</option>';
+      if (PRODUCT_VARIETIES[prodName]) {
+        PRODUCT_VARIETIES[prodName].forEach(v => {
+          varOptions += `<option value="${v}">${v}</option>`;
+        });
+      }
+      varSelect.innerHTML = varOptions;
+
+      // Load pack
+      let packName = PRODUCT_PACKS[prodName] || "Standard Box";
+      packSelect.innerHTML = `<option value="${packName}" selected>${packName}</option>`;
+    }
+
+    function calculateModalLine() {
+      const qty = parseFloat(document.getElementById("modal-qty").value) || 0;
+      const rate = parseFloat(document.getElementById("modal-rate").value) || 0;
+      const discBasis = document.getElementById("modal-discount-basis").value;
+      const discVal = parseFloat(document.getElementById("modal-discount-val").value) || 0;
+      const taxRate = parseFloat(document.getElementById("modal-tax-rate").value) || 0;
+
+      const gross = qty * rate;
+      let calculatedDisc = 0;
+      if (discBasis === "Percent") {
+        calculatedDisc = gross * (discVal / 100);
+      } else {
+        calculatedDisc = discVal;
+      }
+      if (calculatedDisc > gross) calculatedDisc = gross;
+
+      const taxable = gross - calculatedDisc;
+      const gst = taxable * (taxRate / 100);
+      const net = taxable + gst;
+
+      document.getElementById("modal-line-gross").textContent = "₹" + gross.toFixed(2);
+      document.getElementById("modal-line-disc").textContent = "-₹" + calculatedDisc.toFixed(2);
+      document.getElementById("modal-line-tax").textContent = "₹" + gst.toFixed(2);
+      document.getElementById("modal-line-net").textContent = "₹" + net.toFixed(2);
+    }
+
+    function saveProductLine() {
+      const prodName = document.getElementById("modal-product").value;
+      const qty = parseFloat(document.getElementById("modal-qty").value) || 0;
+      const rate = parseFloat(document.getElementById("modal-rate").value) || 0;
+      
+      if (!prodName) {
+        showToast("Product is a mandatory field!", "error");
+        return;
+      }
+      if (qty <= 0) {
+        showToast("Quantity must be greater than zero!", "error");
+        return;
+      }
+      if (rate < 0) {
+        showToast("Rate cannot be negative!", "error");
+        return;
+      }
+
+      const discBasis = document.getElementById("modal-discount-basis").value;
+      const discVal = parseFloat(document.getElementById("modal-discount-val").value) || 0;
+      const taxRate = parseFloat(document.getElementById("modal-tax-rate").value) || 0;
+      const unitWeight = parseFloat(document.getElementById("modal-unit-weight").value) || 0;
+      
+      const gross = qty * rate;
+      let calculatedDisc = 0;
+      if (discBasis === "Percent") {
+        calculatedDisc = gross * (discVal / 100);
+      } else {
+        calculatedDisc = discVal;
+      }
+      const taxable = gross - calculatedDisc;
+      const gst = taxable * (taxRate / 100);
+      const net = taxable + gst;
+
+      const lineItem = {
+        product_name: prodName,
+        variety_display_name: document.getElementById("modal-variety").value,
+        product_pack_name: document.getElementById("modal-pack").value,
+        quantity: qty,
+        uom_short_name: PRODUCT_UOMS[prodName] || "PCS",
+        rate: rate,
+        discount_basis: discBasis,
+        discount_rate: discVal,
+        discount_value: calculatedDisc,
+        tax_rate_percent: taxRate,
+        tax_value: gst,
+        net_value: net,
+        unit_weight: unitWeight,
+        remarks: document.getElementById("modal-remarks").value
+      };
+
+      const index = parseInt(document.getElementById("modal-prod-index").value);
+      if (index === -1) {
+        // Add
+        currentPO.products.push(lineItem);
+        showToast("Added product line successfully", "success");
+      } else {
+        // Edit
+        currentPO.products[index] = lineItem;
+        showToast("Updated product line successfully", "success");
+      }
+
+      closeProductModal();
+      loadCurrentPOData();
+    }
+
+    function deleteProductLine(idx) {
+      if (confirm("Are you sure you want to delete this line item?")) {
+        currentPO.products.splice(idx, 1);
+        loadCurrentPOData();
+        showToast("Product line deleted", "success");
+      }
+    }
+
+    // --- Delivery Schedule Split Operations ---
+    function renderDeliveryTable() {
+      const tbody = document.getElementById("delivery-rows");
+      tbody.innerHTML = "";
+
+      let totalDeliveredQty = 0;
+      let totalOrderedQty = currentPO.products.reduce((sum, p) => sum + p.quantity, 0);
+
+      if (currentPO.delivery_schedule.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:20px;">No delivery splits configured. All goods default to main branch.</td></tr>`;
+        document.getElementById("delivery-balance-indicator").textContent = `Balance Qty: 0 / ${totalOrderedQty}`;
+        return;
+      }
+
+      currentPO.delivery_schedule.forEach((d, idx) => {
+        totalDeliveredQty += parseFloat(d.quantity) || 0;
+        const pending = Math.max(0, d.quantity - (d.received_quantity || 0));
+        const status = d.received_quantity === 0 ? 'Pending' : (pending === 0 ? 'Complete' : 'Partial');
+        const badgeClass = status === 'Complete' ? 'badge-approved' : (status === 'Partial' ? 'badge-partial' : 'badge-draft');
+        const editable = (currentPO.stage === "Draft" || currentPO.stage === "Submitted") && mode !== "view";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="font-weight:600;">${d.product_pack_name}</td>
+          <td>${d.deliver_to_name}</td>
+          <td style="text-align:right;">${d.quantity}</td>
+          <td>${d.expected_delivery_date}</td>
+          <td>${d.priority || 'Medium'}</td>
+          <td><span class="badge ${badgeClass}">${status}</span></td>
+          <td style="text-align:right;">${d.received_quantity || 0}</td>
+          <td style="text-align:right;">${pending}</td>
+          <td style="text-align:center;">
+            ${editable ? `
+              <button class="btn btn-ghost" style="padding:4px; color:var(--danger);" onclick="deleteDeliveryRow(${idx})" title="Delete delivery"><i data-lucide="trash-2" style="width:14px; height:14px;"></i></button>
+            ` : `<span style="font-size:0.75rem; color:var(--text-muted);">Locked</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("delivery-balance-indicator").textContent = `Allocated: ${totalDeliveredQty} / ${totalOrderedQty} PCS`;
+      lucide.createIcons();
+    }
+
+    function openDeliveryModal() {
+      if (currentPO.products.length === 0) {
+        showToast("Please add at least one product before configuring delivery splits!", "warning");
+        return;
+      }
+
+      const prodSelect = document.getElementById("modal-del-product");
+      prodSelect.innerHTML = "";
+      currentPO.products.forEach(p => {
+        const packVal = p.product_name + " (" + p.product_pack_name + ")";
+        prodSelect.innerHTML += `<option value="${p.product_name}">${packVal}</option>`;
+      });
+
+      document.getElementById("modal-del-qty").value = 1;
+      document.getElementById("modal-del-date").value = currentPO.po_date;
+      document.getElementById("delivery-modal").classList.add("open");
+    }
+
+    function closeDeliveryModal() {
+      document.getElementById("delivery-modal").classList.remove("open");
+    }
+
+    function saveDeliveryRow() {
+      const prodName = document.getElementById("modal-del-product").value;
+      const qty = parseFloat(document.getElementById("modal-del-qty").value) || 0;
+      const dateVal = document.getElementById("modal-del-date").value;
+      const loc = document.getElementById("modal-del-location").value;
+
+      if (qty <= 0) {
+        showToast("Quantity must be greater than zero!", "error");
+        return;
+      }
+      if (!dateVal) {
+        showToast("Expected arrival date is required!", "error");
+        return;
+      }
+      if (dateVal < currentPO.po_date) {
+        showToast("Expected delivery date cannot be before PO date!", "error");
+        return;
+      }
+
+      const product = currentPO.products.find(p => p.product_name === prodName);
+
+      const item = {
+        product_pack_id: prodName,
+        product_pack_name: product.product_name + " (" + product.product_pack_name + ")",
+        deliver_to_name: loc,
+        quantity: qty,
+        expected_delivery_date: dateVal,
+        priority: document.getElementById("modal-del-priority").value,
+        remarks: document.getElementById("modal-del-remarks").value,
+        received_quantity: 0,
+        pending_quantity: qty
+      };
+
+      currentPO.delivery_schedule.push(item);
+      closeDeliveryModal();
+      loadCurrentPOData();
+      showToast("Delivery schedule split added successfully", "success");
+    }
+
+    function deleteDeliveryRow(idx) {
+      if (confirm("Delete this delivery schedule row?")) {
+        currentPO.delivery_schedule.splice(idx, 1);
+        loadCurrentPOData();
+        showToast("Delivery split row removed", "success");
+      }
+    }
+
+    // --- Payments terms & TDS ---
+    function toggleTDSSection(checked) {
+      currentPO.payment_terms.tds_applicable = checked;
+      const row = document.getElementById("tds-fields-row");
+      row.style.display = checked ? "grid" : "none";
+      if (!checked) {
+        currentPO.payment_terms.tds_category_id = "";
+        currentPO.payment_terms.tds_percentage = 0;
+        currentPO.payment_terms.tds_value = 0;
+      }
+      calculateAllTotals();
+    }
+
+    function handleTDSChange(cat) {
+      currentPO.payment_terms.tds_category_id = cat;
+      let rate = 0;
+      if (cat === "194C") rate = 1.0;
+      else if (cat === "194J") rate = 10.0;
+      else if (cat === "194Q") rate = 0.1;
+
+      currentPO.payment_terms.tds_percentage = rate;
+      document.getElementById("pay-tds-rate").value = rate;
+      calculateAllTotals();
+    }
+
+    function recalculatePaymentSchedule() {
+      if (!currentPO) return;
+      
+      const baseDateType = document.getElementById("pay-base-date").value;
+      const creditDays = parseInt(document.getElementById("pay-credit-days").value) || 0;
+      
+      // Update object
+      currentPO.payment_terms.base_date = baseDateType;
+      currentPO.payment_terms.credit_days = creditDays;
+
+      // Render rows
+      renderPaymentInstallmentsTable();
+    }
+
+    function renderPaymentInstallmentsTable() {
+      const tbody = document.getElementById("payment-schedule-rows");
+      tbody.innerHTML = "";
+
+      let netValue = currentPO ? currentPO.total_net_value : 0;
+      let totalPercentAlloc = 0;
+
+      if (!currentPO.payment_terms.payment || currentPO.payment_terms.payment.length === 0) {
+        // Set default 100% single installment
+        currentPO.payment_terms.payment = [
+          { base_date: currentPO.payment_terms.base_date, days_within: currentPO.payment_terms.credit_days, percent: 100, amount: netValue }
+        ];
+      }
+
+      currentPO.payment_terms.payment.forEach((p, idx) => {
+        totalPercentAlloc += p.percent;
+        p.amount = netValue * (p.percent / 100);
+
+        // calculate expected due date
+        const base = new Date(currentPO.po_date);
+        base.setDate(base.getDate() + p.days_within);
+        const expectedDateStr = base.toISOString().split('T')[0];
+        
+        const editable = (currentPO.stage === "Draft" || currentPO.stage === "Submitted") && mode !== "view";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.base_date}</td>
+          <td>
+            <input type="number" class="form-control" style="width:100px; padding:4px 8px; height:30px;" value="${p.days_within}" min="0" ${!editable ? 'disabled': ''} onchange="updateInstallmentDays(${idx}, this.value)">
+          </td>
+          <td style="font-weight:600;">${expectedDateStr}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <input type="number" class="form-control" style="width:90px; padding:4px 8px; height:30px;" value="${p.percent}" min="0" max="100" ${!editable ? 'disabled': ''} onchange="updateInstallmentPercent(${idx}, this.value)">
+              <span>%</span>
+            </div>
+          </td>
+          <td style="text-align:right; font-weight:700;">₹${p.amount.toFixed(2)}</td>
+          <td style="text-align:center;">
+            ${editable && idx > 0 ? `
+              <button class="btn btn-ghost" style="padding:4px; color:var(--danger);" onclick="deleteInstallmentRow(${idx})"><i data-lucide="trash-2" style="width:14px; height:14px;"></i></button>
+            ` : `<span style="font-size:0.75rem; color:var(--text-muted);">Main</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("installment-balance-indicator").textContent = `Allocated: ${totalPercentAlloc}% / 100%`;
+      lucide.createIcons();
+    }
+
+    function addInstallmentRow() {
+      const currentSum = currentPO.payment_terms.payment.reduce((sum, p) => sum + p.percent, 0);
+      const rem = Math.max(0, 100 - currentSum);
+
+      const row = {
+        base_date: currentPO.payment_terms.base_date,
+        days_within: currentPO.payment_terms.credit_days,
+        percent: rem,
+        amount: currentPO.total_net_value * (rem / 100)
+      };
+
+      currentPO.payment_terms.payment.push(row);
+      renderPaymentInstallmentsTable();
+    }
+
+    function deleteInstallmentRow(idx) {
+      currentPO.payment_terms.payment.splice(idx, 1);
+      renderPaymentInstallmentsTable();
+    }
+
+    function updateInstallmentDays(idx, val) {
+      currentPO.payment_terms.payment[idx].days_within = parseInt(val) || 0;
+      renderPaymentInstallmentsTable();
+    }
+
+    function updateInstallmentPercent(idx, val) {
+      currentPO.payment_terms.payment[idx].percent = parseFloat(val) || 0;
+      renderPaymentInstallmentsTable();
+    }
+
+    // --- Attachment dropzone handler ---
+    const dropZone = document.getElementById("drop-zone");
+    
+    // Drag over styling
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, e => {
+        e.preventDefault();
+        dropZone.style.borderColor = "var(--primary)";
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, e => {
+        e.preventDefault();
+        dropZone.style.borderColor = "var(--border)";
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', e => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      handleFileSelect(files);
+    });
+
+    function handleFileSelect(files) {
+      for(let i=0; i<files.length; i++) {
+        const file = files[i];
+        if (file.size > 5 * 1024 * 1024) {
+          showToast(`File ${file.name} exceeds 5MB size limit!`, "error");
+          continue;
+        }
+        
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!['pdf', 'png', 'jpg', 'jpeg'].includes(ext)) {
+          showToast(`File format .${ext} is invalid! Allowed: PDF, PNG, JPG`, "error");
+          continue;
+        }
+
+        mockAttachments.push({
+          name: file.name,
+          size: (file.size / 1024).toFixed(1) + " KB",
+          date: new Date().toISOString().split('T')[0]
+        });
+      }
+      renderAttachments();
+      showToast("Supporting attachment(s) uploaded successfully", "success");
+    }
+
+    function renderAttachments() {
+      const container = document.getElementById("attachments-list");
+      container.innerHTML = "";
+
+      if (mockAttachments.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:20px; border:1px dashed var(--border); border-radius:8px;">No attachments uploaded.</div>`;
+        return;
+      }
+
+      mockAttachments.forEach((f, idx) => {
+        const div = document.createElement("div");
+        div.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:10px 16px; border-radius:8px; border:1px solid var(--border);";
+        div.innerHTML = `
+          <div style="display:flex; align-items:center; gap:10px;">
+            <i data-lucide="file-text" style="color:var(--primary); width:18px; height:18px;"></i>
+            <div>
+              <div style="font-weight:600; font-size:0.85rem; color:var(--text);">${f.name}</div>
+              <span style="font-size:0.7rem; color:var(--text-muted);">${f.size} • Uploaded ${f.date}</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-ghost" style="padding:4px;" onclick="window.open('#')" title="Download file"><i data-lucide="download" style="width:14px; height:14px;"></i></button>
+            <button class="btn btn-ghost" style="padding:4px; color:var(--danger);" onclick="deleteAttachment(${idx})" title="Delete file"><i data-lucide="trash-2" style="width:14px; height:14px;"></i></button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+      lucide.createIcons();
+    }
+
+    function deleteAttachment(idx) {
+      mockAttachments.splice(idx, 1);
+      renderAttachments();
+      showToast("Attachment deleted", "info");
+    }
+
+    // --- Calculations ---
+    function calculateAllTotals() {
+      if (!currentPO) return;
+
+      let subtotal = 0;
+      let totalDiscount = 0;
+      let totalTax = 0;
+      let totalQty = 0;
+      let totalWeight = 0;
+
+      currentPO.products.forEach(p => {
+        subtotal += p.quantity * p.rate;
+        totalDiscount += p.discount_value;
+        totalTax += p.tax_value;
+        totalQty += p.quantity;
+        totalWeight += (p.quantity * (p.unit_weight || 1));
+      });
+
+      const taxable = subtotal - totalDiscount;
+      
+      // TDS calculation
+      let tdsAmount = 0;
+      if (currentPO.payment_terms.tds_applicable) {
+        tdsAmount = taxable * (currentPO.payment_terms.tds_percentage / 100);
+        document.getElementById("pay-tds-amount").value = "₹" + tdsAmount.toFixed(2);
+        currentPO.payment_terms.tds_value = tdsAmount;
+      }
+
+      // Add. Discount & Adjustment
+      const addDisc = parseFloat(document.getElementById("sum-add-discount").value) || 0;
+      const adj = parseFloat(document.getElementById("sum-adjustment").value) || 0;
+
+      const finalNet = taxable + totalTax - addDisc + adj;
+
+      // Update currentPO
+      currentPO.total_quantity = totalQty;
+      currentPO.total_net_value = finalNet;
+      currentPO.total_weight = totalWeight;
+
+      // Update right summary labels
+      document.getElementById("sum-gross-val").textContent = "₹" + subtotal.toFixed(2);
+      document.getElementById("sum-discount-val").textContent = "-₹" + totalDiscount.toFixed(2);
+      document.getElementById("sum-taxable-val").textContent = "₹" + taxable.toFixed(2);
+      document.getElementById("sum-tax-val").textContent = "₹" + totalTax.toFixed(2);
+      document.getElementById("sum-weight-display").textContent = totalWeight.toFixed(2) + " KGS";
+      document.getElementById("sum-net-val").textContent = "₹" + finalNet.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      // Update installment amount details
+      currentPO.payment_terms.payment.forEach(p => {
+        p.amount = finalNet * (p.percent / 100);
+      });
+    }
+
+    // --- Timeline ---
+    function renderTimeline() {
+      const container = document.getElementById("workflow-timeline");
+      container.innerHTML = "";
+
+      if (!currentPO.timeline || currentPO.timeline.length === 0) {
+        container.innerHTML = `<div style="font-size:0.75rem; color:var(--text-muted);">No timeline logs available.</div>`;
+        return;
+      }
+
+      currentPO.timeline.forEach(log => {
+        const item = document.createElement("div");
+        item.className = "timeline-item";
+        item.innerHTML = `
+          <div class="timeline-badge"></div>
+          <div class="timeline-content">
+            <div class="timeline-header">
+              <strong style="color:var(--text);">${log.stage}</strong>
+              <span style="font-size:0.7rem; color:var(--text-muted);">${log.setAt}</span>
+            </div>
+            <div style="font-size:0.75rem; margin-top:2px;">User: ${log.setBy}</div>
+            ${log.remarks ? `<p style="margin-top:4px; font-style:italic; font-size:0.75rem; color:var(--text-muted);">"${log.remarks}"</p>` : ''}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // --- Dynamic Workflow Stage Buttons matrix ---
+    function renderWorkflowButtons() {
+      const container = document.getElementById("workflow-action-buttons");
+      container.innerHTML = "";
+
+      const stage = currentPO.stage;
+      const role = currentUserRole;
+      const editable = (stage === "Draft" || stage === "Submitted") && mode !== "view";
+
+      if (editable) {
+        // Save Button
+        const btnSave = document.createElement("button");
+        btnSave.className = "btn btn-primary";
+        btnSave.innerHTML = '<i data-lucide="save" style="width:16px; height:16px;"></i> Save Draft PO';
+        btnSave.onclick = () => savePOFlow(false);
+        container.appendChild(btnSave);
+      }
+
+      if (stage === "Draft" && editable) {
+        // Submit Button
+        const btnSubmit = document.createElement("button");
+        btnSubmit.className = "btn btn-success";
+        btnSubmit.innerHTML = '<i data-lucide="send" style="width:16px; height:16px;"></i> Submit for Approval';
+        btnSubmit.onclick = () => savePOFlow(true);
+        container.appendChild(btnSubmit);
+
+        // Cancel Button
+        const btnCancel = document.createElement("button");
+        btnCancel.className = "btn btn-danger";
+        btnCancel.innerHTML = '<i data-lucide="x" style="width:16px; height:16px;"></i> Cancel Purchase Order';
+        btnCancel.onclick = () => triggerWorkflowTransition("Cancelled");
+        container.appendChild(btnCancel);
+      }
+
+      if (stage === "Submitted" && (role === "Purchase Manager" || role === "Procurement Head")) {
+        // Approve Button
+        const btnApprove = document.createElement("button");
+        btnApprove.className = "btn btn-success";
+        btnApprove.innerHTML = '<i data-lucide="check-circle" style="width:16px; height:16px;"></i> Approve Order';
+        btnApprove.onclick = () => triggerWorkflowTransition("Approved");
+        container.appendChild(btnApprove);
+
+        // Reject Button
+        const btnReject = document.createElement("button");
+        btnReject.className = "btn btn-danger";
+        btnReject.innerHTML = '<i data-lucide="alert-circle" style="width:16px; height:16px;"></i> Reject Order';
+        btnReject.onclick = () => triggerWorkflowTransition("Rejected");
+        container.appendChild(btnReject);
+      }
+
+      if (stage === "Approved") {
+        // Mark as Ordered
+        const btnOrder = document.createElement("button");
+        btnOrder.className = "btn btn-primary";
+        btnOrder.innerHTML = '<i data-lucide="package" style="width:16px; height:16px;"></i> Dispatch (Set Ordered)';
+        btnOrder.onclick = () => triggerWorkflowTransition("Ordered");
+        container.appendChild(btnOrder);
+
+        // Rollback stage
+        const btnRollback = document.createElement("button");
+        btnRollback.className = "btn btn-secondary";
+        btnRollback.innerHTML = '<i data-lucide="undo" style="width:16px; height:16px;"></i> Rollback to Submitted';
+        btnRollback.onclick = () => triggerWorkflowTransition("Submitted");
+        container.appendChild(btnRollback);
+      }
+
+      if (stage === "Ordered") {
+        // Complete Order Lifecycle
+        const btnComplete = document.createElement("button");
+        btnComplete.className = "btn btn-success";
+        btnComplete.innerHTML = '<i data-lucide="check" style="width:16px; height:16px;"></i> Mark Completed';
+        btnComplete.onclick = () => triggerWorkflowTransition("Completed");
+        container.appendChild(btnComplete);
+      }
+
+      if (stage === "Cancelled" || stage === "Rejected") {
+        // Re-draft Button
+        const btnReDraft = document.createElement("button");
+        btnReDraft.className = "btn btn-secondary";
+        btnReDraft.innerHTML = '<i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i> Reset to Draft Stage';
+        btnReDraft.onclick = () => triggerWorkflowTransition("Draft");
+        container.appendChild(btnReDraft);
+      }
+
+      lucide.createIcons();
+    }
+
+    function savePOFlow(submitForApproval = false) {
+      if (!currentPO.vendor_id) {
+        showToast("Vendor selection is mandatory!", "error");
+        return;
+      }
+      if (currentPO.products.length === 0) {
+        showToast("Purchase Order must contain at least one product line item!", "error");
+        return;
+      }
+
+      // Check delivery totals match ordered totals
+      let totalDeliveredQty = currentPO.delivery_schedule.reduce((sum, d) => sum + d.quantity, 0);
+      let totalOrderedQty = currentPO.products.reduce((sum, p) => sum + p.quantity, 0);
+      if (currentPO.delivery_schedule.length > 0 && totalDeliveredQty !== totalOrderedQty) {
+        showToast(`Sum of delivery quantities (${totalDeliveredQty}) must exactly match sum of product quantities (${totalOrderedQty})!`, "error");
+        return;
+      }
+
+      // Check payment installments % sum is 100%
+      let totalInstallmentPct = currentPO.payment_terms.payment.reduce((sum, p) => sum + p.percent, 0);
+      if (Math.abs(totalInstallmentPct - 100) > 0.01) {
+        showToast(`Sum of payment schedule installments (${totalInstallmentPct}%) must exactly equal 100%!`, "error");
+        return;
+      }
+
+      // Update General Info values from controls
+      currentPO.po_date = document.getElementById("po-date").value;
+      currentPO.organisation_id = document.getElementById("po-organisation").value;
+      currentPO.branch_id = document.getElementById("po-branch").value;
+      currentPO.freight_type = document.getElementById("po-freight-type").value;
+      currentPO.remarks = document.getElementById("po-remarks").value;
+      currentPO.exchange_rate = parseFloat(document.getElementById("po-exchange-rate").value) || 1.0;
+
+      // Update payment term details
+      currentPO.payment_terms.payment_mode = document.getElementById("pay-mode").value;
+
+      if (submitForApproval) {
+        currentPO.stage = "Submitted";
+        currentPO.timeline.push({
+          stage: "Submitted",
+          setAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+          setBy: currentUserRole + " Simulation",
+          remarks: "Dispatched and submitted for manager approval."
+        });
+      }
+
+      currentPO.updated_at = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+      // Save to localStorage collection
+      const existingIdx = pos.findIndex(p => p.id === currentPO.id);
+      if (existingIdx === -1) {
+        pos.push(currentPO);
+      } else {
+        pos[existingIdx] = currentPO;
+      }
+
+      saveDatabase();
+      showToast(submitForApproval ? "Purchase Order submitted successfully!" : "Draft Purchase Order saved successfully!", "success");
+      setTimeout(() => window.location.href = "po-list.html", 1000);
+    }
+
+    function triggerWorkflowTransition(targetStage) {
+      let remarks = prompt(`Enter remarks for transitioning to ${targetStage}:`, `Status changed to ${targetStage}.`);
+      if (remarks === null) return; // cancelled
+
+      currentPO.stage = targetStage;
+      currentPO.updated_at = new Date().toISOString().replace('T', ' ').substring(0, 16);
+      
+      currentPO.timeline.push({
+        stage: targetStage,
+        setAt: currentPO.updated_at,
+        setBy: currentUserRole + " Simulation",
+        remarks: remarks
+      });
+
+      // Update list
+      const idx = pos.findIndex(p => p.id === currentPO.id);
+      if (idx !== -1) {
+        pos[idx] = currentPO;
+        saveDatabase();
+      }
+
+      loadCurrentPOData();
+      renderWorkflowButtons();
+      showToast(`Stage transitioned to ${targetStage} successfully`, "success");
+    }
+
+    // --- Toast Notifications ---
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.style.position = "relative";
+      toast.style.bottom = "0";
+      toast.style.right = "0";
+
+      let icon = "info";
+      if (type === "success") {
+        icon = "check-circle";
+        toast.style.borderLeftColor = "var(--success)";
+      } else if (type === "warning") {
+        icon = "alert-triangle";
+        toast.style.borderLeftColor = "var(--warning)";
+      } else if (type === "error") {
+        icon = "alert-circle";
+        toast.style.borderLeftColor = "var(--danger)";
+      }
+
+      toast.innerHTML = `
+        <i data-lucide="${icon}" style="width:18px; height:18px;"></i>
+        <div>${message}</div>
+      `;
+      
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
