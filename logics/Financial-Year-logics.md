@@ -1,5 +1,4 @@
-> This document contains ideas on how financial year should be managed in **HappyERP**. This is not final document. It is kept for reference only.
-> Do not use it while development.   
+> This document contains initial ideas. This is not final document. It is kept for reference only. Do not use it while development.   
 
 # Financial Year Configuration
 
