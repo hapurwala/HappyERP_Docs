@@ -27,10 +27,10 @@ Contains Purchase Order transaction data.
 | `financial_year`       | Int64     | -        | -             | -                           | -                            | Financial Year                                                                  |
 | `organisation_id`      | String    | -        | -             | Foreign                     | m_organisation.`id`          | Source Organisation Id                                                          |
 | `branch_id`            | String    | -        | -             | Foreign                     | m_branch.`id`                | Source Branch Id                                                                |
-| `purpose_class`        | String    | -        | -             | -                           | -                            | Purchase Order, Job Order etc.                                                  |
+| `purpose`              | String    | -        | -             | -                           | s_category.`purpose`         | Purchase Order, Job Order etc.                                                  |
 | `number_series_id`     | String    | -        | -             | Foreign                     | m_number_series.`id`         | Number Series used                                                              |
 | `number`               | String    | –        | –             | Unique within Number Series | –                            | Purchase Order Number                                                           |
-| `formatted_number`     | String    | -        | -             | -                           | -                            | PO Number with prefix and suffix as per Number Series                           |
+| `formatted_number`     | String    | -        | -             | -                           | -                            | PO Number with prefix and suffix                                                |
 | `party_id`             | String    | –        | –             | Foreign                     | m_party.`id`                 | Vendor Id                                                                       |
 | `party_display_name`   | String    | –        | –             | –                           | –                            | Vendor's Display Name                                                           |
 | `party_quotation_ref`  | String    | Yes      | -             | -                           | -                            | Quotation No or any other reference                                             |
@@ -50,40 +50,40 @@ Contains Purchase Order transaction data.
 
 ### Product Details
 
-| Name                                       | Type      | Optional | Default Value | Key     | Reference              | Remarks                         |
-| ------------------------------------------ | --------- | -------- | ------------- | ------- | ---------------------- | ------------------------------- |
-| `products`                                 | Array Map | –        | –             | –       | –                      | Product Lines                   |
-| products[].`id`                            | String    | –        | –             | –       | –                      | Row Id                          |
-| products[].`sequence`                      | Int64     | –        | 0             | –       | –                      | Display Sequence                |
-| products[].`product_id`                    | String    | –        | –             | Foreign | m_product.`id`         | Product                         |
-| products[].`product_name`                  | String    | –        | –             | –       | –                      | Product Name                    |
-| products[].`product_short_name`            | String    | -        | –             | –       | –                      | Product short name              |
-| products[].`variety_id`                    | String    | Yes      | –             | Foreign | m_product_variety.`id` | Variety                         |
-| products[].`variety_display_name`          | String    | Yes      | –             | –       | –                      | Variety Name                    |
-| products[].`product_pack_id`               | String    | Yes      | –             | Foreign | m_product_pack.`id`    | Product Pack Id                 |
-| products[].`product_pack_name`             | String    | Yes      | –             | –       | –                      | Pack Name                       |
-| products[].`product_pack_short_name`       | String    | Yes      | -             | -       | -                      | Pack Short Name                 |
-| products[].`count`                         | Int64     | -        | 0             | -       | -                      | Ordered Number of Packs         |
-| products[].`quantity`                      | Double    | –        | 0             | –       | –                      | Ordered Quantity                |
-| products[].`uom_id`                        | String    | –        | –             | Foreign | m_uom.`id`             | UOM                             |
-| products[].`uom_short_name`                | String    | –        | –             | –       | –                      | UOM Short Name                  |
-| products[].`rate`                          | Double    | –        | 0             | –       | –                      | Purchase Rate                   |
-| products[].`product_value_before_discount` | Double    | -        | 0             | -       | -                      | Product Value = Quantity × Rate |
-| products[].`discount_type`                 | String    | Yes      | Fixed         | –       | –                      | Per Unit / Percent / Fixed      |
-| products[].`discount_rate`                 | Double    | Yes      | 0             | –       | –                      | Entered Discount                |
-| products[].`discount_value`                | Double    | Yes      | 0             | –       | –                      | Calculated Discount Value       |
-| products[].`product_value_after_discount`  | Double    | –        | 0             | –       | –                      | (Quantity × Rate) - Discount    |
-| products[].`taxes`                         | Array Map | Yes      | –             | –       | –                      | Tax Breakup                     |
-| products[].taxes[].`tax_id`                | String    | –        | –             | Foreign | m_tax.`id`             | Tax Id                          |
-| products[].taxes[].`tax_name`              | String    | –        | –             | –       | –                      | Tax Name                        |
-| products[].taxes[].`taxable_value`         | Double    | –        | 0             | –       | –                      | Amount After Discount           |
-| products[].taxes[].`tax_rate_percent`      | Double    | –        | 0             | –       | –                      | Tax Rate in  Percent            |
-| products[].taxes[].`tax_value`             | Double    | –        | 0             | –       | –                      | Tax Amount                      |
-| products[].`tax_value`                     | Double    | Yes      | 0             | –       | –                      | Total Tax Amount                |
-| products[].`net_value`                     | Double    | –        | 0             | –       | –                      | Final Line Amount               |
-| products[].`received_quantity`             | Double    | Yes      | 0             | –       | –                      | Updated Through GRN             |
-| products[].`pending_quantity`              | Double    | Yes      | 0             | –       | –                      | Pending Receipt Quantity        |
-| products[].`remarks`                       | String    | Yes      | –             | –       | –                      | Item Remarks                    |
+| Name                                       | Type      | Optional | Default Value | Key     | Reference                   | Remarks                         |
+| ------------------------------------------ | --------- | -------- | ------------- | ------- | --------------------------- | ------------------------------- |
+| `products`                                 | Array Map | –        | –             | –       | –                           | Product Lines                   |
+| products[].`id`                            | String    | –        | –             | –       | –                           | Row Id                          |
+| products[].`sequence`                      | Int64     | –        | 0             | –       | –                           | Display Sequence                |
+| products[].`product_id`                    | String    | –        | –             | Foreign | m_product.`id`              | Product                         |
+| products[].`product_name`                  | String    | –        | –             | –       | –                           | Product Name                    |
+| products[].`product_short_name`            | String    | -        | –             | –       | –                           | Product short name              |
+| products[].`variety_id`                    | String    | Yes      | –             | Foreign | m_product_variety.`id`      | Variety                         |
+| products[].`variety_display_name`          | String    | Yes      | –             | –       | –                           | Variety Name                    |
+| products[].`product_pack_id`               | String    | Yes      | –             | Foreign | m_product_pack.`id`         | Product Pack Id                 |
+| products[].`product_pack_name`             | String    | Yes      | –             | –       | –                           | Pack Name                       |
+| products[].`product_pack_short_name`       | String    | Yes      | -             | -       | -                           | Pack Short Name                 |
+| products[].`count`                         | Int64     | -        | 0             | -       | -                           | Ordered Number of Packs         |
+| products[].`quantity`                      | Double    | –        | 0             | –       | –                           | Ordered Quantity                |
+| products[].`uom_id`                        | String    | –        | –             | Foreign | m_uom.`id`                  | UOM                             |
+| products[].`uom_short_name`                | String    | –        | –             | –       | –                           | UOM Short Name                  |
+| products[].`rate`                          | Double    | –        | 0             | –       | –                           | Purchase Rate                   |
+| products[].`product_value_before_discount` | Double    | -        | 0             | -       | -                           | Product Value = Quantity × Rate |
+| products[].`discount_basis`                | String    | Yes      | Fixed         | –       | s_category.`discount_basis` | Per Unit / Percent / Fixed      |
+| products[].`discount_rate`                 | Double    | Yes      | 0             | –       | –                           | Entered Discount                |
+| products[].`discount_value`                | Double    | Yes      | 0             | –       | –                           | Calculated Discount Value       |
+| products[].`product_value_after_discount`  | Double    | –        | 0             | –       | –                           | (Quantity × Rate) - Discount    |
+| products[].`taxes`                         | Array Map | Yes      | –             | –       | –                           | Tax Breakup                     |
+| products[].taxes[].`tax_id`                | String    | –        | –             | Foreign | m_tax.`id`                  | Tax Id                          |
+| products[].taxes[].`tax_name`              | String    | –        | –             | –       | –                           | Tax Name                        |
+| products[].taxes[].`taxable_value`         | Double    | –        | 0             | –       | –                           | Amount After Discount           |
+| products[].taxes[].`tax_rate_percent`      | Double    | –        | 0             | –       | –                           | Tax Rate in  Percent            |
+| products[].taxes[].`tax_value`             | Double    | –        | 0             | –       | –                           | Tax Amount                      |
+| products[].`tax_value`                     | Double    | Yes      | 0             | –       | –                           | Total Tax Amount                |
+| products[].`net_value`                     | Double    | –        | 0             | –       | –                           | Final Line Amount               |
+| products[].`received_quantity`             | Double    | Yes      | 0             | –       | –                           | Updated Through GRN             |
+| products[].`pending_quantity`              | Double    | Yes      | 0             | –       | –                           | Pending Receipt Quantity        |
+| products[].`remarks`                       | String    | Yes      | –             | –       | –                           | Item Remarks                    |
 
 ## Delivery Schedule
 
@@ -107,35 +107,35 @@ Contains Purchase Order transaction data.
 
 ## Payment Terms
 
-| Name                                   | Type         | Optional | Default Value | Key     | Reference           | Remarks                                   |
-| -------------------------------------- | ------------ | -------- | ------------- | ------- | ------------------- | ----------------------------------------- |
-| `payment_terms`                        | Map          | Yes      | –             | –       | –                   | Payment Information                       |
-| payment_terms.`payment_mode`           | Array String | Yes      | –             | –       | –                   | Allowed Payment Modes                     |
-| payment_terms.`base_date`              | String       | -        | Invoice Date  | –       | –                   | Invoice Date / Delivery Date              |
-| payment_terms.`credit_days`            | Int64        | -        | 0             | –       | –                   | Credit Period (Days)                      |
-| payment_terms.`tds_applicable`         | Boolean      | –        | False         | –       | –                   | TDS Applicable                            |
-| payment_terms.`tds_category_id`        | String       | Yes      | –             | Foreign | m_tds_category.`id` | TDS Category                              |
-| payment_terms.`tds_category_name`      | String       | Yes      | –             | –       | –                   | TDS Category Name                         |
-| payment_terms.`tds_percentage`         | Double       | Yes      | 0             | –       | –                   | TDS Rate                                  |
-| payment_terms.`tds_value`              | Double       | Yes      | 0             | –       | –                   | Calculated TDS Amount                     |
-| payment_terms.`payment`                | Array Map    | -        | -             | -       | -                   | Payment Schedule                          |
-| payment_terms.payment[].`base_date`    | String       | -        | Order Date    | -       | -                   | Invoice Date / Delivery Date / Order Date |
-| payment_terms.payment[].`days_within`  | Int64        | Yes      | 0             | -       | -                   | Number of days within Base Date           |
-| payment_terms.payment[].`due_date`     | Timestamp    | -        | -             | -       | -                   | Due Date for payment                      |
-| payment_terms.payment[].`percent`      | Double       | -        | 0             | -       | -                   | % of Order Amount                         |
-| payment_terms.payment[].`amount`       | Double       | -        | 0             | -       | -                   | Payment Amount                            |
-| payment_terms.`discount`               | Array Map    | Yes      | -             | -       | -                   | Discount on early payment                 |
-| payment_terms.discount[].`base_date`   | String       | -        | Invoice Date  | -       | -                   | Invoice Date / Delivery Date / Order Date |
-| payment_terms.discount[].`days_within` | Int64        | -        | 0             | -       | -                   | Number of days within Base Date           |
-| payment_terms.discount[].`type`        | String       | -        | -             | -       | -                   | Per Unit / Percent / Fixed                |
-| payment_terms.discount[].`rate`        | Double       | -        | 0             | -       | -                   | Entered Discount                          |
-| payment_terms.discount[].`max_value`   | Double       | -        | 0             | -       | -                   | Maximum Discount Allowed                  |
-| payment_terms.`penalty`                | Array Map    | Yes      | -             | -       | -                   | Penalty on late payment                   |
-| payment_terms.penalty[].`base_date`    | String       | -        | Due Date      | -       | -                   | Invoice Date / Delivery Date / Order Date |
-| payment_terms.penalty[].`days_after`   | Int64        | -        | 0             | -       | -                   | Number of days after Base Date            |
-| payment_terms.penalty[].`type`         | String       | -        | -             | -       | -                   | Per Unit / Percent / Fixed                |
-| payment_terms.penalty[].`rate`         | Double       | -        | -             | -       | -                   | Entered Penalty                           |
-| payment_terms.penalty[].`max_value`    | Double       | -        | -             | -       | -                   | Maximum Penalty Applicable                |
+| Name                                   | Type         | Optional | Default Value | Key     | Reference                   | Remarks                                   |
+| -------------------------------------- | ------------ | -------- | ------------- | ------- | --------------------------- | ----------------------------------------- |
+| `payment_terms`                        | Map          | Yes      | –             | –       | –                           | Payment Information                       |
+| payment_terms.`payment_mode`           | Array String | Yes      | –             | –       | s_category.`payment_mode`   | Allowed Payment Mode(s)                   |
+| payment_terms.`base_date`              | String       | -        | Invoice Date  | –       | s_category.`base_date`      | Invoice Date / Delivery Date              |
+| payment_terms.`credit_days`            | Int64        | -        | 0             | –       | –                           | Credit Period (Days)                      |
+| payment_terms.`tds_applicable`         | Boolean      | –        | False         | –       | –                           | TDS Applicable                            |
+| payment_terms.`tds_category_id`        | String       | Yes      | –             | Foreign | m_tds_category.`id`         | TDS Category                              |
+| payment_terms.`tds_category_name`      | String       | Yes      | –             | –       | –                           | TDS Category Name                         |
+| payment_terms.`tds_percentage`         | Double       | Yes      | 0             | –       | –                           | TDS Rate                                  |
+| payment_terms.`tds_value`              | Double       | Yes      | 0             | –       | –                           | Calculated TDS Amount                     |
+| payment_terms.`payment`                | Array Map    | -        | -             | -       | -                           | Payment Schedule                          |
+| payment_terms.payment[].`base_date`    | String       | -        | Order Date    | -       | s_category.`base_date`      | Invoice Date / Delivery Date / Order Date |
+| payment_terms.payment[].`days_within`  | Int64        | Yes      | 0             | -       | -                           | Number of days within Base Date           |
+| payment_terms.payment[].`due_date`     | Timestamp    | -        | -             | -       | -                           | Due Date for payment                      |
+| payment_terms.payment[].`percent`      | Double       | -        | 0             | -       | -                           | % of Order Amount                         |
+| payment_terms.payment[].`amount`       | Double       | -        | 0             | -       | -                           | Payment Amount                            |
+| payment_terms.`discount`               | Array Map    | Yes      | -             | -       | -                           | Discount on early payment                 |
+| payment_terms.discount[].`base_date`   | String       | -        | Invoice Date  | -       | s_category.`base_date`      | Invoice Date / Delivery Date / Order Date |
+| payment_terms.discount[].`days_within` | Int64        | -        | 0             | -       | -                           | Number of days within Base Date           |
+| payment_terms.discount[].`basis`       | String       | -        | -             | -       | s_category.`discount_basis` | Per Unit / Percent / Fixed                |
+| payment_terms.discount[].`rate`        | Double       | -        | 0             | -       | -                           | Entered Discount                          |
+| payment_terms.discount[].`max_value`   | Double       | -        | 0             | -       | -                           | Maximum Discount Allowed                  |
+| payment_terms.`penalty`                | Array Map    | Yes      | -             | -       | -                           | Penalty on late payment                   |
+| payment_terms.penalty[].`base_date`    | String       | -        | Due Date      | -       | s_category.`base_date`      | Invoice Date / Delivery Date / Order Date |
+| payment_terms.penalty[].`days_after`   | Int64        | -        | 0             | -       | -                           | Number of days after Base Date            |
+| payment_terms.penalty[].`basis`        | String       | -        | -             | -       | s_category.`discount_basis` | Per Unit / Percent / Fixed                |
+| payment_terms.penalty[].`rate`         | Double       | -        | -             | -       | -                           | Entered Penalty                           |
+| payment_terms.penalty[].`max_value`    | Double       | -        | -             | -       | -                           | Maximum Penalty Applicable                |
 
 ## Summary Fields
 

@@ -1,3 +1,5 @@
+> This document contains initial ideas. This is not final document. It is kept for reference only. Do not use it while development.   
+
 # Financial Year Configuration
 
 ## Purpose
@@ -15,8 +17,6 @@ Examples:
 | Australia     | 01-Jul to 30-Jun |
 | UK Government | 06-Apr to 05-Apr |
 
----
-
 # Organisation Configuration
 
 ## Collection: m_organisation
@@ -28,8 +28,6 @@ Examples:
 | financial_year_start_month     | Int64   | –        | 4             | –   | –         | Financial Year Start Month      |
 | financial_year_start_day       | Int64   | –        | 1             | –   | –         | Financial Year Start Day        |
 | maintain_financial_year_master | Boolean | –        | True          | –   | –         | Maintain Financial Year Records |
-
----
 
 # Financial Year Master
 
