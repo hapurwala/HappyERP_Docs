@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HappyERP - Purchase Order List</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Shared Style -->
+  <link rel="stylesheet" href="po-style.css">
+  <style>
+    /* Column Pinning & Table Specific styles */
+    .sticky-col {
+      position: sticky;
+      background-color: var(--card-bg);
+      z-index: 10;
+    }
+    .left-pinned {
+      left: 0;
+      border-right: 2px solid var(--border);
+    }
+    .right-pinned {
+      right: 0;
+      border-left: 2px solid var(--border);
+    }
+    th.left-pinned, th.right-pinned {
+      background-color: var(--table-header-bg);
+      z-index: 11;
+    }
+
+    /* Filter Drawer Panel */
+    .filter-panel {
+      position: fixed;
+      top: 0;
+      right: -380px;
+      width: 380px;
+      height: 100vh;
+      background-color: var(--bg);
+      border-left: 1px solid var(--border);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .filter-panel.open {
+      right: 0;
+    }
+    .filter-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--table-header-bg);
+    }
+    .filter-body {
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .filter-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background-color: var(--table-header-bg);
+    }
+
+    /* Column Selection Popover */
+    .column-popover {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 48px;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      z-index: 95;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      width: 220px;
+    }
+    .column-popover-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 0.8125rem;
+      cursor: pointer;
+    }
+    .column-popover-item input {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navbar -->
+  <header>
+    <a href="#" class="logo-container">
+      <div style="width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg, var(--primary), #a78bfa); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-family:'Outfit'; font-size:1.2rem; box-shadow:0 0 12px var(--primary-glow);">
+        H
+      </div>
+      <div class="logo-text">Happy<span>ERP</span></div>
+    </a>
+    
+    <div class="header-title-module">
+      <i data-lucide="shopping-bag" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i>
+      Purchase Order Suite
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-ghost" id="theme-btn" onclick="toggleTheme()" title="Toggle Theme">
+        <i data-lucide="sun"></i>
+      </button>
+      <div style="display:flex; align-items:center; gap:8px; border-left:1px solid var(--border); padding-left:16px;">
+        <div style="width:32px; height:32px; border-radius:50%; background-color:var(--primary); display:flex; align-items:center; justify-content:center; color:white; font-size:0.8rem; font-weight:bold;">
+          PM
+        </div>
+        <span style="font-size:0.825rem; font-weight:600; color:var(--text-muted);" id="user-role-display">Purchase Manager</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- App Main Content -->
+  <div id="app-container">
+    <div id="main-content">
+      <div class="page">
+        
+        <!-- Header & Add Button -->
+        <div class="entry-header-row">
+          <div>
+            <h1 style="font-size:1.75rem; color:var(--text); margin-bottom:4px;">Purchase Orders</h1>
+            <p style="font-size:0.85rem; color:var(--text-muted);">Manage and track the procurement lifecycle, from drafting to final completion and delivery receipt.</p>
+          </div>
+          <button class="btn btn-primary" onclick="createNewPO()">
+            <i data-lucide="plus-circle" style="width:16px; height:16px;"></i> Add Purchase Order
+          </button>
+        </div>
+
+        <!-- KPI Widgets -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(99, 102, 241, 0.1); color:var(--primary);">
+              <i data-lucide="file-text"></i>
+            </div>
+            <div class="kpi-info">
+              <h3 id="kpi-total-pos">0</h3>
+              <p>Total Orders</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(245, 158, 11, 0.1); color:var(--warning);">
+              <i data-lucide="clock"></i>
+            </div>
+            <div class="kpi-info">
+              <h3 id="kpi-pending-approval">0</h3>
+              <p>Pending Approval</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(16, 185, 129, 0.1); color:var(--success);">
+              <i data-lucide="activity"></i>
+            </div>
+            <div class="kpi-info">
+              <h3 id="kpi-ordered">0</h3>
+              <p>Ordered & Active</p>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(99, 102, 241, 0.1); color:var(--primary);">
+              <i data-lucide="wallet"></i>
+            </div>
+            <div class="kpi-info">
+              <h3 id="kpi-total-amount">₹0.00</h3>
+              <p>Total Net Amount</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbar Config -->
+        <div class="toolbar-config">
+          <div class="search-filter-inputs">
+            <div class="search-container">
+              <i data-lucide="search" style="position:absolute; left:12px; top:12px; width:16px; height:16px; color:var(--text-muted);"></i>
+              <input type="text" class="form-control" style="padding-left:36px;" id="table-search" placeholder="Search PO No, Vendor, Created By..." oninput="handleSearch(this.value)">
+            </div>
+            <button class="btn btn-secondary" onclick="toggleFilterPanel(true)">
+              <i data-lucide="filter" style="width:16px; height:16px;"></i> Advanced Filters
+              <span id="active-filter-count" class="badge badge-submitted" style="padding:1px 6px; font-size:0.65rem; margin-left:4px; display:none;">0</span>
+            </button>
+            <button class="btn btn-ghost" onclick="resetAllFilters()" id="btn-reset-filters" style="display:none;" title="Clear All Filters">
+              <i data-lucide="x"></i> Clear
+            </button>
+          </div>
+          
+          <div style="display:flex; align-items:center; gap:10px; position:relative;">
+            <button class="btn btn-secondary" onclick="toggleColumnPopover()" title="Show/Hide Columns">
+              <i data-lucide="columns" style="width:16px; height:16px;"></i> Columns
+            </button>
+            
+            <!-- Column Popover -->
+            <div class="column-popover" id="col-popover">
+              <div style="font-weight:700; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:6px;">Select Columns</div>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-date')"> PO Date</label>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-vendor')"> Vendor</label>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-qty')"> Total Quantity</label>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-amount')"> Net Amount</label>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-delivery')"> Expected Date</label>
+              <label class="column-popover-item"><input type="checkbox" checked onchange="toggleColVisibility('col-creator')"> Created By</label>
+            </div>
+
+            <button class="btn btn-secondary" onclick="exportToCSV()" title="Export list to CSV">
+              <i data-lucide="download-cloud" style="width:16px; height:16px;"></i> Export
+            </button>
+            
+            <!-- Grid/Table View Toggle -->
+            <div style="border-left:1px solid var(--border); padding-left:10px; display:flex; gap:4px;">
+              <button class="btn btn-secondary" id="view-mode-table" style="padding:8px 12px; background-color:var(--border);" onclick="setViewMode('table')" title="Table View">
+                <i data-lucide="list" style="width:16px; height:16px;"></i>
+              </button>
+              <button class="btn btn-secondary" id="view-mode-grid" style="padding:8px 12px;" onclick="setViewMode('grid')" title="Grid Card View">
+                <i data-lucide="grid" style="width:16px; height:16px;"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table View Container -->
+        <div class="table-container" id="table-view-container">
+          <table>
+            <thead>
+              <tr>
+                <th class="sticky-col left-pinned">PO Number</th>
+                <th class="col-date">PO Date</th>
+                <th class="col-vendor">Vendor</th>
+                <th class="col-qty" style="text-align:right;">Total Quantity</th>
+                <th class="col-amount" style="text-align:right;">Net Value</th>
+                <th class="col-delivery">Expected Delivery</th>
+                <th>Stage</th>
+                <th class="col-creator">Created By</th>
+                <th class="sticky-col right-pinned" style="text-align:center; width:80px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="po-tbody">
+              <!-- JS renders rows here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Grid View Container -->
+        <div class="invoice-card-grid" id="grid-view-container" style="display:none;">
+          <!-- JS renders grid cards here -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); border:1px solid var(--card-border); padding:14px 20px; border-radius:12px;">
+          <span style="font-size:0.8rem; color:var(--text-muted);" id="pagination-info">Showing 0-0 of 0 purchase orders</span>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.75rem;" id="btn-pagination-prev" disabled><i data-lucide="chevron-left" style="width:14px; height:14px;"></i> Previous</button>
+            <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.75rem;" id="btn-pagination-next" disabled>Next <i data-lucide="chevron-right" style="width:14px; height:14px;"></i></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Filters Drawer -->
+  <div class="modal-backdrop" id="filter-backdrop" onclick="toggleFilterPanel(false)">
+    <div class="filter-panel" id="filter-panel-card" onclick="event.stopPropagation()">
+      <div class="filter-header">
+        <h3 style="font-size:1.1rem; color:var(--text);"><i data-lucide="sliders-horizontal" style="width:16px; height:16px; vertical-align:middle; margin-right:6px; color:var(--primary);"></i> Advanced Filters</h3>
+        <button class="btn btn-ghost" style="padding:4px;" onclick="toggleFilterPanel(false)"><i data-lucide="x"></i></button>
+      </div>
+      
+      <div class="filter-body">
+        <div class="form-group">
+          <label>Date Range</label>
+          <select class="form-control" id="filter-date-range" onchange="applyFilters()">
+            <option value="all" selected>All Dates</option>
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="this-month">This Month</option>
+            <option value="last-month">Last Month</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Vendor</label>
+          <select class="form-control" id="filter-vendor" onchange="applyFilters()">
+            <option value="all" selected>All Vendors</option>
+            <option value="Acme Industrial Solutions">Acme Industrial Solutions</option>
+            <option value="Global Bio-Chemicals Ltd">Global Bio-Chemicals Ltd</option>
+            <option value="Hindalco Industries">Hindalco Industries</option>
+            <option value="Tata Steel">Tata Steel</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Workflow Stage</label>
+          <select class="form-control" id="filter-stage" onchange="applyFilters()">
+            <option value="all" selected>All Stages</option>
+            <option value="Draft">Draft</option>
+            <option value="Submitted">Submitted</option>
+            <option value="Approved">Approved</option>
+            <option value="Ordered">Ordered</option>
+            <option value="Partial Received">Partial Received</option>
+            <option value="Fully Received">Fully Received</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Created By</label>
+          <select class="form-control" id="filter-creator" onchange="applyFilters()">
+            <option value="all" selected>All Users</option>
+            <option value="James Executive">James Executive (Executive)</option>
+            <option value="Sarah Manager">Sarah Manager (Manager)</option>
+            <option value="Admin User">Admin User (Admin)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="filter-footer">
+        <button class="btn btn-secondary" onclick="resetAllFilters(); toggleFilterPanel(false)">Reset All</button>
+        <button class="btn btn-primary" onclick="toggleFilterPanel(false)">Apply Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" style="position:fixed; bottom:24px; right:24px; z-index:1100; display:flex; flex-direction:column; gap:10px;"></div>
+
+  <!-- JS Logic -->
+  <script>
+    // --- Mock Database Arrays ---
+    const INITIAL_POS = [
+      {
+        id: "PO-2026-000001",
+        po_number: "PO-2026-000001",
+        po_date: "2026-07-01",
+        vendor_id: "Acme Industrial Solutions",
+        vendor_display_name: "Acme Industrial Solutions",
+        currency_short_name: "INR",
+        exchange_rate: 1.0,
+        freight_type: "Company Paid",
+        stage: "Draft",
+        created_by: "James Executive",
+        updated_at: "2026-07-01 10:00",
+        total_quantity: 150,
+        total_net_value: 177000.00,
+        expected_delivery_date: "2026-07-15",
+        delivery_status: "Pending",
+        payment_status: "Pending",
+        products: [
+          { product_name: "Steel Pipes 2-inch", variety_display_name: "Grade-A", product_pack_name: "Bundle of 10", quantity: 100, uom_short_name: "PCS", rate: 1200.00, discount_value: 0, tax_value: 21600.00, net_value: 141600.00 },
+          { product_name: "Hex Bolt Fasteners", variety_display_name: "M12 Zinc", product_pack_name: "Box of 100", quantity: 50, uom_short_name: "BOX", rate: 600.00, discount_value: 0, tax_value: 5400.00, net_value: 35400.00 }
+        ],
+        timeline: [
+          { stage: "Draft", setAt: "2026-07-01 10:00", setBy: "James Executive", remarks: "Created initial draft order." }
+        ]
+      },
+      {
+        id: "PO-2026-000002",
+        po_number: "PO-2026-000002",
+        po_date: "2026-07-02",
+        vendor_id: "Global Bio-Chemicals Ltd",
+        vendor_display_name: "Global Bio-Chemicals Ltd",
+        currency_short_name: "INR",
+        exchange_rate: 1.0,
+        freight_type: "Included In Rate",
+        stage: "Submitted",
+        created_by: "James Executive",
+        updated_at: "2026-07-02 11:30",
+        total_quantity: 500,
+        total_net_value: 28000.00,
+        expected_delivery_date: "2026-07-20",
+        delivery_status: "Pending",
+        payment_status: "Pending",
+        products: [
+          { product_name: "Aspirin Active Ingredient", variety_display_name: "Pharma Grade", product_pack_name: "Drum 25kg", quantity: 500, uom_short_name: "KGS", rate: 50.00, discount_value: 0, tax_value: 3000.00, net_value: 28000.00 }
+        ],
+        timeline: [
+          { stage: "Draft", setAt: "2026-07-02 10:00", setBy: "James Executive", remarks: "Draft initialized." },
+          { stage: "Submitted", setAt: "2026-07-02 11:30", setBy: "James Executive", remarks: "Submitted for approval." }
+        ]
+      },
+      {
+        id: "PO-2026-000003",
+        po_number: "PO-2026-000003",
+        po_date: "2026-06-25",
+        vendor_id: "Hindalco Industries",
+        vendor_display_name: "Hindalco Industries",
+        currency_short_name: "INR",
+        exchange_rate: 1.0,
+        freight_type: "Vendor Paid",
+        stage: "Approved",
+        created_by: "James Executive",
+        updated_at: "2026-06-26 14:00",
+        total_quantity: 30,
+        total_net_value: 42000.00,
+        expected_delivery_date: "2026-07-10",
+        delivery_status: "Pending",
+        payment_status: "Pending",
+        products: [
+          { product_name: "Aluminium Plates 4x8", variety_display_name: "Grade-6061", product_pack_name: "Pallet of 10", quantity: 30, uom_short_name: "PCS", rate: 1250.00, discount_value: 0, tax_value: 4500.00, net_value: 42000.00 }
+        ],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-25 09:00", setBy: "James Executive", remarks: "Created." },
+          { stage: "Submitted", setAt: "2026-06-25 15:00", setBy: "James Executive", remarks: "Sent to manager." },
+          { stage: "Approved", setAt: "2026-06-26 14:00", setBy: "Sarah Manager", remarks: "Approved for ordering." }
+        ]
+      },
+      {
+        id: "PO-2026-000004",
+        po_number: "PO-2026-000004",
+        po_date: "2026-06-20",
+        vendor_id: "Acme Industrial Solutions",
+        vendor_display_name: "Acme Industrial Solutions",
+        currency_short_name: "INR",
+        exchange_rate: 1.0,
+        freight_type: "Third Party",
+        stage: "Ordered",
+        created_by: "James Executive",
+        updated_at: "2026-06-21 10:00",
+        total_quantity: 200,
+        total_net_value: 247800.00,
+        expected_delivery_date: "2026-07-05",
+        delivery_status: "Pending",
+        payment_status: "Pending",
+        products: [
+          { product_name: "Steel Pipes 2-inch", variety_display_name: "Grade-A", product_pack_name: "Bundle of 10", quantity: 200, uom_short_name: "PCS", rate: 1050.00, discount_value: 0, tax_value: 37800.00, net_value: 247800.00 }
+        ],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-20 10:00", setBy: "James Executive", remarks: "Created." },
+          { stage: "Submitted", setAt: "2026-06-20 12:00", setBy: "James Executive", remarks: "Submitted." },
+          { stage: "Approved", setAt: "2026-06-21 09:00", setBy: "Sarah Manager", remarks: "Approved." },
+          { stage: "Ordered", setAt: "2026-06-21 10:00", setBy: "James Executive", remarks: "PO officially dispatched to vendor." }
+        ]
+      },
+      {
+        id: "PO-2026-000005",
+        po_number: "PO-2026-000005",
+        po_date: "2026-06-15",
+        vendor_id: "Global Bio-Chemicals Ltd",
+        vendor_display_name: "Global Bio-Chemicals Ltd",
+        currency_short_name: "INR",
+        exchange_rate: 1.0,
+        freight_type: "Included In Rate",
+        stage: "Partial Received",
+        created_by: "James Executive",
+        updated_at: "2026-06-28 16:30",
+        total_quantity: 400,
+        total_net_value: 22400.00,
+        expected_delivery_date: "2026-06-25",
+        delivery_status: "Partial",
+        payment_status: "Partially Paid",
+        products: [
+          { product_name: "Aspirin Active Ingredient", variety_display_name: "Pharma Grade", product_pack_name: "Drum 25kg", quantity: 400, uom_short_name: "KGS", rate: 50.00, discount_value: 0, tax_value: 2400.00, net_value: 22400.00 }
+        ],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-15 10:00", setBy: "James Executive", remarks: "Created." },
+          { stage: "Submitted", setAt: "2026-06-15 11:00", setBy: "James Executive", remarks: "Submitted." },
+          { stage: "Approved", setAt: "2026-06-16 10:00", setBy: "Sarah Manager", remarks: "Approved." },
+          { stage: "Ordered", setAt: "2026-06-16 14:00", setBy: "James Executive", remarks: "Dispatched." },
+          { stage: "Partial Received", setAt: "2026-06-28 16:30", setBy: "System", remarks: "Received 150 items via GRN-0098." }
+        ]
+      },
+      {
+        id: "PO-2026-000006",
+        po_number: "PO-2026-000006",
+        po_date: "2026-06-10",
+        vendor_id: "Tata Steel",
+        vendor_display_name: "Tata Steel",
+        currency_short_name: "INR",
+        exchange_rate: 1.0,
+        freight_type: "Company Paid",
+        stage: "Completed",
+        created_by: "James Executive",
+        updated_at: "2026-06-22 11:00",
+        total_quantity: 80,
+        total_net_value: 104000.00,
+        expected_delivery_date: "2026-06-20",
+        delivery_status: "Complete",
+        payment_status: "Paid",
+        products: [
+          { product_name: "Steel Rods 10mm", variety_display_name: "Standard", product_pack_name: "Bundle of 20", quantity: 80, uom_short_name: "PCS", rate: 1100.00, discount_value: 0, tax_value: 16000.00, net_value: 104000.00 }
+        ],
+        timeline: [
+          { stage: "Draft", setAt: "2026-06-10 10:00", setBy: "James Executive", remarks: "Created." },
+          { stage: "Submitted", setAt: "2026-06-10 11:00", setBy: "James Executive", remarks: "Submitted." },
+          { stage: "Approved", setAt: "2026-06-11 10:00", setBy: "Sarah Manager", remarks: "Approved." },
+          { stage: "Ordered", setAt: "2026-06-11 12:00", setBy: "James Executive", remarks: "Dispatched." },
+          { stage: "Fully Received", setAt: "2026-06-20 15:00", setBy: "System", remarks: "Received all quantities." },
+          { stage: "Completed", setAt: "2026-06-22 11:00", setBy: "Sarah Manager", remarks: "Completed lifecycle validation." }
+        ]
+      }
+    ];
+
+    let pos = [];
+    let currentViewMode = "table";
+    let activeFilters = {
+      search: "",
+      dateRange: "all",
+      vendor: "all",
+      stage: "all",
+      creator: "all"
+    };
+
+    // --- Life Cycle Hooks ---
+    window.addEventListener("load", () => {
+      initDatabase();
+      loadTheme();
+      renderPOList();
+      calculateKPIs();
+      lucide.createIcons();
+    });
+
+    function initDatabase() {
+      const stored = localStorage.getItem("happyerp_pos");
+      if (!stored) {
+        localStorage.setItem("happyerp_pos", JSON.stringify(INITIAL_POS));
+        pos = JSON.parse(JSON.stringify(INITIAL_POS));
+      } else {
+        pos = JSON.parse(stored);
+      }
+    }
+
+    function saveDatabase() {
+      localStorage.setItem("happyerp_pos", JSON.stringify(pos));
+      calculateKPIs();
+    }
+
+    function loadTheme() {
+      const theme = localStorage.getItem("theme") || "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      updateThemeButton(theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      updateThemeButton(next);
+      lucide.createIcons();
+      showToast(`Theme toggled to ${next.toUpperCase()}`, "info");
+    }
+
+    function updateThemeButton(theme) {
+      const btn = document.getElementById("theme-btn");
+      if (theme === "light") {
+        btn.innerHTML = '<i data-lucide="moon"></i>';
+      } else {
+        btn.innerHTML = '<i data-lucide="sun"></i>';
+      }
+    }
+
+    // --- KPI calculations ---
+    function calculateKPIs() {
+      const total = pos.length;
+      const pendingApproval = pos.filter(po => po.stage === "Submitted").length;
+      const ordered = pos.filter(po => po.stage === "Ordered" || po.stage === "Partial Received").length;
+      const totalAmtVal = pos.reduce((sum, po) => sum + (parseFloat(po.total_net_value) || 0), 0);
+
+      document.getElementById("kpi-total-pos").textContent = total;
+      document.getElementById("kpi-pending-approval").textContent = pendingApproval;
+      document.getElementById("kpi-ordered").textContent = ordered;
+      document.getElementById("kpi-total-amount").textContent = "₹" + totalAmtVal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    // --- Render List & Grid ---
+    function renderPOList() {
+      const tbody = document.getElementById("po-tbody");
+      const grid = document.getElementById("grid-view-container");
+      tbody.innerHTML = "";
+      grid.innerHTML = "";
+
+      let filtered = pos.filter(po => {
+        // Search
+        if (activeFilters.search) {
+          const s = activeFilters.search.toLowerCase();
+          const matchNo = po.po_number.toLowerCase().includes(s);
+          const matchVendor = po.vendor_id.toLowerCase().includes(s);
+          const matchCreator = po.created_by.toLowerCase().includes(s);
+          if (!matchNo && !matchVendor && !matchCreator) return false;
+        }
+
+        // Date Range
+        if (activeFilters.dateRange !== "all") {
+          const date = new Date(po.po_date);
+          const today = new Date();
+          if (activeFilters.dateRange === "today") {
+            if (date.toDateString() !== today.toDateString()) return false;
+          } else if (activeFilters.dateRange === "yesterday") {
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (date.toDateString() !== yesterday.toDateString()) return false;
+          } else if (activeFilters.dateRange === "this-month") {
+            if (date.getMonth() !== today.getMonth() || date.getFullYear() !== today.getFullYear()) return false;
+          } else if (activeFilters.dateRange === "last-month") {
+            const lastMonth = new Date(today);
+            lastMonth.setMonth(lastMonth.getMonth() - 1);
+            if (date.getMonth() !== lastMonth.getMonth() || date.getFullYear() !== lastMonth.getFullYear()) return false;
+          }
+        }
+
+        // Vendor
+        if (activeFilters.vendor !== "all") {
+          if (po.vendor_id !== activeFilters.vendor) return false;
+        }
+
+        // Stage
+        if (activeFilters.stage !== "all") {
+          if (po.stage !== activeFilters.stage) return false;
+        }
+
+        // Creator
+        if (activeFilters.creator !== "all") {
+          if (po.created_by !== activeFilters.creator) return false;
+        }
+
+        return true;
+      });
+
+      // Update pagination info
+      document.getElementById("pagination-info").textContent = `Showing 1-${filtered.length} of ${filtered.length} purchase orders`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:40px;">No purchase orders found matching active criteria.</td></tr>`;
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:40px;">No purchase orders found matching active criteria.</div>`;
+        return;
+      }
+
+      filtered.forEach(po => {
+        // Table render
+        const tr = document.createElement("tr");
+        tr.id = `row-${po.id}`;
+        
+        let badgeClass = getBadgeClass(po.stage);
+        let delBadgeClass = po.delivery_status === 'Complete' ? 'badge-paid' : (po.delivery_status === 'Partial' ? 'badge-partially-paid' : 'badge-draft');
+        
+        tr.innerHTML = `
+          <td class="sticky-col left-pinned" style="font-weight:700;"><a href="po-entry.html?id=${po.id}&mode=view" style="color:var(--primary); text-decoration:none;">${po.po_number}</a></td>
+          <td class="col-date">${po.po_date}</td>
+          <td class="col-vendor">${po.vendor_display_name}</td>
+          <td class="col-qty" style="text-align:right;">${po.total_quantity}</td>
+          <td class="col-amount" style="text-align:right; font-weight:600;">₹${po.total_net_value.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td class="col-delivery">${po.expected_delivery_date || 'N/A'}</td>
+          <td><span class="badge ${badgeClass}">${po.stage}</span></td>
+          <td class="col-creator">${po.created_by}</td>
+          <td class="sticky-col right-pinned action-cell" style="text-align:center;">
+            <button class="btn btn-ghost" style="padding:4px 8px;" onclick="toggleRowMenu('${po.id}', event)">
+              <i data-lucide="more-vertical" style="width:16px; height:16px;"></i>
+            </button>
+            <div class="action-menu-dropdown" id="dropdown-${po.id}">
+              <button onclick="viewPO('${po.id}')"><i data-lucide="eye" style="width:14px; height:14px;"></i> View Order</button>
+              ${po.stage === 'Draft' || po.stage === 'Submitted' ? `<button onclick="modifyPO('${po.id}')"><i data-lucide="pencil" style="width:14px; height:14px;"></i> Modify Details</button>` : ''}
+              <button onclick="duplicatePO('${po.id}')"><i data-lucide="copy" style="width:14px; height:14px;"></i> Duplicate PO</button>
+              ${po.stage === 'Submitted' ? `
+                <button onclick="changeStage('${po.id}', 'Approved')"><i data-lucide="check" style="width:14px; height:14px; color:var(--success);"></i> Approve Order</button>
+                <button onclick="changeStage('${po.id}', 'Rejected')"><i data-lucide="x" style="width:14px; height:14px; color:var(--danger);"></i> Reject Order</button>
+              ` : ''}
+              ${po.stage === 'Approved' ? `
+                <button onclick="changeStage('${po.id}', 'Ordered')"><i data-lucide="send" style="width:14px; height:14px; color:var(--primary);"></i> Mark as Ordered</button>
+              ` : ''}
+              ${po.stage === 'Draft' ? `<hr><button onclick="deletePO('${po.id}')" style="color:var(--danger);"><i data-lucide="trash-2" style="width:14px; height:14px;"></i> Delete Draft</button>` : ''}
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        // Grid render
+        const card = document.createElement("div");
+        card.className = "card invoice-list-card";
+        card.innerHTML = `
+          <div class="invoice-card-header">
+            <div>
+              <h4 style="font-size:1rem; color:var(--text);">${po.po_number}</h4>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${po.po_date}</span>
+            </div>
+            <span class="badge ${badgeClass}">${po.stage}</span>
+          </div>
+          <div style="margin: 12px 0;">
+            <div class="invoice-card-body-row">
+              <span style="color:var(--text-muted);">Vendor:</span>
+              <span style="font-weight:600;">${po.vendor_display_name}</span>
+            </div>
+            <div class="invoice-card-body-row">
+              <span style="color:var(--text-muted);">Total Quantity:</span>
+              <span>${po.total_quantity}</span>
+            </div>
+            <div class="invoice-card-body-row">
+              <span style="color:var(--text-muted);">Delivery status:</span>
+              <span class="badge ${delBadgeClass}" style="padding: 2px 8px; font-size:0.65rem;">${po.delivery_status}</span>
+            </div>
+            <div class="invoice-card-body-row">
+              <span style="color:var(--text-muted);">Net Value:</span>
+              <span style="font-weight:700; color:var(--primary);">₹${po.total_net_value.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--border); padding-top:10px;">
+            <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.75rem;" onclick="viewPO('${po.id}')">View</button>
+            ${po.stage === 'Draft' || po.stage === 'Submitted' ? `<button class="btn btn-primary" style="padding:6px 12px; font-size:0.75rem;" onclick="modifyPO('${po.id}')">Edit</button>` : ''}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function getBadgeClass(stage) {
+      switch(stage) {
+        case 'Draft': return 'badge-draft';
+        case 'Submitted': return 'badge-submitted';
+        case 'Approved': return 'badge-approved';
+        case 'Ordered': return 'badge-ordered';
+        case 'Partial Received': return 'badge-partial';
+        case 'Fully Received': return 'badge-completed';
+        case 'Completed': return 'badge-completed';
+        case 'Cancelled': return 'badge-cancelled';
+        case 'Rejected': return 'badge-rejected';
+        default: return 'badge-draft';
+      }
+    }
+
+    // --- Search & Filters ---
+    function handleSearch(val) {
+      activeFilters.search = val;
+      renderPOList();
+    }
+
+    function toggleFilterPanel(open) {
+      const panel = document.getElementById("filter-panel-card");
+      const backdrop = document.getElementById("filter-backdrop");
+      if (open) {
+        backdrop.classList.add("open");
+        panel.classList.add("open");
+      } else {
+        backdrop.classList.remove("open");
+        panel.classList.remove("open");
+      }
+    }
+
+    function applyFilters() {
+      activeFilters.dateRange = document.getElementById("filter-date-range").value;
+      activeFilters.vendor = document.getElementById("filter-vendor").value;
+      activeFilters.stage = document.getElementById("filter-stage").value;
+      activeFilters.creator = document.getElementById("filter-creator").value;
+
+      // Count active
+      let count = 0;
+      if (activeFilters.dateRange !== "all") count++;
+      if (activeFilters.vendor !== "all") count++;
+      if (activeFilters.stage !== "all") count++;
+      if (activeFilters.creator !== "all") count++;
+
+      const countBadge = document.getElementById("active-filter-count");
+      const resetBtn = document.getElementById("btn-reset-filters");
+
+      if (count > 0) {
+        countBadge.textContent = count;
+        countBadge.style.display = "inline-flex";
+        resetBtn.style.display = "inline-flex";
+      } else {
+        countBadge.style.display = "none";
+        resetBtn.style.display = "none";
+      }
+
+      renderPOList();
+    }
+
+    function resetAllFilters() {
+      document.getElementById("filter-date-range").value = "all";
+      document.getElementById("filter-vendor").value = "all";
+      document.getElementById("filter-stage").value = "all";
+      document.getElementById("filter-creator").value = "all";
+      
+      activeFilters = {
+        search: document.getElementById("table-search").value,
+        dateRange: "all",
+        vendor: "all",
+        stage: "all",
+        creator: "all"
+      };
+
+      document.getElementById("active-filter-count").style.display = "none";
+      document.getElementById("btn-reset-filters").style.display = "none";
+
+      renderPOList();
+    }
+
+    // --- Columns Toggles ---
+    function toggleColumnPopover() {
+      const popover = document.getElementById("col-popover");
+      const displayed = popover.style.display === "block";
+      popover.style.display = displayed ? "none" : "block";
+      
+      // Close dropdown click listener
+      if (!displayed) {
+        setTimeout(() => {
+          window.addEventListener("click", closePopoverHandler);
+        }, 10);
+      }
+    }
+
+    function closePopoverHandler(e) {
+      const popover = document.getElementById("col-popover");
+      if (!popover.contains(e.target) && !e.target.closest('button')) {
+        popover.style.display = "none";
+        window.removeEventListener("click", closePopoverHandler);
+      }
+    }
+
+    function toggleColVisibility(className) {
+      const cells = document.querySelectorAll(`.${className}`);
+      cells.forEach(c => {
+        if (c.style.display === "none") {
+          c.style.display = "";
+        } else {
+          c.style.display = "none";
+        }
+      });
+    }
+
+    // --- View Mode Toggle ---
+    function setViewMode(mode) {
+      currentViewMode = mode;
+      const tableView = document.getElementById("table-view-container");
+      const gridView = document.getElementById("grid-view-container");
+      const tableBtn = document.getElementById("view-mode-table");
+      const gridBtn = document.getElementById("view-mode-grid");
+
+      if (mode === "table") {
+        tableView.style.display = "block";
+        gridView.style.display = "none";
+        tableBtn.style.background = "var(--border)";
+        gridBtn.style.background = "transparent";
+      } else {
+        tableView.style.display = "none";
+        gridView.style.display = "grid";
+        tableBtn.style.background = "transparent";
+        gridBtn.style.background = "var(--border)";
+      }
+    }
+
+    // --- Row Action menu ---
+    function toggleRowMenu(id, e) {
+      e.stopPropagation();
+      const dropdown = document.getElementById(`dropdown-${id}`);
+      const isVisible = dropdown.style.display === "block";
+      
+      // Hide all first
+      document.querySelectorAll(".action-menu-dropdown").forEach(d => d.style.display = "none");
+      
+      if (!isVisible) {
+        dropdown.style.display = "block";
+        window.addEventListener("click", function closeMenu() {
+          dropdown.style.display = "none";
+          window.removeEventListener("click", closeMenu);
+        });
+      }
+    }
+
+    // --- Actions ---
+    function createNewPO() {
+      window.location.href = "po-entry.html?mode=add";
+    }
+
+    function viewPO(id) {
+      window.location.href = `po-entry.html?id=${id}&mode=view`;
+    }
+
+    function modifyPO(id) {
+      window.location.href = `po-entry.html?id=${id}&mode=edit`;
+    }
+
+    function duplicatePO(id) {
+      const source = pos.find(po => po.id === id);
+      if (!source) return;
+
+      const prefix = "PO-2026-";
+      const number = pos.length + 1;
+      const formatted = prefix + String(number).padStart(6, '0');
+
+      const dup = JSON.parse(JSON.stringify(source));
+      dup.id = formatted;
+      dup.po_number = formatted;
+      dup.po_date = new Date().toISOString().split('T')[0];
+      dup.stage = "Draft";
+      dup.created_by = "James Executive";
+      dup.updated_at = new Date().toISOString().replace('T', ' ').substring(0, 16);
+      dup.timeline = [
+        { stage: "Draft", setAt: dup.updated_at, setBy: dup.created_by, remarks: `Duplicated from ${source.po_number}` }
+      ];
+
+      pos.push(dup);
+      saveDatabase();
+      renderPOList();
+      showToast(`Duplicated ${source.po_number} as new draft ${formatted}`, "success");
+    }
+
+    function deletePO(id) {
+      const item = pos.find(po => po.id === id);
+      if (!item) return;
+
+      if (confirm(`Are you sure you want to delete draft purchase order ${item.po_number}?`)) {
+        pos = pos.filter(po => po.id !== id);
+        saveDatabase();
+        renderPOList();
+        showToast(`Deleted ${item.po_number} successfully`, "success");
+      }
+    }
+
+    function changeStage(id, newStage) {
+      const item = pos.find(po => po.id === id);
+      if (!item) return;
+
+      item.stage = newStage;
+      item.updated_at = new Date().toISOString().replace('T', ' ').substring(0, 16);
+      item.timeline.push({
+        stage: newStage,
+        setAt: item.updated_at,
+        setBy: "Sarah Manager",
+        remarks: `Workflow transition to ${newStage} via Quick Action`
+      });
+
+      saveDatabase();
+      renderPOList();
+      showToast(`${item.po_number} status updated to ${newStage}`, "success");
+    }
+
+    function exportToCSV() {
+      let csv = "PO Number,PO Date,Vendor,Total Qty,Net Amount,Delivery Date,Stage,Created By\n";
+      pos.forEach(po => {
+        csv += `"${po.po_number}","${po.po_date}","${po.vendor_display_name}",${po.total_quantity},${po.total_net_value},"${po.expected_delivery_date || ''}","${po.stage}","${po.created_by}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', 'po-list.csv');
+      a.click();
+      showToast("List exported to CSV successfully", "success");
+    }
+
+    // --- Toast Notifications ---
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.style.position = "relative";
+      toast.style.bottom = "0";
+      toast.style.right = "0";
+
+      let icon = "info";
+      if (type === "success") {
+        icon = "check-circle";
+        toast.style.borderLeftColor = "var(--success)";
+      } else if (type === "warning") {
+        icon = "alert-triangle";
+        toast.style.borderLeftColor = "var(--warning)";
+      } else if (type === "error") {
+        icon = "alert-circle";
+        toast.style.borderLeftColor = "var(--danger)";
+      }
+
+      toast.innerHTML = `
+        <i data-lucide="${icon}" style="width:18px; height:18px;"></i>
+        <div>${message}</div>
+      `;
+      
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

@@ -1,3 +1,5 @@
+> This document contains initial ideas. This is not final document. It is kept for reference only. Do not use it while development.   
+
 # Product Tax Calculation Logic
 
 ## Tax Structure
