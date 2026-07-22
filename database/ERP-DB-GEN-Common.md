@@ -27,12 +27,11 @@ Wherever address is maintained, it is maintained in a Map. Address Map and its f
 | address.`type`           | String    | Yes      | –             | –       | –              | Name given to address |
 | address.`same_as_main`   | Boolean   | -        | False         | –       | –              | -                     |
 | address.`street`         | String    | Yes      | –             | –       | –              | -                     |
-| address.`city_id`        | String    | Yes      | –             | Foreign | m_city.`id`    | -                     |
 | address.`city`           | String    | Yes      | –             | –       | –              | -                     |
 | address.`pin`            | String    | Yes      | –             | –       | –              | -                     |
-| address.`state_id`       | String    | Yes      | –             | Foreign | m_state.`id`   | -                     |
+| address.`state_id`       | String    | Yes      | –             | Foreign | s_state.`id`   | -                     |
 | address.`state`          | String    | Yes      | –             | –       | –              | -                     |
-| address.`country_id`     | String    | Yes      | –             | Foreign | m_country.`id` | -                     |
+| address.`country_id`     | String    | Yes      | –             | Foreign | s_country.`id` | -                     |
 | address.`country`        | String    | Yes      | –             | –       | –              | -                     |
 | address.`landmark`       | String    | Yes      | –             | –       | –              | Landmark              |
 | address.`location`       | Geopoint  | Yes      | –             | –       | –              | -                     |
@@ -188,6 +187,31 @@ Following fields are used for keeping details of a Bank Account.
 
 An array of BankAccount Map is used for keeping details of multiple bank accounts.
 
-| Name            | Type                   | Optional | Default Value | Key | Reference | Remarks                           |
-|:--------------- |:---------------------- |:-------- |:------------- |:--- |:--------- |:--------------------------------- |
-| `bank_accounts` | Array Map BankAccount) | -        | -             | -   | -         | It is an array of BankAccount map |
+| Name            | Type                    | Optional | Default Value | Key | Reference | Remarks                           |
+|:--------------- |:----------------------- |:-------- |:------------- |:--- |:--------- |:--------------------------------- |
+| `bank_accounts` | Array Map (BankAccount) | -        | -             | -   | -         | It is an array of BankAccount map |
+
+# 8. Tax System related (TaxSystem Map)
+
+Tax System related information is maintained with parties (Customer, Vendor, Employee etc) and organisation/branches. Details of a Bank Account is maintained in a map. An array of attachments is maintained with objects.
+
+## 8.1. TaxSystem Map
+
+Following fields are used for keeping details of a associated TaxSystem.
+
+| Name                          | Type      | Optional | Default Value | Key     | Reference            | Remarks                       |
+|:----------------------------- |:--------- |:-------- |:------------- |:------- |:-------------------- |:----------------------------- |
+| `tax_system`                  | Map       | Yes      | –             | –       | –                    | TaxSystem Map                 |
+| tax_system.`tax_system_id`    | String    | -        | –             | Foreign | m_tax_system.`id`    | Applicable Tax System         |
+| tax_system.`taxpayer_type_id` | String    | -        | –             | Foreign | m_taxpayer_type.`id` | Taxpayer Type (Registered as) |
+| tax_system.`start_date`       | Timestamp | –        | Current Date  | –       | –                    | Active From                   |
+| tax_system.`end_date`         | Timestamp | Yes      | –             | –       | –                    | Active Till                   |
+| tax_system.`reason_end`       | String    | Yes      | –             | –       | –                    | Reason For Closure            |
+
+## 8.2. TaxSystem Array Map
+
+An array of TaxSystem Map is used for keeping details of multiple applicable TaxSystems.
+
+| Name          | Type                   | Optional | Default Value | Key | Reference | Remarks                         |
+|:------------- |:---------------------- |:-------- |:------------- |:--- |:--------- |:------------------------------- |
+| `tax_systems` | Array Map (Tax System) | -        | -             | -   | -         | It is an array of TaxSystem map |

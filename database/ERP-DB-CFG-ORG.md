@@ -40,6 +40,7 @@ This collection keeps record of the organisations of the user. Following informa
 | `start_date`                 | Timestamp | –        | Current Date  | –       | –                | Active From                |
 | `end_date`                   | Timestamp | Yes      | –             | –       | –                | Active Till                |
 | `reason_end`                 | String    | Yes      | –             | –       | –                | Reason For Closure         |
+| `tax_systems`                | Array Map | Yes      | –             | –       | `TaxSystem` Map  |                            |
 | `regulatory_ids`             | Array Map | Yes      | –             | –       | –                | Ids                        |
 | `attachments`                | Array Map | Yes      | –             | –       | `Attachment` Map | Branch Documents           |
 | `stage`                      | Map       | –        | –             | –       | `Stage` Map      | Current Stage              |
@@ -59,28 +60,29 @@ This collection keeps record of the branches of an organisation. Following infor
 
 ## General Information
 
-| Name                 | Type      | Optional | Default Value | Key     | Reference           | Remarks                    |
-| -------------------- | --------- | -------- | ------------- | ------- | ------------------- | -------------------------- |
-| `id`                 | String    | –        | –             | Primary | –                   | Document Id                |
-| `organisation_id`    | String    | –        | –             | Foreign | m_organisation.`id` | Parent Organisation        |
-| `organisation_name`  | String    | –        | –             | –       | –                   | Parent Organisation Name   |
-| `name`               | String    | –        | –             | Unique  | –                   | Branch Name                |
-| `short_name`         | String    | –        | –             | Unique  | –                   | Branch Short Name          |
-| `display_name`       | String    | Yes      | –             | –       | –                   | Display Name               |
-| `address`            | Map       | Yes      | –             | –       | `Address` Map       | Branch Address             |
-| `mobile`             | String    | Yes      | –             | –       | –                   | Primary Mobile             |
-| `mobile_whatsapp`    | Boolean   | –        | False         | –       | –                   | WhatsApp Available         |
-| `mobile_2`           | String    | Yes      | –             | –       | –                   | Secondary Mobile           |
-| `mobile_2_whatsapp`  | Boolean   | –        | False         | –       | –                   | WhatsApp Available         |
-| `email`              | String    | Yes      | –             | –       | –                   | Branch Email               |
-| `is_production_unit` | Boolean   | –        | False         | –       | –                   | Works as Production Unit   |
-| `is_warehouse`       | Boolean   | –        | False         | –       | –                   | Works as Warehouse         |
-| `is_dispatch_center` | Boolean   | –        | False         | –       | –                   | Dispatch allowed from here |
-| `start_date`         | Timestamp | –        | Current Date  | –       | –                   | Active From                |
-| `end_date`           | Timestamp | Yes      | –             | –       | –                   | Active Till                |
-| `reason_end`         | String    | Yes      | –             | –       | –                   | Reason For Closure         |
-| `regulatory_ids`     | Array Map | Yes      | –             | –       | `RegulatoryID` Map  | IDs                        |
-| `attachments`        | Array Map | Yes      | –             | –       | `Attachment` Map    | Branch Documents           |
-| `stage`              | Map       | –        | –             | –       | `Stage` Map         | Current Stage              |
-| `stage_logs`         | Array Map | Yes      | –             | –       | `Stage` Map         | Workflow History           |
-| `notes`              | Array Map | -        | -             | -       | `Note` Map          | It is an array of Note map |
+| Name                 | Type      | Optional | Default Value | Key     | Reference           | Remarks                                                     |
+| -------------------- | --------- | -------- | ------------- | ------- | ------------------- | ----------------------------------------------------------- |
+| `id`                 | String    | –        | –             | Primary | –                   | Document Id                                                 |
+| `organisation_id`    | String    | –        | –             | Foreign | m_organisation.`id` | Parent Organisation                                         |
+| `organisation_name`  | String    | –        | –             | –       | –                   | Parent Organisation Name                                    |
+| `name`               | String    | –        | –             | Unique  | –                   | Branch Name                                                 |
+| `short_name`         | String    | –        | –             | Unique  | –                   | Branch Short Name                                           |
+| `display_name`       | String    | Yes      | –             | –       | –                   | Display Name                                                |
+| `address`            | Map       | Yes      | –             | –       | `Address` Map       | Branch Address                                              |
+| `mobile`             | String    | Yes      | –             | –       | –                   | Primary Mobile                                              |
+| `mobile_whatsapp`    | Boolean   | –        | False         | –       | –                   | WhatsApp Available                                          |
+| `mobile_2`           | String    | Yes      | –             | –       | –                   | Secondary Mobile                                            |
+| `mobile_2_whatsapp`  | Boolean   | –        | False         | –       | –                   | WhatsApp Available                                          |
+| `email`              | String    | Yes      | –             | –       | –                   | Branch Email                                                |
+| `is_production_unit` | Boolean   | –        | False         | –       | –                   | Works as Production Unit                                    |
+| `is_warehouse`       | Boolean   | –        | False         | –       | –                   | Works as Warehouse                                          |
+| `is_dispatch_center` | Boolean   | –        | False         | –       | –                   | Dispatch allowed from here                                  |
+| `start_date`         | Timestamp | –        | Current Date  | –       | –                   | Active From                                                 |
+| `end_date`           | Timestamp | Yes      | –             | –       | –                   | Active Till                                                 |
+| `reason_end`         | String    | Yes      | –             | –       | –                   | Reason For Closure                                          |
+| `tax_systems`        | Array Map | Yes      | –             | –       | `TaxSystem` Map     | To be copied from Organisation but it may be different also |
+| `regulatory_ids`     | Array Map | Yes      | –             | –       | `RegulatoryID` Map  | IDs                                                         |
+| `attachments`        | Array Map | Yes      | –             | –       | `Attachment` Map    | Branch Documents                                            |
+| `stage`              | Map       | –        | –             | –       | `Stage` Map         | Current Stage                                               |
+| `stage_logs`         | Array Map | Yes      | –             | –       | `Stage` Map         | Workflow History                                            |
+| `notes`              | Array Map | -        | -             | -       | `Note` Map          | It is an array of Note map                                  |

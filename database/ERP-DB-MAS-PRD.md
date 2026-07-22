@@ -80,7 +80,7 @@ Following collections are maintained for Product Master
 | `sales_minimum_order_quantity`    | Double    | -        | 0             | -       |                            |                                                |
 | `sales_maximum_order_quantity`    | Double    | -        | 0             | -       |                            |                                                |
 | `sales_minimum_delivery_days`     | Double    | -        | 0             | -       |                            |                                                |
-| `payment_terms_id`                | String    | Yes      | -             | Foreign | m_payment_terms.`id`       | Default Payment Terms for this product         |
+| `payment_term_id`                 | String    | Yes      | -             | Foreign | m_payment_term.`id`        | Default Payment Terms for this product         |
 | `start_date`                      | Timestamp | –        | –             | –       | –                          |                                                |
 | `end_date`                        | Timestamp | Yes      | –             | –       | –                          |                                                |
 | `reason_end`                      | String    | Yes      | –             | –       | –                          |                                                |

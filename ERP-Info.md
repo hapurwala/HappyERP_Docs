@@ -40,18 +40,18 @@ A separate environment will be created for each client. Separate GCP, separate A
 
 **HappyERP** contains several applications. Normally every application performs tasks related to one particular department of an organisation. These applications are further divided in modules. Main application and modules are given hereunder.
 
-| S.No. | Application     | Short Name | Modules                                                                                                                                               | Description                                                                            |
-| ----- | --------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| 1     | Masters         | MAS        | `PRD`: Product Master<br />`PARTY`: Party Master<br />`EMP`: Employee Master                                                                          | Maintains all masters of the software                                                  |
-| 2     | Sales           | SAL        | `SO` : Sales Order<br />`SINV`: Sales Invoice<br />`SRET`: Sales Return<br />`SIREV`: Sales Invoice Revision                                          | Maintains Sales related operations                                                     |
-| 3     | Purchase        | PUR        | `PO` : Purchase Order<br />`PINV`: Purchase Invoice<br />`PRET`: Purchase Return<br />`PIREV`: Purchase Invoice Revision                              | Maintains Purchase related operations                                                  |
-| 4     | Inventory       | INV        | `GRN`: Material Receive<br />`DISP`: Dispatch Module<br />`TRF`: Stock Transfer<br />`MIMO`: Material In, Material Out                                | Maintains Inventory related operations                                                 |
-| 5     | Accounts        | ACCT       | `RPAY`: Receive Payment<br />`MPAY`: Make Payment<br />`PADJ`: Payment Adjust<br />`DNOTE`: Debit Note<br />`CNOTE`: Credit Note<br />`VCH`: Vouchers |                                                                                        |
-| 6     | Production      | PROD       |                                                                                                                                                       |                                                                                        |
-| 7     | Sub Contracting | JOBW       |                                                                                                                                                       |                                                                                        |
-| 8     | Budgeting       | BUDG       |                                                                                                                                                       |                                                                                        |
-| 9     | Dashboard/MIS   | MIS        |                                                                                                                                                       |                                                                                        |
-| 10    | Configuration   | CFG        | `ORG`: Business<br />`USER`: User Management<br />`SET`: Configuration                                                                                | Maintains Business Settings:<br /> - Organisations <br />- Users<br />- Configurations |
+| S.No. | Application     | Short Name | Modules                                                                                                                                                                   | Description                                                                            |
+| ----- | --------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 1     | Masters         | MAS        | `PRD`: Product Master<br />`PARTY`: Party Master<br />`EMP`: Employee Master                                                                                              | Maintains all masters of the software                                                  |
+| 2     | Sales           | SAL        | `SO` : Sales Order<br />`SINV`: Sales Invoice<br />`SRET`: Sales Return<br />`SIREV`: Sales Invoice Revision                                                              | Maintains Sales related operations                                                     |
+| 3     | Purchase        | PUR        | `PO` : Purchase Order<br />`PINV`: Purchase Invoice<br />`PRET`: Purchase Return<br />`PIREV`: Purchase Invoice Revision                                                  | Maintains Purchase related operations                                                  |
+| 4     | Inventory       | INV        | `GRN`: Material Receive<br />`DISP`: Dispatch Module<br />`TRF`: Stock Transfer<br />`MIMO`: Material In, Material Out                                                    | Maintains Inventory related operations                                                 |
+| 5     | Accounts        | ACCT       | `RPAY`: Receive Payment<br />`MPAY`: Make Payment<br />`PADJ`: Payment Adjust<br />`DNOTE`: Debit Note<br />`CNOTE`: Credit Note<br />`VCH`: Vouchers<br/>`TAX`: Taxation |                                                                                        |
+| 6     | Production      | PROD       |                                                                                                                                                                           |                                                                                        |
+| 7     | Sub Contracting | JOBW       |                                                                                                                                                                           |                                                                                        |
+| 8     | Budgeting       | BUDG       |                                                                                                                                                                           |                                                                                        |
+| 9     | Dashboard/MIS   | MIS        |                                                                                                                                                                           |                                                                                        |
+| 10    | Configuration   | CFG        | `ORG`: Business<br />`USER`: User Management<br />`SET`: Configuration                                                                                                    | Maintains Business Settings:<br /> - Organisations <br />- Users<br />- Configurations |
 
 Although the software will be developed using generic approach but it would serve following industries in the beginning:
 
@@ -79,15 +79,6 @@ A consistent, professional and user friendly interface is the prime requirement 
 * Data entry page
 * Data entry popup
 * Data view page
-
-# Standard Validations
-
-Following is the list of validations that will be applicable on all pages in the software.
-
-| Validation | Characters | Length | Values | Remarks |
-|:---------- |:---------- |:------ |:------ |:------- |
-| Name       | All        | 3-100  | –      |         |
-| Short Name | All        | 1-25   | –      |         |
 
 # General Guidelines
 
@@ -122,7 +113,7 @@ All `.md` files will be named as : `ERP-<Type>-<App>-<Mod>-<Topic>.md`, where
   - `DES`: This document contains **design** related information of the module and its features
   - `UI`: This document contains **UI** details of the module and its features
   - `DB`: This document contains **DB** details like schema, indexes, triggers etc.
-  - `MD`: This document contains **meta data** that is shipped in-built with the software.
+  - `SD`: This document contains **system data** that is shipped in-built with the software.
 - ***App*** is the short name of the application e.g. `PUR` for Purchase. If any file is related to multiple applications or all application, use the code `GEN`.
 - ***Mod** (optional)* is the short name of the module under any application. If the file contains information for more than one modules of an Application then this part may be omitted from the filename.
 - ***Topic** (optional)* indicates additional information about the content of this file.

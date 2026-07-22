@@ -79,19 +79,31 @@ Applicable in case of Employee only
 
 Applicable in case of Customer and Vendor only
 
-| Name                                    | Type      | Optional | Default Value | Key     | Reference           | Remarks                          |
-|:--------------------------------------- |:--------- |:-------- |:------------- |:------- |:------------------- |:-------------------------------- |
-| `party_data`                            | Map       | Yes      | –             | –       | –                   | Applicable for Customer / Vendor |
-| party_data.`customer_type`              | String    | Yes      | –             | Foreign | m_party_type.`id`   |                                  |
-| party_data.`vendor_type`                | String    | Yes      | –             | Foreign | m_party_type.`id`   |                                  |
-| party_data.`contact_person`             | String    | Yes      | –             | –       |                     |                                  |
-| party_data.`parent_party_id`            | String    | Yes      | –             | Foreign | m_party.`id`        |                                  |
-| party_data.`credit_limit`               | Int64     | Yes      | –             | –       | –                   |                                  |
-| party_data.`organisations`              | Array Map | Yes      | –             | –       | –                   |                                  |
-| party_data.organisations[].`id`         | String    | –        | –             | Foreign | m_organisation.`id` |                                  |
-| party_data.organisations[].`start_date` | Timestamp | –        | –             | –       | –                   |                                  |
-| party_data.organisations[].`end_date`   | Timestamp | Yes      | –             | –       | –                   |                                  |
-| party_data.organisations[].`reason_end` | String    | Yes      | –             | –       | –                   |                                  |
+| Name                                      | Type      | Optional | Default Value | Key     | Reference           | Remarks                          |
+|:----------------------------------------- |:--------- |:-------- |:------------- |:------- |:------------------- |:-------------------------------- |
+| `party_data`                              | Map       | Yes      | –             | –       | –                   | Applicable for Customer / Vendor |
+| party_data.`customer_type`                | String    | Yes      | –             | Foreign | m_party_type.`id`   |                                  |
+| party_data.`vendor_type`                  | String    | Yes      | –             | Foreign | m_party_type.`id`   |                                  |
+| party_data.`contact_person`               | String    | Yes      | –             | –       |                     |                                  |
+| party_data.`parent_party_id`              | String    | Yes      | –             | Foreign | m_party.`id`        |                                  |
+| party_data.`preferred_transport`          | String    | Yes      | –             | -       | -                   |                                  |
+| party_data.`agent_party_id`               | String    | Yes      | –             | Foreign | m_party.`id`        | Agent linked to this party       |
+| party_data.`credit_limit`                 | Int64     | Yes      | –             | –       | –                   |                                  |
+| party_data.`payment_term_id`              | String    | Yes      | –             | Foreign | m_payment_term.`id` | Applicable Payment Term          |
+| party_data.`currency_id`           | String    | Yes      | –             | Foreign | m_currency.`id`  | Currency used by Party              |
+| party_data.`currency_short_name`   | String    | Yes      | –             | –       | –                | Currency Short Name   |
+| party_data.`organisations`                | Array Map | Yes      | –             | –       | –                   |                                  |
+| party_data.organisations[].`id`           | String    | –        | –             | Foreign | m_organisation.`id` |                                  |
+| party_data.organisations[].`name`         | String    | –        | –             | -       | -                   |                                  |
+| party_data.organisations[].`start_date`   | Timestamp | –        | –             | –       | –                   |                                  |
+| party_data.organisations[].`end_date`     | Timestamp | Yes      | –             | –       | –                   |                                  |
+| party_data.organisations[].`reason_end`   | String    | Yes      | –             | –       | –                   |                                  |
+| party_data.`account_manager`              | Array Map | Yes      | –             | –       | –                   |                                  |
+| party_data.account_manager[].`id`         | String    | –        | –             | Foreign | m_party.`id`        |                                  |
+| party_data.account_manager[].`name`       | String    | –        | –             | -       | -                   |                                  |
+| party_data.account_manager[].`start_date` | Timestamp | –        | –             | –       | –                   |                                  |
+| party_data.account_manager[].`end_date`   | Timestamp | Yes      | –             | –       | –                   |                                  |
+| party_data.account_manager[].`reason_end` | String    | Yes      | –             | –       | –                   |                                  |
 
 ### Login Information
 

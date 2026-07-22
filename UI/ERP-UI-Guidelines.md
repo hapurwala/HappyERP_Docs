@@ -184,3 +184,44 @@ Filter panel will be shown as a drawer, if set to True. This Panel would consist
 | Name                        | Component        | Depends On                                                     | Possible Values                                                                                                                      | Default Values                                                                                 | Output                                                                                               | Required                                       | Tooltip                                                  |
 | --------------------------- | ---------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------- |
 | *Label given for the field* | *Component used* | *If this fields depends on another column, give its name here* | *Values / Validations for the component:<br/><br/>**Select**: LoV or Query<br/>**Number**: Min/Max Value<br/>**Date**: Min/Max Date* | *Initial value to be entered in this field. This vaue will also be set again on Reset Filter.* | *This gives the return value based on user selection. This vakue is used in the query to fetch data* | *Is it mandatory for user to fill this field?* | *Tooltip to be shown to the user on hover on this field* |
+
+# Common Validations
+
+Several validations are applied on controls on UI pages. This section lists some common validations that are applicable on similar control on various pages. We have given a name to each of these common validations. We use these names in the UI pages under Validation column in order to give all details every where.
+
+## Text Fields
+
+| Validation Name | Allowed Characters                | Regular Expression                                   | Length   | Values | Format | Error Message |
+| --------------- | --------------------------------- | ---------------------------------------------------- | -------- | ------ | ------ | ------------- |
+| v_Name          | All                               |                                                      | 3 - 100  | -      | -      | -             |
+| v_Code          | All                               |                                                      | 2 - 25   | -      | -      | -             |
+| v_Description   | All                               |                                                      | 0 - 1000 | -      | -      | -             |
+| v_Remarks       | All                               |                                                      | 0 - 500  | -      | -      | -             |
+| v_Mobile        | Numeric                           | `^\+[1-9]\d{1,14}$`                                  | 3 - 15   | -      | -      | -             |
+| v_Email         | Alphanumeric + Special Characters | `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$` | 5 - 100  | -      | -      | -             |
+| v_URL           | Alphanumeric + Special Characters | `^https?:\/\/.+$`                                    | 3 - 100  | -      | -      | -             |
+
+## Date Fields
+
+| Validation Name | Allowed Characters | Regular Expression | Length | Values   | Format | Error Message |
+| --------------- | ------------------ | ------------------ | ------ | -------- | ------ | ------------- |
+| v_FutureDate    | -                  | -                  | -      | >= Today | -      | -             |
+| v_PastDate      | -                  | -                  | -      | <= Today | -      | -             |
+
+## Number Fields
+
+| Validation Name | Allowed Characters | Regular Expression | Length | Values | Format                  | Error Message |
+| --------------- | ------------------ | ------------------ | ------ | ------ | ----------------------- | ------------- |
+| v_Integer       | Numbers            |                    | -      | -      | 0                       | -             |
+| v_Decimal       | Numbers, Dot       |                    | -      | -      | 0.00                    | -             |
+| v_Amount        | Numbers, Dot       |                    | -      | -      | As per currency or 0.00 | -             |
+| v_Count         | Numbers            |                    | -      | -      | 0                       | -             |
+| v_Quantity      | Numbers, Dot       |                    | -      | -      | As per UoM or 0.000     | -             |
+| v_Percent       | Number, Dot        |                    | -      | -      | 0.00                    | -             |
+
+## Attachments
+
+| Validation Name | Allowed Characters | Regular Expression | Length | Values | Format | Error Message |
+| --------------- | ------------------ | ------------------ | ------ | ------ | ------ | ------------- |
+| v_Image         | -                  | -                  | 2 MB   | -      | -      | -             |
+| v_Doc           | -                  |                    | 2 MB   | -      | -      | -             |
